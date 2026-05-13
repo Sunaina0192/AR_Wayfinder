@@ -1,0 +1,14 @@
+import mongoose from 'mongoose'
+
+const navigationHistorySchema = new mongoose.Schema(
+  {
+    destinationId: { type: String, required: true, index: true },
+    name: { type: String, required: true },
+  },
+  {
+    timestamps: true,
+  }
+)
+
+const NavigationHistory = mongoose.model('NavigationHistory', navigationHistorySchema)
+export default NavigationHistory
