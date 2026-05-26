@@ -15,7 +15,7 @@ const Gallery = () => {
 
   const allImages = useMemo(() => {
     return [
-      // Campus Life
+      // Campus Life (12 images)
       {
         id: 'campus-1',
         src: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
@@ -72,8 +72,36 @@ const Gallery = () => {
         title: 'Group Workshop Session',
         description: 'Interdisciplinary teamwork on innovative project prototyping.'
       },
+      {
+        id: 'campus-9',
+        src: 'https://images.unsplash.com/photo-1525921429624-479b6c29454f?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Academic Block Greenery',
+        description: 'Serene landscape surrounding the central academic infrastructure.'
+      },
+      {
+        id: 'campus-10',
+        src: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Research Study Desk',
+        description: 'Quiet learning spaces inside the campus library for student research.'
+      },
+      {
+        id: 'campus-11',
+        src: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Student Discussion Circle',
+        description: 'Active peer discussions and student collaboration in-between lectures.'
+      },
+      {
+        id: 'campus-12',
+        src: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Interactive Guest Seminar',
+        description: 'Industry experts sharing insight and professional advice with students.'
+      },
 
-      // Agriculture
+      // Agriculture (12 images)
       {
         id: 'agr-1',
         src: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
@@ -116,8 +144,50 @@ const Gallery = () => {
         title: 'Smart Farming Mechanization',
         description: 'Demonstrations of modern equipment and precision machinery.'
       },
+      {
+        id: 'agr-7',
+        src: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Horticulture & Herb Culture',
+        description: 'Cultivation and nursery management studies for medicinal herbs.'
+      },
+      {
+        id: 'agr-8',
+        src: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Crop Inspection Research',
+        description: 'On-site study of plant leaf structures and photosynthesis metrics.'
+      },
+      {
+        id: 'agr-9',
+        src: 'https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Germination Field Trials',
+        description: 'Observing the earliest stages of crop growth under varying climates.'
+      },
+      {
+        id: 'agr-10',
+        src: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Drip Irrigation Infrastructure',
+        description: 'Smart watering networks saving up to 60% water in dry climates.'
+      },
+      {
+        id: 'agr-11',
+        src: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Agricultural Biotechnology',
+        description: 'Genetic studies in plant cell lines to promote drought tolerance.'
+      },
+      {
+        id: 'agr-12',
+        src: 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Hydroponics & Aquaponics',
+        description: 'Soil-less cultivation techniques designed for vertical farming layouts.'
+      },
 
-      // Law
+      // Law (12 images)
       {
         id: 'law-1',
         src: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
@@ -152,6 +222,55 @@ const Gallery = () => {
         category: 'law',
         title: 'Judicial Services Training',
         description: 'Focused preparation sessions for civil judge and judicial exams.'
+      },
+      {
+        id: 'law-6',
+        src: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Legal Advice Mock Session',
+        description: 'Simulated client consultations under faculty guidance.'
+      },
+      {
+        id: 'law-7',
+        src: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Case File Examination',
+        description: 'Students reviewing legal records and historical courtroom precedents.'
+      },
+      {
+        id: 'law-8',
+        src: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Corporate Law Library',
+        description: 'Reference textbooks and treaties covering company law and mergers.'
+      },
+      {
+        id: 'law-9',
+        src: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Legal Research Complex',
+        description: 'A study wing dedicated to research in criminal and civil jurisprudence.'
+      },
+      {
+        id: 'law-10',
+        src: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Legal Advocacy Seminar Room',
+        description: 'Host room for debate rounds, law student meetings, and mock trials.'
+      },
+      {
+        id: 'law-11',
+        src: 'https://images.unsplash.com/photo-1528744580483-19f8a5bc9017?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Contract Drafting Lab',
+        description: 'Hands-on practice drafting legal contracts and partnership agreements.'
+      },
+      {
+        id: 'law-12',
+        src: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Gavel & Courtroom Gavel',
+        description: 'A symbol of courtroom authority and legal decision-making.'
       }
     ];
   }, []);
