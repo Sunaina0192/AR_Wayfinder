@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { ArrowRight, X, User, Lock, LogIn, GraduationCap, ShieldCheck, Users } from 'lucide-react';
@@ -12,7 +12,13 @@ const FrontPage = () => {
   const [passkey, setPasskey] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/home', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleCloseLogin = () => {
     setShowLogin(false);

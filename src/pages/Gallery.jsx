@@ -14,35 +14,146 @@ const Gallery = () => {
   ];
 
   const allImages = useMemo(() => {
-    const images = [];
-    for (let i = 1; i <= 45; i++) {
-      images.push({
-        id: `gen-${i}`,
-        src: `photo-gallery/pic (${i}).jpg`,
+    return [
+      // Campus Life
+      {
+        id: 'campus-1',
+        src: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
         category: 'campus',
-        title: `Campus View ${i}`,
-        description: 'Vibrant moments at SBBSU Campus.'
-      });
-    }
-    for (let i = 1; i <= 25; i++) {
-      images.push({
-        id: `agr-${i}`,
-        src: `photo-gallery/photo_gallery_agr/Agr img${i}.jpg`,
+        title: 'SBBSU Main Administration Block',
+        description: 'The iconic central building housing administrative and academic offices.'
+      },
+      {
+        id: 'campus-2',
+        src: 'https://images.unsplash.com/photo-1541339907198-e08759df9a73?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Annual Convocation Ceremony',
+        description: 'Celebrating the achievements and graduation of our bright students.'
+      },
+      {
+        id: 'campus-3',
+        src: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Engineering Block & Labs',
+        description: 'State-of-the-art laboratory facility for hands-on technical education.'
+      },
+      {
+        id: 'campus-4',
+        src: 'https://images.unsplash.com/photo-1498243691219-5196f1d8ef9c?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Central Library Resource Center',
+        description: 'Vast collection of reference books, journals, and digital study areas.'
+      },
+      {
+        id: 'campus-5',
+        src: 'https://images.unsplash.com/photo-1527891751199-7225231a68dd?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Campus Lawn & Recreation',
+        description: 'Students collaborating and relaxing in the green, eco-friendly campus lawns.'
+      },
+      {
+        id: 'campus-6',
+        src: 'https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Student Plaza Interaction',
+        description: 'A vibrant community space encouraging intellectual and social exchange.'
+      },
+      {
+        id: 'campus-7',
+        src: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Smart Classroom & Seminars',
+        description: 'Equipped with interactive smartboards for technology-enhanced learning.'
+      },
+      {
+        id: 'campus-8',
+        src: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80',
+        category: 'campus',
+        title: 'Group Workshop Session',
+        description: 'Interdisciplinary teamwork on innovative project prototyping.'
+      },
+
+      // Agriculture
+      {
+        id: 'agr-1',
+        src: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
         category: 'agriculture',
-        title: `Agriculture Research ${i}`,
-        description: 'Innovation in Agricultural Sciences at SBBSU.'
-      });
-    }
-    for (let i = 1; i <= 15; i++) {
-      images.push({
-        id: `law-${i}`,
-        src: `photo-gallery/photo_gallery_law/photo-gallery_law (${i}).jpeg`,
+        title: 'Greenhouse Plant Breeding',
+        description: 'Controlled environment agriculture research on hybrid seed varieties.'
+      },
+      {
+        id: 'agr-2',
+        src: 'https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Experimental Crops Field',
+        description: 'Open field trials of organic pest management and high-yield farming.'
+      },
+      {
+        id: 'agr-3',
+        src: 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Soil Science Laboratory',
+        description: 'Analyzing nutrient profiles and soil health to optimize crop rotation.'
+      },
+      {
+        id: 'agr-4',
+        src: 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Plant Pathology Analysis',
+        description: 'Diagnosing agricultural diseases and designing biological countermeasures.'
+      },
+      {
+        id: 'agr-5',
+        src: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Sustainable Agroforestry',
+        description: 'Integrating crops and forestry models to prevent soil erosion.'
+      },
+      {
+        id: 'agr-6',
+        src: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=800&q=80',
+        category: 'agriculture',
+        title: 'Smart Farming Mechanization',
+        description: 'Demonstrations of modern equipment and precision machinery.'
+      },
+
+      // Law
+      {
+        id: 'law-1',
+        src: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
         category: 'law',
-        title: `Legal Training ${i}`,
-        description: 'Moot courts and legal seminars at SBBSU.'
-      });
-    }
-    return images;
+        title: 'Moot Court Hall',
+        description: 'Simulating courtroom trials to develop litigation and advocacy skills.'
+      },
+      {
+        id: 'law-2',
+        src: 'https://images.unsplash.com/photo-1453733190148-c44698c26588?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Legal Aid & Library',
+        description: 'Accessing law reports, case studies, and preparing legal briefs.'
+      },
+      {
+        id: 'law-3',
+        src: 'https://images.unsplash.com/photo-1505664194779-8bebcb95c539?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Constitutional Law Seminar',
+        description: 'Panel discussion by legal scholars on recent judicial judgments.'
+      },
+      {
+        id: 'law-4',
+        src: 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Client Counseling Workshop',
+        description: 'Practical training on client interviewing and legal consulting ethics.'
+      },
+      {
+        id: 'law-5',
+        src: 'https://images.unsplash.com/photo-1479142506502-19b3a3b7ff33?auto=format&fit=crop&w=800&q=80',
+        category: 'law',
+        title: 'Judicial Services Training',
+        description: 'Focused preparation sessions for civil judge and judicial exams.'
+      }
+    ];
   }, []);
 
   const filteredImages = allImages.filter(img => {
