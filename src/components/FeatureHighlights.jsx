@@ -24,18 +24,31 @@ const features = [
   },
 ]
 
-const FeatureHighlights = () => {
+const FeatureHighlights = ({ isDarkMode }) => {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
       {features.map((feature) => {
         const Icon = feature.icon
         return (
-          <div key={feature.title} className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-            <div className="mb-5 inline-flex items-center justify-center rounded-3xl bg-blue-50 p-4 text-blue-600">
+          <div 
+            key={feature.title} 
+            className={`rounded-[2rem] p-7 transition-all duration-500 transform hover:-translate-y-2 border ${
+              isDarkMode 
+                ? 'bg-white/5 border-white/10 hover:bg-white/10 shadow-2xl' 
+                : 'bg-white border-white shadow-xl shadow-slate-200/40 hover:shadow-2xl'
+            }`}
+          >
+            <div className={`mb-6 inline-flex items-center justify-center rounded-2xl p-4 transition-colors ${
+              isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-50 text-blue-600'
+            }`}>
               <Icon className="w-6 h-6" />
             </div>
-            <h4 className="text-xl font-semibold text-slate-900 mb-2">{feature.title}</h4>
-            <p className="text-sm text-slate-500 leading-6">{feature.description}</p>
+            <h4 className={`text-lg font-black mb-3 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              {feature.title}
+            </h4>
+            <p className={`text-xs font-medium leading-relaxed ${isDarkMode ? 'text-slate-500' : 'text-slate-500'}`}>
+              {feature.description}
+            </p>
           </div>
         )
       })}

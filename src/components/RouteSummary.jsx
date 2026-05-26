@@ -1,55 +1,63 @@
 import React from 'react'
-import { Clock3, MapPin } from 'lucide-react'
+import { Clock3, MapPin, Navigation } from 'lucide-react'
 import { getLocationById } from '../data/locations'
 
-const RouteSummary = ({ selectedLocation, distance, stepCount }) => {
+const RouteSummary = ({ selectedLocation, distance, stepCount, isDarkMode }) => {
   const location = selectedLocation ? getLocationById(selectedLocation) : null
-  const estimatedTime = selectedLocation ? Math.max(3, Math.round(distance / 45)) : 0
+  const estimatedTime = selectedLocation ? Math.max(1, Math.round(distance / 50)) : 0
 
   return (
-    <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-7 h-full flex flex-col justify-between">
+    <div className={`rounded-[2.5rem] transition-all duration-500 p-8 h-full flex flex-col justify-between border ${
+      isDarkMode 
+        ? 'bg-white/5 border-white/10 shadow-2xl' 
+        : 'bg-white border-white shadow-xl shadow-slate-200/50'
+    }`}>
       <div>
-        <div className="flex items-center gap-3 mb-5">
-          <div className="p-3 rounded-3xl bg-blue-100 text-blue-600">
-            <MapPin className="w-5 h-5" />
+        <div className="flex items-center gap-4 mb-8">
+          <div className="p-4 rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20">
+            <Navigation className="w-6 h-6 fill-current" />
           </div>
           <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Route summary</p>
-            <h3 className="text-2xl font-bold text-slate-900">Destination overview</h3>
+            <p className={`text-[10px] uppercase tracking-[0.2em] font-black ${isDarkMode ? 'text-blue-400' : 'text-slate-400'}`}>
+              Path Intel
+            </p>
+            <h3 className={`text-xl font-black ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              Route Details
+            </h3>
           </div>
         </div>
 
         {selectedLocation ? (
-          <div className="space-y-5">
-            <div>
-              <p className="text-sm text-slate-500">Destination</p>
-              <p className="text-xl font-semibold text-slate-900">{location?.name}</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-white/5 border border-white/5' : 'bg-slate-50'}`}>
+              <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>ETA</p>
+              <p className="text-xl font-black">{estimatedTime} min</p>
             </div>
-            <div>
-              <p className="text-sm text-slate-500">Distance</p>
-              <p className="text-xl font-semibold text-slate-900">{distance} meters</p>
+            <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-white/5 border border-white/5' : 'bg-slate-50'}`}>
+              <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Distance</p>
+              <p className="text-xl font-black">{distance}m</p>
             </div>
-            <div>
-              <p className="text-sm text-slate-500">Estimated time</p>
-              <p className="text-xl font-semibold text-slate-900">{estimatedTime} min</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Route steps</p>
-              <p className="text-xl font-semibold text-slate-900">{stepCount || 0} stops</p>
+            <div className={`p-5 rounded-2xl col-span-2 ${isDarkMode ? 'bg-white/5 border border-white/5' : 'bg-slate-50'}`}>
+              <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Destination</p>
+              <p className="text-lg font-black truncate">{location?.name}</p>
             </div>
           </div>
         ) : (
-          <div className="rounded-3xl bg-slate-50 p-5 text-slate-600">
-            <p className="text-base font-medium">Choose a destination to preview your AR route details.</p>
+          <div className={`rounded-3xl p-6 text-center border-2 border-dashed ${isDarkMode ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-slate-50 border-slate-100 text-slate-400'}`}>
+            <p className="text-sm font-bold">Choose a point to analyze route</p>
           </div>
         )}
       </div>
 
-      <div className="mt-7 rounded-3xl bg-slate-50 p-5">
-        <div className="flex items-center gap-3 text-slate-600">
-          <Clock3 className="w-4 h-4" />
-          <span className="text-sm">Real-time direction updates, AR-ready path preview.</span>
-        </div>
+      <div className={`mt-8 rounded-2xl p-5 border flex items-center gap-4 ${
+        isDarkMode 
+          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+          : 'bg-emerald-50 border-emerald-100 text-emerald-700'
+      }`}>
+        <Clock3 className="w-5 h-5 shrink-0" />
+        <p className="text-xs font-bold leading-tight">
+          AR paths are optimized for walking. GPS precision: ±5m.
+        </p>
       </div>
     </div>
   )

@@ -1,148 +1,69 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
-const Header = () => {
-
-  const linkGroups = [
-    ['NAAC Visit', 'Online DMC/Degree', 'NIRF'],
-    ['Other Fee Payment', 'IQAC', 'SBBSU Alumni'],
-    ['NAD Cell', 'Job Vacancies']
-  ];
+const Header = ({ onStartClick }) => {
 
   return (
 
-    <header className="bg-gradient-to-br from-dark via-primary to-secondary text-white border-b border-accent/20 overflow-hidden relative">
+    <header className="bg-dark border-b border-white/5 overflow-hidden relative">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-dark via-primary/50 to-dark opacity-80"></div>
+      
+      {/* Animated Glow Elements */}
+      <div className="absolute top-[-50%] left-[-10%] w-[60%] h-[150%] bg-accent/10 blur-[100px] rounded-full animate-pulse-slow"></div>
+      <div className="absolute bottom-[-50%] right-[-10%] w-[60%] h-[150%] bg-secondary/10 blur-[100px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
 
-      {/* Background Glow */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-accent/10 blur-3xl rounded-full"></div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10 relative z-10">
+        <div className="flex flex-col xl:flex-row justify-between items-center gap-8 md:gap-12">
 
-      <div className="absolute bottom-0 right-0 w-72 h-72 bg-highlight/10 blur-3xl rounded-full"></div>
+          {/* LEFT: Logo & Branding */}
+          <div className="flex flex-col sm:flex-row items-center gap-8 text-center sm:text-left">
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12 py-8">
-        <div className="relative z-10 flex flex-col xl:flex-row justify-between items-center gap-10">
-
-          {/* LEFT */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-
-            {/* Logo */}
-            <div className="bg-white/5 border border-white/10 backdrop-blur-xl p-4 rounded-3xl shadow-2xl hover:scale-105 transition-all duration-300 shrink-0">
-
-              <img
-                src="https://tse4.mm.bing.net/th/id/OIP.CFPv_z6BL9jQYhCuuqtsBQAAAA?r=0&cb=thfvnext&rs=1&pid=ImgDetMain&o=7&rm=3"
-                alt="SBBSU Logo"
-                className="h-20 object-contain"
-              />
+            {/* Logo Container */}
+            <div className="relative group">
+              <div className="absolute inset-0 bg-accent/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="bg-white/5 border border-white/10 backdrop-blur-2xl p-4 rounded-[2rem] shadow-2xl hover:scale-105 transition-all duration-500 shrink-0 relative z-10">
+                <img
+                  src="https://tse4.mm.bing.net/th/id/OIP.CFPv_z6BL9jQYhCuuqtsBQAAAA?r=0&cb=thfvnext&rs=1&pid=ImgDetMain&o=7&rm=3"
+                  alt="SBBSU Logo"
+                  className="h-20 object-contain brightness-110"
+                />
+              </div>
             </div>
 
-            {/* Text */}
+            {/* Text Branding */}
             <div className="flex flex-col items-center sm:items-start">
-
-              <h1 className="text-2xl md:text-4xl font-black leading-none tracking-tight">
+              <h1 className="text-3xl md:text-5xl font-black leading-tight tracking-tighter">
                 <span className="text-white">SANT BABA</span>{' '}
-                <span className="text-accent">BHAG SINGH</span>
+                <span className="text-accent drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]">BHAG SINGH</span>
               </h1>
 
-              <h2 className="text-xl md:text-3xl font-bold mt-2 text-soft">
+              <h2 className="text-2xl md:text-3xl font-bold mt-1 text-slate-400 tracking-wide uppercase">
                 UNIVERSITY
               </h2>
 
-              <p className="text-[10px] uppercase tracking-[0.3em] mt-3 text-gray-400">
-                Established vide Punjab Govt. Act No. 6 of 2015
-              </p>
-
-              <div className="mt-4 h-[4px] w-full max-w-[400px] rounded-full bg-gradient-to-r from-accent to-highlight"></div>
-            </div>
-
-            {/* NAAC Logo */}
-            <div className="hidden md:flex hover:scale-105 transition-all duration-300 shrink-0 ml-2 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-4 shadow-2xl">
-              <img
-                src="https://tse1.mm.bing.net/th/id/OIP.-Yov1hPq-vfLkjP2VR_LQgHaE6?r=0&cb=thfvnext&rs=1&pid=ImgDetMain&o=7&rm=3"
-                alt="NAAC Accredited Logo"
-                className="h-16 object-contain mix-blend-multiply"
-              />
+              <div className="flex items-center gap-3 mt-4">
+                <div className="h-[2px] w-12 bg-gradient-to-r from-accent to-transparent"></div>
+                <p className="text-[10px] md:text-xs uppercase font-bold tracking-[0.4em] text-accent/80">
+                  Established vide Punjab Govt. Act No. 6 of 2015
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* RIGHT */}
-          <div className="flex flex-col lg:flex-row items-center gap-8 w-full xl:w-auto">
-
-            {/* Links */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-
-              {linkGroups.map((group, idx) => (
-
-                <div key={idx} className="flex flex-col gap-3">
-
-                  {group.map((link) => (
-
-                    <button
-                      key={link}
-                      className="
-                      px-4 py-2
-                      rounded-2xl
-                      bg-white/5
-                      border border-accent/20
-                      backdrop-blur-xl
-                      text-soft
-                      text-[11px]
-                      font-semibold
-                      hover:bg-accent
-                      hover:text-dark
-                      hover:-translate-y-1
-                      hover:shadow-[0_0_25px_rgba(15,164,175,0.7)]
-                      transition-all duration-300
-                      "
-                    >
-                      {link}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            {/* Search */}
-            <div className="relative group w-full sm:w-80">
-
-              <input
-                type="text"
-                placeholder="Search resources..."
-                className="
-                w-full
-                py-3
-                pl-5
-                pr-16
-                rounded-2xl
-                bg-white/5
-                border border-accent/20
-                backdrop-blur-xl
-                text-white
-                placeholder:text-gray-400
-                focus:outline-none
-                focus:ring-2
-                focus:ring-accent
-                transition-all duration-300
-                "
-              />
-
-              <button
-                className="
-                absolute
-                top-1.5
-                right-1.5
-                bottom-1.5
-                px-5
-                rounded-xl
-                bg-gradient-to-r
-                from-accent
-                to-secondary
-                hover:shadow-[0_0_30px_rgba(15,164,175,0.8)]
-                transition-all duration-300
-                "
+          {/* RIGHT: Start Now Button */}
+          {onStartClick && (
+            <div className="flex items-center">
+              <button 
+                onClick={onStartClick}
+                className="group relative px-8 py-4 rounded-2xl bg-accent text-dark font-black uppercase tracking-[0.2em] text-sm hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] flex items-center gap-3 overflow-hidden"
               >
-                <Search className="w-5 h-5 text-white" />
+                <div className="absolute inset-0 w-full h-full bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+                <span className="relative z-10">Start Now</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform relative z-10" />
               </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </header>

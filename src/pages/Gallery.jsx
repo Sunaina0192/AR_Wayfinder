@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Camera, Image as ImageIcon, Filter, Search, X, Maximize2, Download, Share2, ChevronRight, LayoutGrid } from 'lucide-react';
+import { Camera, Image as ImageIcon, Filter, Search, X, Maximize2, Download, Share2, ChevronRight, LayoutGrid, Globe } from 'lucide-react';
 
 const Gallery = () => {
   const [activeTab, setActiveTab] = useState('all');
@@ -13,11 +13,8 @@ const Gallery = () => {
     { id: 'law', label: 'Legal Studies', icon: ImageIcon }
   ];
 
-  // Generate image data based on the provided HTML structure
   const allImages = useMemo(() => {
     const images = [];
-
-    // General Images (1-45)
     for (let i = 1; i <= 45; i++) {
       images.push({
         id: `gen-${i}`,
@@ -27,8 +24,6 @@ const Gallery = () => {
         description: 'Vibrant moments at SBBSU Campus.'
       });
     }
-
-    // Agriculture Images (1-25)
     for (let i = 1; i <= 25; i++) {
       images.push({
         id: `agr-${i}`,
@@ -38,8 +33,6 @@ const Gallery = () => {
         description: 'Innovation in Agricultural Sciences at SBBSU.'
       });
     }
-
-    // Law Images (1-15)
     for (let i = 1; i <= 15; i++) {
       images.push({
         id: `law-${i}`,
@@ -49,7 +42,6 @@ const Gallery = () => {
         description: 'Moot courts and legal seminars at SBBSU.'
       });
     }
-
     return images;
   }, []);
 
@@ -61,188 +53,189 @@ const Gallery = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 relative overflow-hidden flex flex-col items-center px-4 sm:px-6 lg:px-8">
-      <div className="w-full pt-24 pb-20 flex-grow flex flex-col items-center justify-center relative z-10 animate-[fade-in_0.8s_ease-out]">
-      {/* Background Ambience */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-blue-600/5 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-accent/5 rounded-full blur-[120px]"></div>
-      </div>
+    <div className="min-h-screen bg-dark text-white pt-24 pb-20 selection:bg-accent/30 selection:text-white">
+      {/* Hero Section */}
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        {/* Dynamic Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] bg-accent/10 rounded-full blur-[150px] animate-pulse-slow"></div>
+          <div className="absolute bottom-[-10%] left-[-5%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[150px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        </div>
 
-      <div className="max-w-7xl w-full px-4 relative z-10 flex flex-col items-center text-center">
-        {/* Header Section */}
-        <div className="flex flex-col items-center justify-center gap-8 mb-16 animate-[fade-in_0.8s_ease-out] w-full">
-          <div className="space-y-4 max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-widest mx-auto">
-              <Camera className="w-3 h-3" />
-              Visual Journey
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none">
-              PHOTO <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-accent">GALLERY</span>
-            </h1>
-            <p className="text-slate-400 font-medium">
-              Explore the vibrant life, cutting-edge facilities, and memorable events at Sant Baba Bhag Singh University.
-            </p>
+        {/* Hero Content */}
+        <div className="relative z-10 text-center px-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-8 animate-float">
+            <Camera className="w-4 h-4 text-accent" />
+            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-accent">Visual Journey</span>
           </div>
+          <h1 className="text-6xl md:text-9xl font-black text-white mb-8 tracking-tighter uppercase leading-none">
+            Photo <span className="text-accent">Gallery</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto font-medium leading-relaxed">
+            Explore the vibrant life, cutting-edge facilities, and memorable events at Sant Baba Bhag Singh University through our digital lens.
+          </p>
+        </div>
+      </section>
 
-          {/* Search Bar */}
-          <div className="relative group w-full max-w-md mx-auto">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-slate-500 group-focus-within:text-accent transition-colors" />
+      {/* Main Content */}
+      <section className="relative z-10 -mt-20 px-6">
+        <div className="max-w-7xl mx-auto space-y-12">
+          {/* Controls Section */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white/5 backdrop-blur-2xl border border-white/5 p-8 rounded-[3rem] shadow-2xl">
+            <div className="flex flex-wrap gap-3">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-500 ${
+                    activeTab === cat.id 
+                      ? 'bg-accent text-dark shadow-xl shadow-accent/20' 
+                      : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <cat.icon className={`w-4 h-4 ${activeTab === cat.id ? 'scale-110' : ''}`} />
+                  {cat.label}
+                </button>
+              ))}
             </div>
-            <input 
-              type="text"
-              placeholder="Search memories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900/40 backdrop-blur-xl border border-slate-800 rounded-2xl pl-12 pr-4 py-4 outline-none focus:border-accent/50 focus:ring-4 focus:ring-accent/5 transition-all text-white font-medium text-center"
-            />
-          </div>
-        </div>
 
-        {/* Categories Tab */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-12 animate-[fade-in_1s_ease-out] w-full">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveTab(cat.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 border ${
-                activeTab === cat.id 
-                  ? 'bg-accent text-slate-950 border-accent shadow-[0_0_20px_rgba(34,211,238,0.3)]' 
-                  : 'bg-slate-900/40 text-slate-400 border-slate-800 hover:border-slate-600 hover:text-white'
-              }`}
-            >
-              <cat.icon className="w-4 h-4" />
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="w-full text-xs font-bold text-slate-500 uppercase tracking-widest mb-12 border-t border-slate-800/50 pt-8 text-center">
-          Showing {filteredImages.length} Artifacts
-        </div>
-
-        {/* Image Grid */}
-        <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 place-items-center animate-[fade-in_1s_ease-out]">
-          {filteredImages.map((img) => (
-            <div 
-              key={img.id}
-              onClick={() => setSelectedImage(img)}
-              className="group relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden bg-slate-900 border border-slate-800 cursor-pointer shadow-xl hover:shadow-accent/5 transition-all duration-500"
-            >
-              <img 
-                src={img.src} 
-                alt={img.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
-                loading="lazy"
-                onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08759df9a73?q=80&w=2070&auto=format&fit=crop';
-                  e.target.className = 'w-full h-full object-cover opacity-50 grayscale';
-                }}
+            <div className="relative group w-full max-w-sm">
+              <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                <Search className="w-4 h-4 text-slate-500 group-focus-within:text-accent transition-colors" />
+              </div>
+              <input 
+                type="text"
+                placeholder="Search memories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-4 outline-none focus:border-accent/50 transition-all text-white font-medium text-sm"
               />
-              
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300 space-y-2">
-                  <span className="inline-block px-2 py-0.5 rounded-md bg-accent/20 text-accent text-[10px] font-black uppercase tracking-widest border border-accent/20">
-                    {img.category}
-                  </span>
-                  <h3 className="text-white font-black text-lg leading-tight uppercase tracking-tight">{img.title}</h3>
-                  <div className="flex items-center justify-between pt-2">
-                    <button className="text-accent hover:text-white transition-colors">
-                      <Maximize2 className="w-5 h-5" />
-                    </button>
-                    <div className="flex gap-3">
-                      <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-accent hover:text-slate-950 transition-all">
-                        <Share2 className="w-4 h-4" />
-                      </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between px-6">
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
+              Showing {filteredImages.length} Visual Assets
+            </div>
+            <div className="flex gap-1">
+              <div className="w-8 h-1 bg-accent rounded-full"></div>
+              <div className="w-4 h-1 bg-white/10 rounded-full"></div>
+              <div className="w-2 h-1 bg-white/10 rounded-full"></div>
+            </div>
+          </div>
+
+          {/* Image Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredImages.map((img) => (
+              <div 
+                key={img.id}
+                onClick={() => setSelectedImage(img)}
+                className="group relative aspect-[4/3] rounded-[2.5rem] overflow-hidden glass border-white/5 cursor-pointer transition-all duration-700 hover:scale-[1.02] hover:z-10 shadow-xl"
+              >
+                <img 
+                  src={img.src} 
+                  alt={img.title}
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08759df9a73?q=80&w=2070&auto=format&fit=crop';
+                  }}
+                />
+                
+                {/* Premium Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
+                  <div className="translate-y-8 group-hover:translate-y-0 transition-transform duration-500 space-y-3">
+                    <span className="inline-block px-3 py-1 rounded-full bg-accent/20 backdrop-blur-md text-accent text-[9px] font-black uppercase tracking-widest border border-accent/20">
+                      {img.category}
+                    </span>
+                    <h3 className="text-white font-black text-xl uppercase tracking-tighter leading-tight">{img.title}</h3>
+                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md">
+                        <Maximize2 className="w-4 h-4" />
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-dark shadow-lg shadow-accent/20">
+                        <Download className="w-4 h-4" />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredImages.length === 0 && (
-          <div className="py-32 text-center space-y-6">
-            <div className="w-20 h-20 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto">
-              <X className="w-8 h-8 text-slate-700" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black text-white uppercase tracking-tight">No visuals found</h2>
-              <p className="text-slate-500 font-medium">Try adjusting your filters or search query.</p>
-            </div>
-            <button 
-              onClick={() => {setActiveTab('all'); setSearchQuery('');}}
-              className="px-6 py-3 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-colors"
-            >
-              Clear All Filters
-            </button>
+            ))}
           </div>
-        )}
-      </div>
+
+          {/* Empty State */}
+          {filteredImages.length === 0 && (
+            <div className="py-40 text-center space-y-8">
+              <div className="w-24 h-24 rounded-[2.5rem] bg-white/5 border border-white/5 flex items-center justify-center mx-auto animate-pulse">
+                <ImageIcon className="w-10 h-10 text-slate-700" />
+              </div>
+              <div className="space-y-3">
+                <h2 className="text-3xl font-black text-white uppercase tracking-tight">No Results Found</h2>
+                <p className="text-slate-500 font-medium">Try adjusting your filters or search keywords.</p>
+              </div>
+              <button 
+                onClick={() => {setActiveTab('all'); setSearchQuery('');}}
+                className="px-10 py-5 rounded-[2rem] bg-accent text-dark font-black uppercase tracking-widest text-xs hover:bg-white hover:scale-105 transition-all shadow-2xl"
+              >
+                Reset Search
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Lightbox Modal */}
       {selectedImage && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 animate-[fade-in_0.3s_ease-out]">
-          <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-2xl" onClick={() => setSelectedImage(null)}></div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12 animate-[fade-in_0.3s_ease-out]">
+          <div className="absolute inset-0 bg-dark/95 backdrop-blur-3xl" onClick={() => setSelectedImage(null)}></div>
           
           <button 
             onClick={() => setSelectedImage(null)}
-            className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all z-10"
+            className="absolute top-8 right-8 w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:rotate-90 transition-all z-10"
           >
             <X className="w-6 h-6" />
           </button>
 
-          <div className="relative max-w-5xl w-full max-h-full flex flex-col items-center gap-8 z-10">
-            <div className="relative group overflow-hidden rounded-[2.5rem] border border-white/10 shadow-2xl">
+          <div className="relative max-w-6xl w-full max-h-full flex flex-col md:flex-row gap-12 z-10 items-center">
+            <div className="relative group overflow-hidden rounded-[3rem] border border-white/10 shadow-3xl bg-dark/50 lg:w-2/3">
               <img 
                 src={selectedImage.src} 
                 alt={selectedImage.title}
-                className="max-h-[70vh] w-auto object-contain"
+                className="max-h-[80vh] w-full object-contain"
                 onError={(e) => {
                   e.target.src = 'https://images.unsplash.com/photo-1541339907198-e08759df9a73?q=80&w=2070&auto=format&fit=crop';
                 }}
               />
             </div>
 
-            <div className="text-center space-y-3 max-w-2xl px-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest mx-auto">
-                {selectedImage.category}
+            <div className="space-y-8 max-w-md w-full px-4 text-center md:text-left">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-widest">
+                  {selectedImage.category}
+                </div>
+                <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none uppercase">
+                  {selectedImage.title}
+                </h2>
+                <p className="text-slate-400 text-lg leading-relaxed font-medium">{selectedImage.description}</p>
               </div>
-              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-none uppercase">
-                {selectedImage.title}
-              </h2>
-              <p className="text-slate-400 font-medium">{selectedImage.description}</p>
               
-              <div className="flex items-center justify-center gap-4 pt-6">
-                <button className="px-8 py-4 rounded-2xl bg-white text-slate-950 font-black text-xs uppercase tracking-widest hover:bg-accent transition-all flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row gap-4 pt-8">
+                <button className="flex-1 px-8 py-5 rounded-[2rem] bg-accent text-dark font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-3 shadow-2xl">
                   <Download className="w-4 h-4" />
-                  Download Asset
+                  Save Image
                 </button>
-                <button className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                <button className="w-full sm:w-16 h-16 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all">
                   <Share2 className="w-5 h-5" />
                 </button>
+              </div>
+              
+              <div className="pt-12 border-t border-white/5">
+                <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.4em]">Official Asset // SBBSU Digital Archive</p>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      {/* Global Animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}} />
-      </div>
     </div>
   );
 };

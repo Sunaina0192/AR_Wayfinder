@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, MapPin, Users } from 'lucide-react';
+import { Calendar, MapPin, Users, ArrowRight, Bell, ChevronRight, LayoutGrid } from 'lucide-react';
 
 const Events = () => {
   const events = [
@@ -9,7 +9,8 @@ const Events = () => {
       time: '10:00 AM',
       location: 'Main Auditorium',
       category: 'Academic',
-      description: 'Degree awarding ceremony for graduating students'
+      description: 'Degree awarding ceremony for graduating students across all faculties.',
+      gradient: 'from-blue-600 to-indigo-600'
     },
     {
       title: 'Tech Summit 2026',
@@ -17,7 +18,8 @@ const Events = () => {
       time: '9:00 AM',
       location: 'Block 5 (UIET)',
       category: 'Workshop',
-      description: 'Latest trends in technology and innovation'
+      description: 'Latest trends in technology, innovation and sustainable development.',
+      gradient: 'from-purple-600 to-blue-600'
     },
     {
       title: 'Sports Festival',
@@ -25,7 +27,8 @@ const Events = () => {
       time: '8:00 AM',
       location: 'Sports Stadium',
       category: 'Sports',
-      description: 'Inter-college sports competitions and events'
+      description: 'Inter-college sports competitions and athletic meets.',
+      gradient: 'from-emerald-600 to-teal-600'
     },
     {
       title: 'Freshers Welcome',
@@ -33,7 +36,8 @@ const Events = () => {
       time: '2:00 PM',
       location: 'Auditorium & Grounds',
       category: 'Social',
-      description: 'Welcome program for new students'
+      description: 'Welcome program and orientation for new students.',
+      gradient: 'from-pink-600 to-rose-600'
     },
     {
       title: 'Innovation Challenge',
@@ -41,7 +45,8 @@ const Events = () => {
       time: '9:00 AM',
       location: 'Workshop Center',
       category: 'Innovation',
-      description: 'Hackathon and innovation competition'
+      description: 'University-wide hackathon and innovative project competition.',
+      gradient: 'from-orange-600 to-amber-600'
     },
     {
       title: 'Cultural Fest',
@@ -49,95 +54,131 @@ const Events = () => {
       time: '5:00 PM',
       location: 'Main Campus Grounds',
       category: 'Cultural',
-      description: 'Music, dance, drama, and cultural performances'
+      description: 'A celebration of music, dance, and creative performances.',
+      gradient: 'from-indigo-600 to-purple-600'
     }
   ];
 
-  const categoryColors = {
-    Academic: 'bg-blue-100 text-blue-800',
-    Workshop: 'bg-purple-100 text-purple-800',
-    Sports: 'bg-green-100 text-green-800',
-    Social: 'bg-pink-100 text-pink-800',
-    Innovation: 'bg-orange-100 text-orange-800',
-    Cultural: 'bg-red-100 text-red-800'
-  };
-
   return (
-    <div className="w-full px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-      {/* Header */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12 md:py-24 flex justify-center w-full">
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <h1 className="text-5xl font-bold mb-4">Campus Events</h1>
-          <p className="text-xl opacity-90">Join us for exciting events throughout the academic year</p>
+    <div className="min-h-screen bg-dark text-white pt-24 pb-20 selection:bg-accent/30 selection:text-white">
+      {/* Hero Section */}
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        {/* Dynamic Background Elements */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute top-[-10%] right-[-5%] w-[60%] h-[60%] bg-accent/10 rounded-full blur-[150px] animate-pulse-slow"></div>
+          <div className="absolute bottom-[-10%] left-[-5%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[150px] animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 text-center px-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-8 animate-float">
+            <Calendar className="w-4 h-4 text-accent" />
+            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-accent">Campus Pulse</span>
+          </div>
+          <h1 className="text-6xl md:text-9xl font-black text-white mb-8 tracking-tighter uppercase leading-none">
+            University <span className="text-accent">Events</span>
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto font-medium leading-relaxed">
+            Join the vibrant community events, academic summits, and cultural festivals at Sant Baba Bhag Singh University.
+          </p>
         </div>
       </section>
 
-      {/* Events List */}
-      <section className="py-12 md:py-24 bg-gray-50 flex justify-center w-full">
-        <div className="max-w-4xl mx-auto px-4 w-full">
-          <div className="space-y-6">
+      {/* Main Content */}
+      <section className="relative z-10 -mt-20 px-6">
+        <div className="max-w-7xl mx-auto space-y-24">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter">Upcoming <span className="text-accent">Timeline</span></h2>
+              <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">Academic Year 2025-2026</p>
+            </div>
+            <button className="px-8 py-4 rounded-2xl glass border-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white hover:border-accent transition-all flex items-center gap-3">
+              <Bell className="w-4 h-4" />
+              Get Notifications
+            </button>
+          </div>
+
+          {/* Events Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {events.map((event, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition transform hover:scale-102"
-              >
-                <div className="flex flex-col md:flex-row">
-                  {/* Date Section */}
-                  <div className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white p-6 md:w-40 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-sm font-semibold opacity-90">📅</div>
-                      <div className="text-2xl font-bold">{event.date.split(' ')[0]}</div>
-                      <div className="text-sm">{event.date.split(' ').slice(1).join(' ')}</div>
-                      <div className="text-xs opacity-75 mt-2">{event.time}</div>
-                    </div>
+              <div key={idx} className="group relative rounded-[3rem] glass border-white/5 overflow-hidden transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl hover:shadow-accent/5 flex flex-col h-full">
+                {/* Visual Header */}
+                <div className={`h-40 bg-gradient-to-br ${event.gradient} p-8 flex flex-col justify-between relative overflow-hidden`}>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                  <div className="flex justify-between items-start relative z-10">
+                    <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[9px] font-black uppercase tracking-widest text-white border border-white/10">
+                      {event.category}
+                    </span>
+                    <Calendar className="w-5 h-5 text-white/50" />
                   </div>
-                  
-                  {/* Event Details */}
-                  <div className="flex-1 p-6">
-                    <div className="flex items-start justify-between mb-4">
+                  <div className="relative z-10">
+                    <p className="text-[10px] font-black text-white/70 uppercase tracking-widest leading-none mb-1">Starts at</p>
+                    <p className="text-lg font-black text-white tracking-tighter">{event.time}</p>
+                  </div>
+                </div>
+
+                {/* Event Info */}
+                <div className="p-8 space-y-6 flex-grow">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-white uppercase tracking-tight leading-tight group-hover:text-accent transition-colors">
+                      {event.title}
+                    </h3>
+                    <p className="text-slate-500 text-sm font-medium leading-relaxed">
+                      {event.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t border-white/5">
+                    <div className="flex items-center gap-4 text-slate-400">
+                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:text-accent transition-colors">
+                        <Calendar className="w-4 h-4" />
+                      </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-gray-800 mb-2">{event.title}</h3>
-                        <p className="text-gray-600">{event.description}</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Date</p>
+                        <p className="text-white font-bold text-sm tracking-tight">{event.date}</p>
                       </div>
-                      <span className={`px-4 py-2 rounded-full text-sm font-semibold ${categoryColors[event.category] || 'bg-gray-100 text-gray-800'}`}>
-                        {event.category}
-                      </span>
                     </div>
-                    
-                    <div className="flex flex-wrap gap-4 text-gray-700">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-blue-600" />
-                        <span>{event.location}</span>
+                    <div className="flex items-center gap-4 text-slate-400">
+                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:text-accent transition-colors">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Location</p>
+                        <p className="text-white font-bold text-sm tracking-tight">{event.location}</p>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Register Button */}
-                  <div className="p-6 flex items-center justify-center md:border-l border-gray-200">
-                    <button className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition transform hover:scale-105">
-                      Register Now
-                    </button>
-                  </div>
+                </div>
+
+                {/* Action Button */}
+                <div className="p-8 pt-0 mt-auto">
+                  <button className="w-full py-5 rounded-[2rem] bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] group-hover:bg-accent group-hover:text-dark group-hover:border-accent transition-all flex items-center justify-center gap-3">
+                    Register Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Newsletter */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex justify-center">
-        <div className="max-w-2xl mx-auto text-center px-4 w-full">
-          <h2 className="text-3xl font-bold mb-4">Don't Miss Any Event</h2>
-          <p className="text-lg mb-6 opacity-90">Subscribe to receive event updates and announcements</p>
-          <div className="flex gap-2">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button className="px-6 py-3 bg-white text-blue-600 font-bold rounded-lg hover:bg-blue-50 transition">
-              Subscribe
+          {/* Past Events Footer */}
+          <div className="pt-24 border-t border-white/5 text-center space-y-8">
+            <h4 className="text-2xl font-black text-white uppercase tracking-tighter">Legacy of Excellence</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { l: "Total Events", v: "450+" },
+                { l: "Participants", v: "12k+" },
+                { l: "Workshops", v: "120+" },
+                { l: "Festivals", v: "24" }
+              ].map((stat, i) => (
+                <div key={i} className="p-6 rounded-3xl glass border-white/5">
+                  <p className="text-3xl font-black text-accent mb-1">{stat.v}</p>
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">{stat.l}</p>
+                </div>
+              ))}
+            </div>
+            <button className="text-[10px] font-black text-accent uppercase tracking-widest flex items-center gap-2 mx-auto hover:text-white transition-colors group">
+              View Archive <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </div>

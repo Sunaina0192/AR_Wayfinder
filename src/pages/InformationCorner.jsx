@@ -5,9 +5,11 @@ import {
   ShieldCheck, GraduationCap, FileCheck, Calculator, FileWarning, 
   ClipboardList, Info, ChevronRight, Send, Shield, User, Trash2, Clock
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const InformationCorner = () => {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user && user.role === 'Admin';
   const [announcements, setAnnouncements] = useState([]);
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '', priority: 'normal' });
 
@@ -77,32 +79,29 @@ const InformationCorner = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 relative overflow-hidden flex flex-col items-center px-4 sm:px-6 lg:px-8">
-      <div className="w-full pt-24 pb-20 flex-grow flex flex-col items-center justify-center relative z-10 animate-[fade-in_0.8s_ease-out]">
+    <div className="min-h-screen bg-slate-950 text-slate-200 relative overflow-hidden flex flex-col items-center px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+      <div className="w-full pt-24 pb-12 md:pb-20 flex-grow flex flex-col items-center justify-center relative z-10 animate-[fade-in_0.8s_ease-out]">
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-indigo-600/5 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-blue-600/5 rounded-full blur-[120px]"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Role Switcher (Mock Auth) */}
-        <div className="flex justify-end mb-12">
-          <div className="p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl flex gap-1 shadow-2xl">
-            <button 
-              onClick={() => setIsAdmin(false)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${!isAdmin ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-500 hover:text-slate-300'}`}
-            >
-              <User className="w-3.5 h-3.5" />
-              Student View
-            </button>
-            <button 
-              onClick={() => setIsAdmin(true)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${isAdmin ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'text-slate-500 hover:text-slate-300'}`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              Admin Portal
-            </button>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+        {/* Session view status */}
+        <div className="flex justify-end mb-12 md:mb-16">
+          <div className="px-6 py-3 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl flex items-center gap-2 shadow-2xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+            {isAdmin ? (
+              <>
+                <Shield className="w-3.5 h-3.5 text-orange-400" />
+                <span>Admin View (Broadcast Enabled)</span>
+              </>
+            ) : (
+              <>
+                <User className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Student View (Read-Only Mode)</span>
+              </>
+            )}
           </div>
         </div>
 

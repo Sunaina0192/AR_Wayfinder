@@ -2,38 +2,74 @@ import React from 'react';
 
 const LeadershipSection = () => {
   const leaders = [
-    { name: "Sant Baba Dilawar Singh Ji", role: "Hon'ble Chancellor", image: "https://images.unsplash.com/photo-1555952517-2e8e729e0b44?w=500&auto=format&fit=crop" },
-    { name: "Sant Baba Sarwan Singh Ji", role: "Hon'ble Vice-Chancellor", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&auto=format&fit=crop" },
-    { name: "S. Hardaman Singh", role: "Hon'ble Secretary", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop" }
+    { 
+      name: "Sant Baba Dilawar Singh Ji", 
+      role: "Hon'ble Chancellor", 
+      image: "https://images.unsplash.com/photo-1555952517-2e8e729e0b44?w=500&auto=format&fit=crop" 
+    },
+    { 
+      name: "Sant Baba Sarwan Singh Ji", 
+      role: "Hon'ble Vice-Chancellor", 
+      image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&auto=format&fit=crop" 
+    },
+    { 
+      name: "S. Hardaman Singh", 
+      role: "Hon'ble Secretary", 
+      image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop" 
+    }
   ];
 
   return (
-    <section className="py-12 md:py-24 px-4 sm:px-6 bg-[#111827] relative border-t border-b border-cyan-500/10 flex flex-col items-center w-full">
-      <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(6,182,212,0.02)_50%,transparent_75%)] bg-[size:20px_20px]"></div>
+    <section className="py-24 md:py-32 relative overflow-hidden flex flex-col items-center w-full">
+      {/* Dynamic Background */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/5 rounded-full blur-[150px] pointer-events-none"></div>
       
-      <div className="max-w-6xl mx-auto relative z-10 w-full flex flex-col items-center">
-        <h2 className="text-3xl font-black text-white mb-16 text-center uppercase tracking-widest">
-          Our Esteemed Leadership
-        </h2>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-6">
+            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-accent">Visionary Leadership</span>
+          </div>
+          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-6">
+            Our Esteemed <span className="text-accent">Council</span>
+          </h2>
+          <p className="text-slate-400 max-w-2xl mx-auto font-medium">
+            Guided by the wisdom of revered saints and academic visionaries, SBBSU continues to set benchmarks in higher education.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {leaders.map((leader, idx) => (
-            <div key={idx} className="flex flex-col items-center">
-              <div className="relative group w-48 h-48 mb-6">
-                {/* Futuristic Hex/Circle Frame */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-full blur opacity-30 group-hover:opacity-70 transition duration-500"></div>
-                <div className="absolute inset-0 border-2 border-cyan-400/50 rounded-full group-hover:border-cyan-300 transition-colors animate-[spin_10s_linear_infinite] group-hover:animate-none"></div>
+            <div key={idx} className="group flex flex-col items-center text-center">
+              <div className="relative mb-10">
+                {/* Decorative Rings */}
+                <div className="absolute inset-[-15px] border border-white/5 rounded-[3rem] group-hover:rotate-12 transition-transform duration-700"></div>
+                <div className="absolute inset-[-8px] border border-accent/20 rounded-[2.5rem] group-hover:-rotate-6 transition-transform duration-700"></div>
                 
-                <img 
-                  src={leader.image} 
-                  alt={leader.name} 
-                  className="w-full h-full object-cover rounded-full p-2 bg-slate-900 grayscale group-hover:grayscale-0 transition-all duration-500"
-                />
+                <div className="relative w-64 h-80 rounded-[2rem] overflow-hidden glass border-white/10 group-hover:scale-105 transition-all duration-500 shadow-2xl">
+                  <img 
+                    src={leader.image} 
+                    alt={leader.name} 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-110 group-hover:scale-100"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-dark via-dark/20 to-transparent"></div>
+                  
+                  {/* Bio Reveal Button (Decorative) */}
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button className="px-6 py-2 glass rounded-full text-[10px] font-black text-white uppercase tracking-widest border-accent/30">
+                      View Profile
+                    </button>
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-white text-center">{leader.name}</h3>
-              <p className="text-cyan-400 text-sm mt-1 uppercase tracking-wider font-semibold">{leader.role}</p>
+
+              <h3 className="text-2xl font-black text-white mb-2 tracking-tight group-hover:text-accent transition-colors">{leader.name}</h3>
+              <p className="text-accent font-bold text-xs uppercase tracking-[0.3em]">{leader.role}</p>
               
-              <div className="w-12 h-0.5 bg-slate-700 mt-4 group-hover:bg-cyan-500 transition-colors"></div>
+              <div className="mt-8 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div className="w-8 h-[1px] bg-accent/30"></div>
+                <div className="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
+                <div className="w-8 h-[1px] bg-accent/30"></div>
+              </div>
             </div>
           ))}
         </div>

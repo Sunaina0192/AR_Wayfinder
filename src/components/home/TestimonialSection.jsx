@@ -3,36 +3,56 @@ import { Quote } from 'lucide-react';
 
 const TestimonialSection = () => {
   return (
-    <section className="py-12 md:py-24 px-4 sm:px-6 bg-[#0B1120] relative flex justify-center w-full">
-      <div className="max-w-4xl mx-auto text-center relative z-10">
-        <h2 className="text-3xl font-black text-white mb-16 uppercase tracking-widest">
-          What Our Students Say
+    <section className="py-24 md:py-32 relative overflow-hidden flex justify-center w-full">
+      {/* Dynamic Background */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[120px] pointer-events-none animate-pulse-slow"></div>
+      
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-center">
+        
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-8">
+          <span className="text-[10px] font-black tracking-[0.3em] uppercase text-accent">Student Voice</span>
+        </div>
+        
+        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase mb-20">
+          Alumni <span className="text-accent">Success</span>
         </h2>
 
-        <div className="relative bg-slate-900/80 backdrop-blur-xl p-10 md:p-16 rounded-3xl border border-cyan-500/20 shadow-[0_0_50px_rgba(6,182,212,0.05)]">
-          <Quote className="absolute top-8 left-8 w-16 h-16 text-cyan-500/10 -rotate-12" />
+        <div className="relative group">
+          {/* Animated Glow Back */}
+          <div className="absolute inset-[-20px] bg-accent/10 blur-[100px] rounded-[5rem] opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
           
-          <p className="text-xl md:text-2xl text-slate-200 font-light italic leading-relaxed mb-10 relative z-10">
-            "SBBSU gave me the 100% placement assurance I needed. The state-of-the-art labs and highly supportive faculty made my learning experience truly futuristic and practical."
-          </p>
-          
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-16 h-16 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-full p-1 mb-4 shadow-[0_0_20px_rgba(6,182,212,0.4)]">
-              <img 
-                src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&auto=format&fit=crop" 
-                alt="Student" 
-                className="w-full h-full object-cover rounded-full border-2 border-slate-900"
-              />
+          <div className="relative glass p-10 md:p-20 rounded-[3rem] border-white/5 shadow-2xl overflow-hidden">
+            <Quote className="absolute top-10 left-10 w-24 h-24 text-white/5 -rotate-12 pointer-events-none" />
+            
+            <p className="text-2xl md:text-4xl text-white font-medium italic leading-[1.4] tracking-tight mb-16 relative z-10">
+              "SBBSU gave me the <span className="text-accent font-black">100% placement assurance</span> I needed. The state-of-the-art labs and highly supportive faculty made my learning experience truly futuristic."
+            </p>
+            
+            <div className="flex flex-col items-center">
+              <div className="relative w-24 h-24 mb-6">
+                <div className="absolute inset-[-4px] bg-gradient-to-r from-accent to-secondary rounded-full animate-[spin_5s_linear_infinite]"></div>
+                <div className="relative w-full h-full rounded-full border-4 border-dark overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&auto=format&fit=crop" 
+                    alt="Student" 
+                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                  />
+                </div>
+              </div>
+              
+              <h4 className="text-2xl font-black text-white tracking-tight">Amit Kumar</h4>
+              <p className="text-accent font-bold text-xs uppercase tracking-[0.3em] mt-2">B.Tech CSE • Class of 2025</p>
             </div>
-            <h4 className="text-white font-bold text-lg">Amit Kumar</h4>
-            <p className="text-cyan-400 text-xs uppercase tracking-widest mt-1">B.Tech CSE (Batch 2025)</p>
-          </div>
 
-          {/* Carousel dots */}
-          <div className="flex justify-center gap-2 mt-10">
-            <button className="w-3 h-3 rounded-full bg-cyan-500"></button>
-            <button className="w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-500 transition-colors"></button>
-            <button className="w-3 h-3 rounded-full bg-slate-700 hover:bg-slate-500 transition-colors"></button>
+            {/* Pagination Controls */}
+            <div className="flex justify-center gap-3 mt-16">
+              {[1, 2, 3].map((dot) => (
+                <button 
+                  key={dot} 
+                  className={`h-1.5 rounded-full transition-all duration-500 ${dot === 1 ? 'w-12 bg-accent' : 'w-4 bg-white/10 hover:bg-white/30'}`}
+                ></button>
+              ))}
+            </div>
           </div>
         </div>
       </div>

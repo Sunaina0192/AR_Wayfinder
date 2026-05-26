@@ -10,19 +10,41 @@ const RecruitersSection = () => {
   ];
 
   return (
-    <section className="py-12 md:py-24 px-4 sm:px-6 bg-[#020817] border-t border-slate-800 flex justify-center w-full">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-black text-white mb-12 text-center uppercase tracking-widest text-slate-400">
-          Our Top Recruiters
-        </h2>
-        
-        <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-60 hover:opacity-100 transition-opacity duration-500">
-          {logos.map((logo, idx) => (
-            <div key={idx} className="w-32 h-16 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
-              <img src={logo.url} alt={logo.name} className="max-w-full max-h-full object-contain filter brightness-200 contrast-200" />
-            </div>
-          ))}
+    <section className="py-24 md:py-32 relative overflow-hidden flex justify-center w-full">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-6">
+            <span className="text-[10px] font-black tracking-[0.3em] uppercase text-slate-500">Industry Partners</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase">
+            Top <span className="text-accent">Recruiters</span>
+          </h2>
         </div>
+        
+        <div className="relative group">
+          {/* Fading Edges for Carousel Feel */}
+          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-dark to-transparent z-10"></div>
+          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-dark to-transparent z-10"></div>
+          
+          <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 lg:gap-32">
+            {logos.map((logo, idx) => (
+              <div key={idx} className="w-32 md:w-40 h-20 flex items-center justify-center group/logo">
+                <img 
+                  src={logo.url} 
+                  alt={logo.name} 
+                  className="max-w-full max-h-full object-contain filter grayscale brightness-[5] opacity-20 group-hover/logo:opacity-100 group-hover/logo:grayscale-0 group-hover/logo:brightness-100 transition-all duration-700 hover:scale-110" 
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        <p className="text-center mt-16 text-[10px] font-bold text-slate-600 uppercase tracking-[0.4em]">
+          & Over 500+ More Global Partners
+        </p>
       </div>
     </section>
   );

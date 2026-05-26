@@ -6,6 +6,7 @@ export const campusLocations = [
     description: 'Main entrance to the campus',
     coordinates: { x: 10, y: 150 },
     icon: '🚪',
+    category: 'Administrative',
   },
   {
     id: 'school',
@@ -13,6 +14,7 @@ export const campusLocations = [
     description: 'School of Higher Education',
     coordinates: { x: 150, y: 100 },
     icon: '🏫',
+    category: 'Blocks',
   },
   {
     id: 'block5-uiet',
@@ -20,6 +22,7 @@ export const campusLocations = [
     description: 'University Institute of Engineering & Technology',
     coordinates: { x: 200, y: 80 },
     icon: '🔧',
+    category: 'Blocks',
   },
   {
     id: 'library',
@@ -27,6 +30,7 @@ export const campusLocations = [
     description: 'Main library with research resources',
     coordinates: { x: 180, y: 120 },
     icon: '📚',
+    category: 'Library',
   },
   {
     id: 'admission-cell',
@@ -34,6 +38,7 @@ export const campusLocations = [
     description: 'Admissions and registration office',
     coordinates: { x: 50, y: 120 },
     icon: '📋',
+    category: 'Administrative',
   },
   {
     id: 'block3',
@@ -41,6 +46,7 @@ export const campusLocations = [
     description: 'Academic Block 3',
     coordinates: { x: 100, y: 180 },
     icon: '🏢',
+    category: 'Blocks',
   },
   {
     id: 'girls-hostel',
@@ -48,6 +54,7 @@ export const campusLocations = [
     description: 'Residential facility for female students',
     coordinates: { x: 220, y: 200 },
     icon: '👩‍🎓',
+    category: 'Hostels',
   },
   {
     id: 'boys-hostel',
@@ -55,6 +62,7 @@ export const campusLocations = [
     description: 'Residential facility for male students',
     coordinates: { x: 240, y: 150 },
     icon: '👨‍🎓',
+    category: 'Hostels',
   },
   {
     id: 'stadium',
@@ -62,6 +70,7 @@ export const campusLocations = [
     description: 'Sports and athletic facilities',
     coordinates: { x: 280, y: 240 },
     icon: '⚽',
+    category: 'Sports',
   },
   {
     id: 'canteen-block7',
@@ -69,6 +78,7 @@ export const campusLocations = [
     description: 'Campus dining facility',
     coordinates: { x: 120, y: 220 },
     icon: '🍽️',
+    category: 'Cafeteria',
   },
   {
     id: 'workshop-center',
@@ -76,18 +86,36 @@ export const campusLocations = [
     description: 'Technical training and workshops',
     coordinates: { x: 260, y: 100 },
     icon: '🛠️',
+    category: 'Labs',
   },
+  {
+    id: 'main-parking',
+    name: 'Main Parking',
+    description: 'Central parking area for visitors and staff',
+    coordinates: { x: 30, y: 180 },
+    icon: '🅿️',
+    category: 'Parking',
+  },
+  {
+    id: 'it-lab',
+    name: 'IT Lab',
+    description: 'Advanced computing and IT research lab',
+    coordinates: { x: 170, y: 90 },
+    icon: '💻',
+    category: 'Labs',
+  }
 ];
 
 // Path finding data - connections between locations
 export const pathGraph = {
   'entry-gate': {
     name: 'Entry Gate',
-    neighbors: ['admission-cell', 'school', 'block3'],
+    neighbors: ['admission-cell', 'school', 'block3', 'main-parking'],
     directions: {
       'admission-cell': 'Turn right',
       'school': 'Go straight',
-      'block3': 'Turn left and go straight'
+      'block3': 'Turn left and go straight',
+      'main-parking': 'Turn left'
     }
   },
   'admission-cell': {
@@ -101,11 +129,12 @@ export const pathGraph = {
   },
   'school': {
     name: 'School Block',
-    neighbors: ['entry-gate', 'library', 'block5-uiet'],
+    neighbors: ['entry-gate', 'library', 'block5-uiet', 'it-lab'],
     directions: {
       'entry-gate': 'Go back',
       'library': 'Turn right',
-      'block5-uiet': 'Continue straight'
+      'block5-uiet': 'Continue straight',
+      'it-lab': 'Turn left'
     }
   },
   'block5-uiet': {
@@ -119,12 +148,13 @@ export const pathGraph = {
   },
   'library': {
     name: 'Central Library',
-    neighbors: ['school', 'block5-uiet', 'admission-cell', 'block3'],
+    neighbors: ['school', 'block5-uiet', 'admission-cell', 'block3', 'it-lab'],
     directions: {
       'school': 'Turn left',
       'block5-uiet': 'Continue straight',
       'admission-cell': 'Turn left and go back',
-      'block3': 'Turn right'
+      'block3': 'Turn right',
+      'it-lab': 'Continue straight'
     }
   },
   'block3': {
@@ -177,6 +207,21 @@ export const pathGraph = {
     directions: {
       'block5-uiet': 'Go back',
       'boys-hostel': 'Continue straight'
+    }
+  },
+  'main-parking': {
+    name: 'Main Parking',
+    neighbors: ['entry-gate'],
+    directions: {
+      'entry-gate': 'Go back to entrance'
+    }
+  },
+  'it-lab': {
+    name: 'IT Lab',
+    neighbors: ['school', 'library'],
+    directions: {
+      'school': 'Turn right',
+      'library': 'Go straight'
     }
   }
 };

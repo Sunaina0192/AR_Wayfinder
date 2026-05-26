@@ -23,9 +23,9 @@ const Footer = () => {
 
       <div className="absolute bottom-0 right-0 w-72 h-72 bg-sky-400/10 blur-3xl rounded-full"></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
 
-        <div className="grid md:grid-cols-4 gap-12 mb-12">
+        <div className="grid md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16">
 
           {/* About */}
           <div>
@@ -134,13 +134,13 @@ const Footer = () => {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-white/10 pt-8 text-sm text-soft/70 flex flex-col md:flex-row justify-between">
+        <div className="border-t border-white/10 pt-8 md:pt-12 text-sm text-soft/70 flex flex-col md:flex-row justify-between">
 
           <p>
             © 2026 SBBSU. All rights reserved.
           </p>
 
-          <div className="flex gap-6 mt-4 md:mt-0">
+          <div className="flex gap-6 mt-6 md:mt-0">
 
             <Link to="/">Privacy</Link>
             <Link to="/">Terms</Link>
