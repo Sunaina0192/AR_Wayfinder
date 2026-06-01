@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, User, Settings, GraduationCap, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 
 const Navbar = () => {
 
@@ -9,6 +10,7 @@ const Navbar = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const navLinks = [
     { path: '/home', label: 'SBBSU' },
@@ -69,6 +71,12 @@ const Navbar = () => {
                   `}
                 >
                   {link.label}
+                  {/* Notification badge for Information Corner */}
+                  {link.path === '/information-corner' && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-[9px] font-black leading-none shadow-[0_0_12px_rgba(239,68,68,0.6)] animate-pulse z-10">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                   {!active && (
                     <span className="absolute bottom-1 left-4 right-4 h-[1px] bg-accent scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left"></span>
                   )}
@@ -181,7 +189,14 @@ const Navbar = () => {
                   }
                   `}
                 >
-                  {link.label}
+                  <span className="flex items-center gap-2">
+                    {link.label}
+                    {link.path === '/information-corner' && unreadCount > 0 && (
+                      <span className="min-w-[20px] h-[20px] flex items-center justify-center px-1.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-[10px] font-black leading-none shadow-[0_0_12px_rgba(239,68,68,0.6)] animate-pulse">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </span>
                 </Link>
               ))}
               

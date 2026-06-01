@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { ArrowRight, X, User, Lock, LogIn, GraduationCap, ShieldCheck, Users } from 'lucide-react';
@@ -14,11 +14,7 @@ const FrontPage = () => {
   const navigate = useNavigate();
   const { user, login } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      navigate('/home', { replace: true });
-    }
-  }, [user, navigate]);
+  // Allow users to see FrontPage even when logged in (e.g. on browser back)
 
   const handleCloseLogin = () => {
     setShowLogin(false);

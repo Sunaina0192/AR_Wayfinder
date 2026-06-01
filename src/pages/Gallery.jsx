@@ -18,14 +18,14 @@ const Gallery = () => {
       // Campus Life (12 images)
       {
         id: 'campus-1',
-        src: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
+        src: '/sbbsu_admin_block.png',
         category: 'campus',
         title: 'SBBSU Main Administration Block',
         description: 'The iconic central building housing administrative and academic offices.'
       },
       {
         id: 'campus-2',
-        src: 'https://images.unsplash.com/photo-1541339907198-e08759df9a73?auto=format&fit=crop&w=800&q=80',
+        src: '/sbbsu_convocation.png',
         category: 'campus',
         title: 'Annual Convocation Ceremony',
         description: 'Celebrating the achievements and graduation of our bright students.'
@@ -39,7 +39,7 @@ const Gallery = () => {
       },
       {
         id: 'campus-4',
-        src: 'https://images.unsplash.com/photo-1498243691219-5196f1d8ef9c?auto=format&fit=crop&w=800&q=80',
+        src: '/sbbsu_library.png',
         category: 'campus',
         title: 'Central Library Resource Center',
         description: 'Vast collection of reference books, journals, and digital study areas.'
@@ -260,7 +260,7 @@ const Gallery = () => {
       },
       {
         id: 'law-11',
-        src: 'https://images.unsplash.com/photo-1528744580483-19f8a5bc9017?auto=format&fit=crop&w=800&q=80',
+        src: '/contract_drafting_lab.png',
         category: 'law',
         title: 'Contract Drafting Lab',
         description: 'Hands-on practice drafting legal contracts and partnership agreements.'

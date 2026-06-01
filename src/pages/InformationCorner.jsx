@@ -6,12 +6,19 @@ import {
   ClipboardList, Info, ChevronRight, Send, Shield, User, Trash2, Clock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useNotifications } from '../context/NotificationContext';
 
 const InformationCorner = () => {
   const { user } = useAuth();
   const isAdmin = user && user.role === 'Admin';
   const [announcements, setAnnouncements] = useState([]);
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '', priority: 'normal' });
+  const { onNewAnnouncement, markAllRead } = useNotifications();
+
+  // Mark all announcements as read when user visits this page
+  useEffect(() => {
+    markAllRead();
+  }, [markAllRead]);
 
   // Load announcements from localStorage
   useEffect(() => {
@@ -43,6 +50,8 @@ const InformationCorner = () => {
     setAnnouncements(updated);
     localStorage.setItem('sbbsu_announcements', JSON.stringify(updated));
     setNewAnnouncement({ title: '', content: '', priority: 'normal' });
+    // Notify the system about the new announcement
+    onNewAnnouncement();
   };
 
   const deleteAnnouncement = (id) => {
@@ -225,53 +234,79 @@ const InformationCorner = () => {
               </div>
             )}
 
-            {/* Announcement Feed */}
-            <div className="space-y-6">
-              {announcements.length > 0 ? announcements.map((ann) => (
-                <div 
-                  key={ann.id} 
-                  className={`p-8 rounded-[2.5rem] bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-all duration-500 group relative overflow-hidden shadow-xl`}
-                >
-                  {ann.priority === 'high' && (
-                    <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-orange-500/10 blur-[50px] pointer-events-none"></div>
-                  )}
-                  
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
-                        <Clock className="w-4 h-4 text-slate-500" />
-                      </div>
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">{ann.date}</span>
-                    </div>
-                    {isAdmin && (
-                      <button 
-                        onClick={() => deleteAnnouncement(ann.id)}
-                        className="p-3 rounded-xl bg-red-500/10 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white shadow-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+            {/* Creative Announcement Feed */}
+            <div className="relative group perspective-1000">
+              {/* Outer Glowing Aura for the entire feed */}
+              <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/20 via-purple-500/20 to-blue-500/20 blur-3xl opacity-40 group-hover:opacity-80 transition-opacity duration-700"></div>
+              
+              <div className="relative bg-slate-900/40 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-6 sm:p-8 shadow-[0_0_40px_rgba(0,0,0,0.5)] overflow-hidden transform transition-all duration-500">
+                {/* Subtle animated border top */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-50"></div>
 
-                  <h3 className={`text-lg font-black uppercase tracking-wider mb-3 leading-tight ${ann.priority === 'high' ? 'text-orange-400' : 'text-white'}`}>
-                    {ann.title}
-                    {ann.priority === 'high' && <span className="ml-3 inline-block w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.8)]"></span>}
-                  </h3>
-                  <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                    {ann.content}
-                  </p>
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center shadow-inner">
+                      <div className="absolute inset-0 bg-indigo-500/20 blur-md rounded-2xl animate-pulse"></div>
+                      <Bell className="w-6 h-6 text-indigo-400 relative z-10" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-white uppercase tracking-wider drop-shadow-md">Campus Feed</h3>
+                      <p className="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.3em]">Live Updates</p>
+                    </div>
+                  </div>
                 </div>
-              )) : (
-                <div className="py-24 text-center space-y-6 bg-slate-900/20 rounded-[3rem] border-2 border-dashed border-slate-800/50">
-                   <div className="w-16 h-16 rounded-[2rem] bg-slate-900 flex items-center justify-center mx-auto text-slate-700 shadow-inner">
-                     <Bell className="w-8 h-8" />
-                   </div>
-                   <div className="space-y-1">
-                     <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em]">No Active Broadcasts</p>
-                     <p className="text-slate-700 text-[8px] font-bold uppercase tracking-widest">Waiting for Admin updates...</p>
-                   </div>
+
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-indigo-500/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-indigo-500/50 transition-colors">
+                  {announcements.length > 0 ? announcements.map((ann) => (
+                    <div 
+                      key={ann.id} 
+                      className={`relative p-6 rounded-[2rem] backdrop-blur-xl border transition-all duration-500 group/card overflow-hidden shadow-lg hover:shadow-2xl hover:-translate-y-1 ${ann.priority === 'high' ? 'bg-gradient-to-br from-orange-500/10 to-red-500/5 border-orange-500/30 hover:border-orange-500/60' : 'bg-gradient-to-br from-white/5 to-white/0 border-white/10 hover:border-indigo-500/40'}`}
+                    >
+                      {/* Decorative corner glow */}
+                      {ann.priority === 'high' ? (
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/30 rounded-full blur-[40px] pointer-events-none group-hover/card:bg-orange-500/40 transition-colors"></div>
+                      ) : (
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/20 rounded-full blur-[40px] pointer-events-none group-hover/card:bg-indigo-500/30 transition-colors"></div>
+                      )}
+                      
+                      <div className="relative z-10 flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-inner ${ann.priority === 'high' ? 'bg-orange-500/20 text-orange-400' : 'bg-indigo-500/20 text-indigo-400'}`}>
+                            {ann.priority === 'high' ? <Bell className="w-4 h-4 animate-bounce" /> : <Newspaper className="w-4 h-4" />}
+                          </div>
+                          <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${ann.priority === 'high' ? 'text-orange-400' : 'text-slate-400'}`}>{ann.date}</span>
+                        </div>
+                        {isAdmin && (
+                          <button 
+                            onClick={() => deleteAnnouncement(ann.id)}
+                            className="p-2 rounded-xl bg-red-500/10 text-red-400 opacity-0 group-hover/card:opacity-100 transition-all hover:bg-red-500 hover:text-white shadow-lg"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      <h3 className={`relative z-10 text-lg font-black uppercase tracking-wider mb-2 leading-tight ${ann.priority === 'high' ? 'text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]' : 'text-white'}`}>
+                        {ann.title}
+                        {ann.priority === 'high' && <span className="ml-3 inline-block w-2 h-2 rounded-full bg-orange-500 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.8)]"></span>}
+                      </h3>
+                      <p className="relative z-10 text-slate-300 text-sm font-medium leading-relaxed">
+                        {ann.content}
+                      </p>
+                    </div>
+                  )) : (
+                    <div className="py-20 text-center space-y-6 bg-white/5 rounded-[2rem] border-2 border-dashed border-white/10 backdrop-blur-sm">
+                       <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center mx-auto text-indigo-400 shadow-inner">
+                         <Bell className="w-8 h-8 opacity-50" />
+                       </div>
+                       <div className="space-y-1">
+                         <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.3em]">No Active Broadcasts</p>
+                         <p className="text-slate-500 text-[8px] font-bold uppercase tracking-widest">Feed is empty</p>
+                       </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </div>

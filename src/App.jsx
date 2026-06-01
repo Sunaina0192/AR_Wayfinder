@@ -5,6 +5,7 @@ import HomeFooter from './components/HomeFooter'
 import FrontPage from './pages/FrontPage'
 import FloatingContact from './components/FloatingContact'
 import { AuthProvider } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'))
@@ -18,6 +19,7 @@ const RTI = lazy(() => import('./pages/RTI'))
 const Navigator = lazy(() => import('./pages/Navigator'))
 const History = lazy(() => import('./pages/History'))
 const Alumni = lazy(() => import('./pages/Alumni'))
+const Admissions = lazy(() => import('./pages/Admissions'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
 
@@ -61,29 +63,33 @@ const AppLayout = ({ children }) => {
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <AppLayout>
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              <Route path="/" element={<FrontPage />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/navigator" element={<Navigator />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/gallery" element={<Gallery />} />
-              <Route path="/information-corner" element={<InformationCorner />} />
-              <Route path="/rti" element={<RTI />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/alumni" element={<Alumni />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </Suspense>
-        </AppLayout>
-        <FloatingContact />
-      </Router>
+      <NotificationProvider>
+        <Router>
+          <AppLayout>
+            <Suspense fallback={<Loading />}>
+              <Routes>
+                <Route path="/" element={<FrontPage />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/academics" element={<Courses />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/navigator" element={<Navigator />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/information-corner" element={<InformationCorner />} />
+                <Route path="/rti" element={<RTI />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/admissions" element={<Admissions />} />
+                <Route path="/alumni" element={<Alumni />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+            </Suspense>
+          </AppLayout>
+          <FloatingContact />
+        </Router>
+      </NotificationProvider>
     </AuthProvider>
   )
 }
