@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchProfile, saveProfile } from '../api/profileApi';
+import { loginUser } from '../api/authApi';
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -44,50 +45,30 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (role, extraData = {}) => {
-    // For this prototype, we're simulating a user object based on the role selected
-    let userData = { role, ...extraData };
+  const login = async (role, extraData = {}) => {
+    try {
+      let loginPayload = { role, ...extraData };
+      
+      // Map userId to match what the backend expects
+      if (role !== 'Visitor') {
+        loginPayload.userId = extraData.userId;
+      }
+      
+      const userData = await loginUser(loginPayload);
+      setUser(userData);
 
-    if (role === 'Student') {
-      const studentId = extraData.id || '1200342';
-      userData = {
-        role,
-        name: studentId === '1200342' ? 'Rahul Sharma' : `Student (${studentId})`,
-        id: studentId,
-        avatar: 'https://i.pravatar.cc/150?img=11',
-        department: 'B.Tech CSE',
-        email: studentId === '1200342' ? 'rahul.sharma@sbbsu.ac.in' : `student.${studentId}@sbbsu.ac.in`
-      };
-    } else if (role === 'Admin') {
-      const adminId = extraData.id || 'ADMIN-492';
-      userData = {
-        role,
-        name: adminId === 'ADMIN-492' ? 'Dr. Vivek Singh' : `Admin (${adminId})`,
-        id: adminId,
-        avatar: 'https://i.pravatar.cc/150?img=14',
-        department: 'System Administration',
-        email: adminId === 'ADMIN-492' ? 'vivek.singh@sbbsu.ac.in' : `admin.${adminId}@sbbsu.ac.in`
-      };
-    } else if (role === 'Visitor') {
-      const visitorName = extraData.name || 'Guest Visitor';
-      userData = {
-        role,
-        name: visitorName,
-        id: 'VISITOR_' + visitorName.trim().replace(/\s+/g, '_').toUpperCase(),
-        email: `${visitorName.toLowerCase().replace(/\s+/g, '.')}@visitor.com`
-      };
-    }
-
-    setUser(userData);
-
-    if (role !== 'Visitor') {
-      fetchAndSyncProfile(userData.id, {
-        userId: userData.id,
-        name: userData.name,
-        email: userData.email,
-        avatar: userData.avatar,
-        department: userData.department
-      });
+      if (role !== 'Visitor') {
+        fetchAndSyncProfile(userData.id, {
+          userId: userData.id,
+          name: userData.name,
+          email: userData.email,
+          avatar: userData.avatar,
+          department: userData.department
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
   };
 
