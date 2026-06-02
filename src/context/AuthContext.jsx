@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchProfile, saveProfile } from '../api/profileApi';
-
+import { API_BASE } from '../config';
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
   const login = (role, extraData = {}) => {
     // For this prototype, we're simulating a user object based on the role selected
     let userData = { role, ...extraData };
-    
+
     if (role === 'Student') {
       const studentId = extraData.id || '1200342';
       userData = {

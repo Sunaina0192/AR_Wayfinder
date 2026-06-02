@@ -8,6 +8,7 @@ const FrontPage = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [loginRole, setLoginRole] = useState(null);
   const [visitorName, setVisitorName] = useState('');
+  const [visitorPurpose, setVisitorPurpose] = useState('');
   const [userId, setUserId] = useState('');
   const [passkey, setPasskey] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -20,22 +21,28 @@ const FrontPage = () => {
     setShowLogin(false);
     setLoginRole(null);
     setVisitorName('');
+    setVisitorPurpose('');
     setUserId('');
     setPasskey('');
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoggingIn(true);
-    // Simulate API login delay
-    setTimeout(() => {
+    
+    const extraData = loginRole === 'Visitor' 
+      ? { name: visitorName || 'Guest Visitor', purpose: visitorPurpose } 
+      : { userId, password: passkey };
+      
+    try {
+      await login(loginRole, extraData);
       setIsLoggingIn(false);
-      const extraData = loginRole === 'Visitor' 
-        ? { name: visitorName || 'Guest Visitor' } 
-        : { id: userId };
-      login(loginRole, extraData);
       navigate('/home');
-    }, 1500);
+    } catch (error) {
+      console.error('Login error', error);
+      setIsLoggingIn(false);
+      alert('Login failed. Please make sure the backend is running.');
+    }
   };
 
   return (
@@ -169,6 +176,8 @@ const FrontPage = () => {
                           <input 
                             type="text" 
                             required
+                            value={visitorPurpose}
+                            onChange={(e) => setVisitorPurpose(e.target.value)}
                             placeholder="e.g. Campus Tour, Meeting"
                             className="w-full glass border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-accent/50 transition-all shadow-inner bg-black/20"
                           />
@@ -232,6 +241,7 @@ const FrontPage = () => {
                       setUserId('');
                       setPasskey('');
                       setVisitorName('');
+                      setVisitorPurpose('');
                     }} 
                     className="w-full py-3 mt-2 text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors"
                   >

@@ -7,6 +7,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import NavigationHistory from './server/models/NavigationHistory.js'
 import UserProfile from './server/models/UserProfile.js'
+import LoginRecord from './server/models/LoginRecord.js'
 
 dotenv.config()
 
@@ -14,6 +15,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const DB_FILE = path.join(__dirname, 'history_db.json')
 const PROFILES_FILE = path.join(__dirname, 'profiles_db.json')
+const LOGIN_FILE = path.join(__dirname, 'login_db.json')
 
 const app = express()
 
@@ -74,6 +76,27 @@ const saveLocalProfiles = (profiles) => {
     fs.writeFileSync(PROFILES_FILE, JSON.stringify(profiles, null, 2), 'utf-8')
   } catch (err) {
     console.error('Error writing local profiles db:', err)
+  }
+}
+
+const getLocalLogins = () => {
+  try {
+    if (!fs.existsSync(LOGIN_FILE)) {
+      return []
+    }
+    const data = fs.readFileSync(LOGIN_FILE, 'utf-8')
+    return JSON.parse(data || '[]')
+  } catch (err) {
+    console.error('Error reading local logins db:', err)
+    return []
+  }
+}
+
+const saveLocalLogins = (logins) => {
+  try {
+    fs.writeFileSync(LOGIN_FILE, JSON.stringify(logins, null, 2), 'utf-8')
+  } catch (err) {
+    console.error('Error writing local logins db:', err)
   }
 }
 
@@ -303,6 +326,84 @@ app.post('/api/profile', async (req, res) => {
     })
   }
 })
+
+// Auth Route for Login
+app.post('/api/auth/login', async (req, res) => {
+  const { role, userId, name, password, purpose } = req.body;
+  
+  if (!role) {
+    return res.status(400).json({ message: 'Role is required' });
+  }
+
+  // Generate simulated user data to match frontend logic
+  let userData = { role };
+  let finalUserId = userId;
+  let finalName = name;
+
+  if (role === 'Student') {
+    finalUserId = userId || '1200342';
+    finalName = finalUserId === '1200342' ? 'Rahul Sharma' : `Student (${finalUserId})`;
+    userData = {
+      role,
+      name: finalName,
+      id: finalUserId,
+      avatar: 'https://i.pravatar.cc/150?img=11',
+      department: 'B.Tech CSE',
+      email: finalUserId === '1200342' ? 'rahul.sharma@sbbsu.ac.in' : `student.${finalUserId}@sbbsu.ac.in`
+    };
+  } else if (role === 'Admin') {
+    finalUserId = userId || 'ADMIN-492';
+    finalName = finalUserId === 'ADMIN-492' ? 'Dr. Vivek Singh' : `Admin (${finalUserId})`;
+    userData = {
+      role,
+      name: finalName,
+      id: finalUserId,
+      avatar: 'https://i.pravatar.cc/150?img=14',
+      department: 'System Administration',
+      email: finalUserId === 'ADMIN-492' ? 'vivek.singh@sbbsu.ac.in' : `admin.${finalUserId}@sbbsu.ac.in`
+    };
+  } else if (role === 'Visitor') {
+    finalName = name || 'Guest Visitor';
+    finalUserId = 'VISITOR_' + finalName.trim().replace(/\s+/g, '_').toUpperCase();
+    userData = {
+      role,
+      name: finalName,
+      id: finalUserId,
+      email: `${finalName.toLowerCase().replace(/\s+/g, '.')}@visitor.com`
+    };
+  }
+
+  try {
+    const loginData = {
+      userId: finalUserId,
+      name: finalName,
+      role,
+      password: password || '',
+      purpose: purpose || '',
+      loginTime: new Date()
+    };
+
+    if (mongoose.connection.readyState === 1) {
+      try {
+        await LoginRecord.create(loginData);
+      } catch (dbError) {
+        console.error('Mongoose login save failed, falling back to local file storage:', dbError.message);
+      }
+    } else {
+      let localLogins = getLocalLogins();
+      localLogins.push({
+        id: 'local_login_' + Date.now(),
+        ...loginData,
+        loginTime: loginData.loginTime.toISOString()
+      });
+      saveLocalLogins(localLogins);
+    }
+  } catch (error) {
+    console.error('Failed to save login record:', error);
+  }
+
+  return res.status(200).json(userData);
+});
 
 // API 404 Route
 app.use('/api', (req, res) => {
