@@ -22,7 +22,6 @@ const Alumni = lazy(() => import('./pages/Alumni'))
 const Admissions = lazy(() => import('./pages/Admissions'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
-const AdminUsers = lazy(() => import('./pages/AdminUsers'))
 
 // Loading component
 const Loading = () => (
@@ -85,7 +84,6 @@ const App = () => {
                 <Route path="/alumni" element={<Alumni />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
               </Routes>
             </Suspense>
           </AppLayout>

@@ -46,36 +46,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Send a logout beacon on tab close or visibility change to mark user offline
-  useEffect(() => {
-    const sendLogoutBeacon = () => {
-      if (!user?.id) return;
-      try {
-        const data = JSON.stringify({ userId: user.id });
-        const blob = new Blob([data], { type: 'application/json' });
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon('/api/auth/logout', blob);
-        } else {
-          // Fallback if sendBeacon unavailable
-          fetch('/api/auth/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: data, keepalive: true }).catch(()=>{});
-        }
-      } catch (err) {
-        // ignore
-      }
-    };
-
-    const handleVisibility = () => {
-      if (document.visibilityState === 'hidden') sendLogoutBeacon();
-    };
-
-    window.addEventListener('beforeunload', sendLogoutBeacon);
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      window.removeEventListener('beforeunload', sendLogoutBeacon);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, [user]);
-
   const login = async (role, extraData = {}) => {
     try {
       const userData = await loginUser({ role, ...extraData });
