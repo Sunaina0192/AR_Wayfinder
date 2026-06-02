@@ -17,14 +17,15 @@ export const AuthProvider = ({ children }) => {
       if (profile) {
         setUser((prevUser) => {
           if (!prevUser || prevUser.id !== userId) return prevUser;
-          return { ...prevUser, ...profile };
+          // Only sync avatar and department — never override name from login input
+          return {
+            ...prevUser,
+            avatar: profile.avatar || prevUser.avatar,
+            department: profile.department || prevUser.department,
+          };
         });
       } else if (defaultProfile) {
-        const newProfile = await saveProfile(defaultProfile);
-        setUser((prevUser) => {
-          if (!prevUser || prevUser.id !== userId) return prevUser;
-          return { ...prevUser, ...newProfile };
-        });
+        await saveProfile(defaultProfile);
       }
     } catch (error) {
       console.error('Error syncing profile with backend:', error);
@@ -47,14 +48,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (role, extraData = {}) => {
     try {
-      let loginPayload = { role, ...extraData };
-      
-      // Map userId to match what the backend expects
-      if (role !== 'Visitor') {
-        loginPayload.userId = extraData.userId;
-      }
-      
-      const userData = await loginUser(loginPayload);
+      const userData = await loginUser({ role, ...extraData });
       setUser(userData);
 
       if (role !== 'Visitor') {
@@ -67,7 +61,7 @@ export const AuthProvider = ({ children }) => {
         });
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login failed:', error);
       throw error;
     }
   };
