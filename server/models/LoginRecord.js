@@ -31,6 +31,6 @@ const loginRecordSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-const LoginRecord = mongoose.model('LoginRecord', loginRecordSchema);
+const LoginRecord = mongoose.model('LoginRecord', loginRecordSchema, 'loginlogs');
 
 export default LoginRecord;

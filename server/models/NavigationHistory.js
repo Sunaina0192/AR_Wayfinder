@@ -11,5 +11,5 @@ const navigationHistorySchema = new mongoose.Schema(
   }
 )
 
-const NavigationHistory = mongoose.model('NavigationHistory', navigationHistorySchema)
+const NavigationHistory = mongoose.model('NavigationHistory', navigationHistorySchema, 'navigationhistories')
 export default NavigationHistory
