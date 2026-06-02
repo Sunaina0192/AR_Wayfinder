@@ -476,6 +476,28 @@ app.use('/api', (req, res) => {
   })
 })
 
+// Admin: list online users
+app.get('/api/admin/online-users', async (req, res) => {
+  try {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const online = await UserProfile.find({ isOnline: true }).lean();
+        return res.json(online);
+      } catch (dbError) {
+        console.error('Mongoose query failed for online users:', dbError.message);
+      }
+    }
+
+    // fallback to local profiles
+    const localProfiles = getLocalProfiles();
+    const online = Object.values(localProfiles).filter((p) => p.isOnline);
+    return res.json(online);
+  } catch (err) {
+    console.error('Failed to fetch online users:', err);
+    res.status(500).json({ message: 'Failed to fetch online users.' });
+  }
+});
+
 // Catch-all to serve the React App if dist exists
 app.get('*', (req, res) => {
   if (fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
