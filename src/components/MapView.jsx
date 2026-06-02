@@ -140,9 +140,9 @@ const MapView = ({ selectedLocation, activePath = [], onLocationSelect }) => {
                 {/* Label (Visible on hover or selection) */}
                 <g className={`transition-all duration-300 pointer-events-none ${isSelected ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}`}>
                   <rect
-                    x={loc.coordinates.x - 45}
+                    x={loc.coordinates.x - 55}
                     y={loc.coordinates.y - 35}
-                    width="90"
+                    width="110"
                     height="22"
                     rx="6"
                     fill="rgba(30, 41, 56, 0.95)"

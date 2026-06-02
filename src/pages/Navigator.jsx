@@ -11,10 +11,10 @@ import RouteSummary from '../components/RouteSummary';
 import NavigationHistory from '../components/NavigationHistory';
 import FeatureHighlights from '../components/FeatureHighlights';
 import PathDisplay from '../components/PathDisplay';
-
+import { API_BASE } from '../config';
 const Navigator = () => {
   const { user } = useAuth();
-  
+
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [activePath, setActivePath] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,7 +109,7 @@ const Navigator = () => {
   const filteredLocations = campusLocations.filter(
     (loc) => {
       const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          loc.description.toLowerCase().includes(searchQuery.toLowerCase());
+        loc.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || loc.category === selectedCategory;
       return matchesSearch && matchesCategory;
     }
@@ -157,11 +157,10 @@ const Navigator = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-6 py-3 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${
-                  selectedCategory === cat
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
-                    : isDarkMode ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-white text-slate-600 hover:bg-blue-50 shadow-sm'
-                }`}
+                className={`px-6 py-3 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 ${selectedCategory === cat
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                  : isDarkMode ? 'bg-white/5 text-slate-400 hover:bg-white/10' : 'bg-white text-slate-600 hover:bg-blue-50 shadow-sm'
+                  }`}
               >
                 {cat}
               </button>
@@ -195,7 +194,7 @@ const Navigator = () => {
               stepCount={directions.length}
               isDarkMode={isDarkMode}
             />
-            
+
             {/* Quick Access Section */}
             <div className={`p-8 rounded-[2.5rem] ${isDarkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-white/50 shadow-xl'}`}>
               <div className="flex items-center gap-3 mb-6">
@@ -235,11 +234,10 @@ const Navigator = () => {
             filteredLocations.map((location) => (
               <div
                 key={location.id}
-                className={`group relative rounded-[2.5rem] overflow-hidden transition-all duration-500 transform hover:-translate-y-2 cursor-pointer border ${
-                  selectedLocation === location.id 
-                    ? 'border-blue-500 ring-4 ring-blue-500/20' 
-                    : isDarkMode ? 'border-white/10 bg-white/5' : 'border-white bg-white shadow-xl shadow-slate-200/50'
-                }`}
+                className={`group relative rounded-[2.5rem] overflow-hidden transition-all duration-500 transform hover:-translate-y-2 cursor-pointer border ${selectedLocation === location.id
+                  ? 'border-blue-500 ring-4 ring-blue-500/20'
+                  : isDarkMode ? 'border-white/10 bg-white/5' : 'border-white bg-white shadow-xl shadow-slate-200/50'
+                  }`}
                 onClick={() => handleLocationSelect(location.id, true)}
               >
                 <button
@@ -247,11 +245,10 @@ const Navigator = () => {
                     e.stopPropagation();
                     toggleFavorite(location.id);
                   }}
-                  className={`absolute top-6 right-6 z-10 p-3 rounded-2xl backdrop-blur-md transition-all ${
-                    favorites.includes(location.id)
-                      ? 'bg-yellow-400 text-white scale-110 shadow-lg shadow-yellow-400/30'
-                      : 'bg-black/10 text-white/70 hover:bg-white/20'
-                  }`}
+                  className={`absolute top-6 right-6 z-10 p-3 rounded-2xl backdrop-blur-md transition-all ${favorites.includes(location.id)
+                    ? 'bg-yellow-400 text-white scale-110 shadow-lg shadow-yellow-400/30'
+                    : 'bg-black/10 text-white/70 hover:bg-white/20'
+                    }`}
                 >
                   <Star className={`w-5 h-5 ${favorites.includes(location.id) ? 'fill-current' : ''}`} />
                 </button>

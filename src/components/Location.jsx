@@ -154,7 +154,7 @@ navigator.geolocation.getCurrentPosition((pos) => {
           onClick={() => handleLocation("library")}> 📍</button>
 
         {/* Block 5 */}
-        <button className='absolute top-20 left-20 bg-blue-500 text-white px-2 py-1 rounded'
+        <button className='absolute top-16 left-32 bg-blue-500 text-white px-2 py-1 rounded'
           onClick={() => handleLocation("block5")}> 📍</button>
 
         {/* nursing */}
