@@ -151,7 +151,13 @@ const Settings = () => {
                 <div>
                   <h2 className="text-xl font-bold text-white mb-6 border-b border-white/10 pb-4">Personal Information</h2>
                   <div className="flex items-center gap-6 mb-6">
-                    <img src={avatar || 'https://i.pravatar.cc/150?img=11'} alt="Profile" className="w-20 h-20 rounded-full border-2 border-accent/50 object-cover" />
+                    {avatar ? (
+                      <img src={avatar} alt="Profile" className="w-20 h-20 rounded-full border-2 border-accent/50 object-cover" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full border-2 border-slate-600/70 bg-slate-700 flex items-center justify-center text-slate-400">
+                        <User className="w-10 h-10" />
+                      </div>
+                    )}
                     <div>
                       <button type="button" onClick={handleTriggerUpload} className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-bold rounded-xl transition-colors border border-white/10 mb-2">Change Avatar</button>
                       <input 
