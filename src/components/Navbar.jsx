@@ -95,7 +95,7 @@ const Navbar = () => {
                       {user.avatar ? (
                         <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full bg-slate-700 flex items-center justify-center text-slate-400">
+                        <div className="w-full h-full bg-accent/10 flex items-center justify-center text-accent">
                           <User className="w-5 h-5" />
                         </div>
                       )}
@@ -204,13 +204,7 @@ const Navbar = () => {
                 <div className="mt-4 pt-4 border-t border-white/10">
                   <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center justify-between px-6 py-3 mb-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
                     <div className="flex items-center gap-3">
-                      {user.avatar ? (
-                        <img src={user.avatar} alt="Profile" className="w-10 h-10 rounded-full border border-accent/50 object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full border border-slate-600/70 bg-slate-700 flex items-center justify-center text-slate-400">
-                          <User className="w-5 h-5" />
-                        </div>
-                      )}
+                      <img src={user.avatar} alt="Profile" className="w-10 h-10 rounded-full border border-accent/50" />
                       <div>
                         <p className="text-sm font-bold text-white">{user.name}</p>
                         <p className="text-[10px] text-accent uppercase tracking-widest">{user.role}</p>

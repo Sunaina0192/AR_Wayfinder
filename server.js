@@ -347,6 +347,7 @@ app.post('/api/auth/login', async (req, res) => {
       role,
       name: finalName,
       id: finalUserId,
+      avatar: 'https://i.pravatar.cc/150?img=11',
       department: 'B.Tech CSE',
       email: `${finalUserId.toLowerCase()}@sbbsu.ac.in`
     };
@@ -357,6 +358,7 @@ app.post('/api/auth/login', async (req, res) => {
       role,
       name: finalName,
       id: finalUserId,
+      avatar: 'https://i.pravatar.cc/150?img=14',
       department: 'System Administration',
       email: `${finalUserId.toLowerCase()}@sbbsu.ac.in`
     };

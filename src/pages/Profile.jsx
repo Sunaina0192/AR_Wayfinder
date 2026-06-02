@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { saveProfile } from '../api/profileApi';
 import { 
   User, Mail, Phone, MapPin, Calendar, BookOpen, Clock, 
   Award, Activity, ShieldCheck, Users, Settings, Edit,
@@ -16,22 +15,8 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = async () => {
-        const avatarData = reader.result;
-        updateUser({ avatar: avatarData });
-        if (user?.id) {
-          try {
-            await saveProfile({
-              userId: user.id,
-              name: user.name,
-              email: user.email,
-              avatar: avatarData,
-              department: user.department,
-            });
-          } catch (error) {
-            console.error('Failed to save avatar:', error);
-          }
-        }
+      reader.onloadend = () => {
+        updateUser({ avatar: reader.result });
       };
       reader.readAsDataURL(file);
     }
@@ -64,7 +49,7 @@ const Profile = () => {
                 {user.avatar ? (
                   <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-slate-700 flex items-center justify-center text-slate-400">
+                  <div className="w-full h-full bg-accent/10 flex items-center justify-center text-accent">
                     <User className="w-16 h-16" />
                   </div>
                 )}
