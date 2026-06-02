@@ -1,0 +1,1 @@
+export const API_BASE_URL = "https://ar-wayfinder10.onrender.com";

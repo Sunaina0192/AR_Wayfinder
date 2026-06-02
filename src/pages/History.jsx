@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { ChevronLeft, AlertCircle, History as HistoryIcon, Clock, Compass } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 const History = () => {
   const { user } = useAuth();
@@ -16,7 +17,7 @@ const History = () => {
     const loadHistory = async () => {
       try {
         setError(null);
-        const response = await fetch(`/api/history?userId=${encodeURIComponent(user.id)}`);
+        const response = await fetch(`${API_BASE_URL}/api/history?userId=${encodeURIComponent(user.id)}`);
         if (!response.ok) {
           throw new Error('Failed to load history');
         }

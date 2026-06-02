@@ -1,5 +1,7 @@
+import { API_BASE_URL } from '../config'
+
 export const fetchProfile = async (userId) => {
-  const response = await fetch(`/api/profile?userId=${encodeURIComponent(userId || '')}`)
+  const response = await fetch(`${API_BASE_URL}/api/profile?userId=${encodeURIComponent(userId || '')}`)
   if (response.status === 404) {
     return null
   }
@@ -10,7 +12,7 @@ export const fetchProfile = async (userId) => {
 }
 
 export const saveProfile = async (payload) => {
-  const response = await fetch('/api/profile', {
+  const response = await fetch(`${API_BASE_URL}/api/profile`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -77,10 +77,10 @@ const saveLocalProfiles = (profiles) => {
   }
 }
 
-// Test Route
-app.get('/', (req, res) => {
-  res.send('Backend Running')
-})
+// Serve frontend files from 'dist' directory if they exist
+if (fs.existsSync(path.join(__dirname, 'dist'))) {
+  app.use(express.static(path.join(__dirname, 'dist')))
+}
 
 // Get History
 app.get('/api/history', async (req, res) => {
@@ -304,11 +304,20 @@ app.post('/api/profile', async (req, res) => {
   }
 })
 
-// 404 Route
-app.use((req, res) => {
+// API 404 Route
+app.use('/api', (req, res) => {
   res.status(404).json({
     message: 'API route not found.',
   })
+})
+
+// Catch-all to serve the React App if dist exists
+app.get('*', (req, res) => {
+  if (fs.existsSync(path.join(__dirname, 'dist', 'index.html'))) {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+  } else {
+    res.status(404).send('Backend Running (Frontend not built)')
+  }
 })
 
 const PORT = process.env.PORT || 5000
