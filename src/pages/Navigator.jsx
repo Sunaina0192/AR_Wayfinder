@@ -11,7 +11,6 @@ import RouteSummary from '../components/RouteSummary';
 import NavigationHistory from '../components/NavigationHistory';
 import FeatureHighlights from '../components/FeatureHighlights';
 import PathDisplay from '../components/PathDisplay';
-import { API_BASE } from '../config';
 const Navigator = () => {
   const { user } = useAuth();
 
