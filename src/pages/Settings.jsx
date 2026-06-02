@@ -347,7 +347,7 @@ const Settings = () => {
 
                 <div className="pt-6 border-t border-red-500/10">
                    <button onClick={() => { logout(); window.location.href = '/'; }} className="flex items-center gap-2 px-6 py-3 bg-red-500/10 text-red-400 font-black rounded-xl hover:bg-red-500/20 transition-colors border border-red-500/20">
-                     <LogOut className="w-5 h-5" /> Sign Out of All Devices
+                     <LogOut className="w-5 h-5" /> Log Out of All Devices
                    </button>
                 </div>
               </div>

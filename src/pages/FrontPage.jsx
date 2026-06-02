@@ -15,8 +15,11 @@ const FrontPage = () => {
   const navigate = useNavigate();
   const { user, login } = useAuth();
 
-  // Allow users to see FrontPage even when logged in (e.g. on browser back)
-
+  React.useEffect(() => {
+    if (user) {
+      navigate('/home');
+    }
+  }, [user, navigate]);
   const handleCloseLogin = () => {
     setShowLogin(false);
     setLoginRole(null);

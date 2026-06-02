@@ -132,7 +132,7 @@ const Navbar = () => {
 
                       <div className="p-2 border-t border-white/5">
                         <button onClick={() => { logout(); window.location.href = '/'; }} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-red-400 font-bold hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors">
-                          <LogOut className="w-4 h-4" /> Sign Out
+                          <LogOut className="w-4 h-4" /> Log Out
                         </button>
                       </div>
                     </div>
@@ -213,7 +213,7 @@ const Navbar = () => {
                     <User className="w-5 h-5 text-slate-400" />
                   </Link>
                   <button onClick={() => { logout(); window.location.href = '/'; }} className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-all text-xs tracking-widest uppercase">
-                    <LogOut className="w-4 h-4" /> Sign Out
+                    <LogOut className="w-4 h-4" /> Log Out
                   </button>
                 </div>
               )}
