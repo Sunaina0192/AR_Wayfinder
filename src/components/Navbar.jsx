@@ -84,6 +84,22 @@ const Navbar = () => {
               );
             })}
 
+              {user && user.role === 'Admin' && (
+                <Link to="/admin/users" className={`
+                  px-4 py-2
+                  rounded-xl
+                  text-[10px]
+                  font-black
+                  tracking-[0.2em]
+                  transition-all duration-300
+                  whitespace-nowrap
+                  relative group/item
+                  text-accent bg-accent/10 shadow-[0_0_20px_rgba(6,182,212,0.15)] border border-accent/20
+                  `}>
+                  ADMIN
+                </Link>
+              )}
+
               {user && user.role !== 'Visitor' && (
                 <div className="relative ml-4 pl-4 border-l border-white/10" onMouseEnter={() => setShowProfileMenu(true)} onMouseLeave={() => setShowProfileMenu(false)}>
                   <div className="flex items-center gap-3 cursor-pointer group/profile">
