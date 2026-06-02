@@ -66,17 +66,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
-    const current = user;
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: current?.id })
-      });
-    } catch (err) {
-      console.error('Failed to notify server about logout:', err);
-    }
+  const logout = () => {
     setUser(null);
   };
 

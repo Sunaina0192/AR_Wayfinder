@@ -399,74 +399,8 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     console.error('Failed to save login record:', error);
   }
-  // Update profile lastLogin and isOnline status in DB or local fallback
-  try {
-    if (mongoose.connection.readyState === 1) {
-      try {
-        await UserProfile.findOneAndUpdate(
-          { userId: finalUserId },
-          {
-            $set: {
-              lastLogin: new Date(),
-              isOnline: true,
-              name: finalName,
-              email: userData.email,
-              department: userData.department || ''
-            }
-          },
-          { new: true, upsert: true }
-        );
-      } catch (dbError) {
-        console.error('Mongoose profile update failed on login:', dbError.message);
-      }
-    } else {
-      let localProfiles = getLocalProfiles();
-      localProfiles[finalUserId] = {
-        ...(localProfiles[finalUserId] || {}),
-        userId: finalUserId,
-        name: finalName,
-        email: userData.email,
-        department: userData.department || '',
-        lastLogin: new Date().toISOString(),
-        isOnline: true,
-        updatedAt: new Date().toISOString()
-      };
-      saveLocalProfiles(localProfiles);
-    }
-  } catch (err) {
-    console.error('Failed to update profile status on login:', err);
-  }
 
   return res.status(200).json(userData);
-});
-
-// Logout route to mark user offline
-app.post('/api/auth/logout', async (req, res) => {
-  const userId = req.body.userId || req.query.userId || req.headers['x-user-id'];
-  if (!userId) {
-    return res.status(400).json({ message: 'userId is required to logout.' });
-  }
-
-  try {
-    if (mongoose.connection.readyState === 1) {
-      try {
-        await UserProfile.findOneAndUpdate({ userId }, { $set: { isOnline: false } }, { new: true });
-      } catch (dbError) {
-        console.error('Mongoose profile update failed on logout:', dbError.message);
-      }
-    } else {
-      let localProfiles = getLocalProfiles();
-      if (localProfiles[userId]) {
-        localProfiles[userId].isOnline = false;
-        localProfiles[userId].updatedAt = new Date().toISOString();
-        saveLocalProfiles(localProfiles);
-      }
-    }
-    return res.status(200).json({ ok: true });
-  } catch (err) {
-    console.error('Failed to process logout:', err);
-    return res.status(500).json({ message: 'Logout failed.' });
-  }
 });
 
 // API 404 Route
