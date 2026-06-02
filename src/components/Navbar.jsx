@@ -128,11 +128,6 @@ const Navbar = () => {
                         <Link to="/settings" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-slate-300 font-bold hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                           <Settings className="w-4 h-4" /> Settings
                         </Link>
-                        {user && user.role === 'Admin' && (
-                          <Link to="/admin/users" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-slate-300 font-bold hover:text-white hover:bg-white/5 rounded-lg transition-colors">
-                            <User className="w-4 h-4" /> Admin Users
-                          </Link>
-                        )}
                       </div>
 
                       <div className="p-2 border-t border-white/5">
@@ -223,18 +218,6 @@ const Navbar = () => {
                     </div>
                     <User className="w-5 h-5 text-slate-400" />
                   </Link>
-                  {user && user.role === 'Admin' && (
-                    <Link to="/admin/users" onClick={() => setIsOpen(false)} className="w-full flex items-center justify-between px-6 py-3 mb-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
-                      <div className="flex items-center gap-3">
-                        <User className="w-5 h-5 text-slate-400" />
-                        <div>
-                          <p className="text-sm font-bold text-white">Admin Users</p>
-                          <p className="text-[10px] text-slate-400">View currently online</p>
-                        </div>
-                      </div>
-                      <User className="w-5 h-5 text-slate-400" />
-                    </Link>
-                  )}
                   <button onClick={() => { logout(); window.location.href = '/'; }} className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-all text-xs tracking-widest uppercase">
                     <LogOut className="w-4 h-4" /> Log Out
                   </button>
