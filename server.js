@@ -341,26 +341,26 @@ app.post('/api/auth/login', async (req, res) => {
   let finalName = name;
 
   if (role === 'Student') {
-    finalUserId = userId || '1200342';
-    finalName = finalUserId === '1200342' ? 'Rahul Sharma' : `Student (${finalUserId})`;
+    finalUserId = userId || 'STUDENT';
+    finalName = userId || 'Student';
     userData = {
       role,
       name: finalName,
       id: finalUserId,
       avatar: 'https://i.pravatar.cc/150?img=11',
       department: 'B.Tech CSE',
-      email: finalUserId === '1200342' ? 'rahul.sharma@sbbsu.ac.in' : `student.${finalUserId}@sbbsu.ac.in`
+      email: `${finalUserId.toLowerCase()}@sbbsu.ac.in`
     };
   } else if (role === 'Admin') {
-    finalUserId = userId || 'ADMIN-492';
-    finalName = finalUserId === 'ADMIN-492' ? 'Dr. Vivek Singh' : `Admin (${finalUserId})`;
+    finalUserId = userId || 'ADMIN';
+    finalName = userId || 'Admin';
     userData = {
       role,
       name: finalName,
       id: finalUserId,
       avatar: 'https://i.pravatar.cc/150?img=14',
       department: 'System Administration',
-      email: finalUserId === 'ADMIN-492' ? 'vivek.singh@sbbsu.ac.in' : `admin.${finalUserId}@sbbsu.ac.in`
+      email: `${finalUserId.toLowerCase()}@sbbsu.ac.in`
     };
   } else if (role === 'Visitor') {
     finalName = name || 'Guest Visitor';

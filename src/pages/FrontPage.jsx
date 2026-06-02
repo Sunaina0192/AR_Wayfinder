@@ -12,6 +12,7 @@ const FrontPage = () => {
   const [userId, setUserId] = useState('');
   const [passkey, setPasskey] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { user, login } = useAuth();
 
@@ -27,10 +28,36 @@ const FrontPage = () => {
     setVisitorPurpose('');
     setUserId('');
     setPasskey('');
+    setErrors({});
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    
+    // Validations
+    let newErrors = {};
+    const lettersOnlyRegex = /^[a-zA-Z\s]+$/;
+    const passkeyRegex = /^[\d\W_]+$/; // Only digits and special characters
+
+    if (loginRole === 'Visitor') {
+      if (!lettersOnlyRegex.test(visitorName)) {
+        newErrors.visitorName = "Name must contain only letters.";
+      }
+    } else {
+      if (!lettersOnlyRegex.test(userId)) {
+        newErrors.userId = "Username must contain only letters.";
+      }
+      if (!passkeyRegex.test(passkey)) {
+        newErrors.passkey = "Passkey must contain only numbers and special characters.";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     setIsLoggingIn(true);
     
     const extraData = loginRole === 'Visitor' 
@@ -107,7 +134,7 @@ const FrontPage = () => {
                   <p className="text-xs text-slate-400 font-bold tracking-[0.2em] uppercase">Choose your access level</p>
                 </div>
 
-                <button onClick={() => setLoginRole('Student')} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                <button onClick={() => { setLoginRole('Student'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
                   <div className="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <GraduationCap className="w-6 h-6" />
                   </div>
@@ -117,7 +144,7 @@ const FrontPage = () => {
                   </div>
                 </button>
 
-                <button onClick={() => setLoginRole('Admin')} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                <button onClick={() => { setLoginRole('Admin'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
                   <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
@@ -127,7 +154,7 @@ const FrontPage = () => {
                   </div>
                 </button>
 
-                <button onClick={() => setLoginRole('Visitor')} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                <button onClick={() => { setLoginRole('Visitor'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
                   <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Users className="w-6 h-6" />
                   </div>
@@ -163,11 +190,12 @@ const FrontPage = () => {
                             type="text" 
                             required
                             value={visitorName}
-                            onChange={(e) => setVisitorName(e.target.value)}
+                            onChange={(e) => { setVisitorName(e.target.value); setErrors({...errors, visitorName: null}); }}
                             placeholder="Enter your name"
-                            className="w-full glass border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-accent/50 transition-all shadow-inner bg-black/20"
+                            className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.visitorName ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
+                        {errors.visitorName && <p className="text-red-500 text-xs mt-1 ml-4">{errors.visitorName}</p>}
                       </div>
 
                       <div className="space-y-2">
@@ -190,7 +218,7 @@ const FrontPage = () => {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">User ID</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">Username</label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500">
                             <User className="w-4 h-4" />
@@ -199,11 +227,12 @@ const FrontPage = () => {
                             type="text" 
                             required
                             value={userId}
-                            onChange={(e) => setUserId(e.target.value)}
-                            placeholder="Enter ID"
-                            className="w-full glass border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-accent/50 transition-all shadow-inner bg-black/20"
+                            onChange={(e) => { setUserId(e.target.value); setErrors({...errors, userId: null}); }}
+                            placeholder="Enter Username"
+                            className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.userId ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
+                        {errors.userId && <p className="text-red-500 text-xs mt-1 ml-4">{errors.userId}</p>}
                       </div>
 
                       <div className="space-y-2">
@@ -215,12 +244,14 @@ const FrontPage = () => {
                           <input 
                             type="password" 
                             required
+                            maxLength={6}
                             value={passkey}
-                            onChange={(e) => setPasskey(e.target.value)}
-                            placeholder="Enter passkey"
-                            className="w-full glass border-white/10 rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-accent/50 transition-all shadow-inner bg-black/20"
+                            onChange={(e) => { setPasskey(e.target.value); setErrors({...errors, passkey: null}); }}
+                            placeholder="Enter passkey (max 6 chars)"
+                            className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.passkey ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
+                        {errors.passkey && <p className="text-red-500 text-xs mt-1 ml-4">{errors.passkey}</p>}
                       </div>
                     </>
                   )}
@@ -245,6 +276,7 @@ const FrontPage = () => {
                       setPasskey('');
                       setVisitorName('');
                       setVisitorPurpose('');
+                      setErrors({});
                     }} 
                     className="w-full py-3 mt-2 text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors"
                   >
