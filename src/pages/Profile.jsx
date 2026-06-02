@@ -72,7 +72,6 @@ const Profile = () => {
               <button onClick={handleTriggerUpload} className="absolute bottom-2 right-2 p-3 bg-accent text-dark rounded-full shadow-lg hover:scale-110 transition-transform">
                 <Edit className="w-5 h-5" />
               </button>
-              <p className="mt-3 text-xs text-slate-400 text-center">Click the edit icon to choose an avatar from your phone or browser.</p>
               <input 
                 type="file" 
                 ref={fileInputRef} 
