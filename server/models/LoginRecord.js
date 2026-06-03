@@ -16,8 +16,7 @@ const loginRecordSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    // Required for Student and Admin, but Visitor might just have a purpose instead
-    required: function() { return this.role !== 'Visitor'; }
+    // Optional
   },
   purpose: {
     type: String,
