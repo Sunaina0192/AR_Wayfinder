@@ -406,6 +406,38 @@ app.post('/api/auth/login', async (req, res) => {
   return res.status(200).json(userData);
 });
 
+// Get Login History for a User
+app.get('/api/auth/logins', async (req, res) => {
+  const userId = req.query.userId || req.headers['x-user-id'];
+
+  if (!userId) {
+    return res.status(400).json({ message: 'userId is required to load login history.' });
+  }
+
+  try {
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const logins = await LoginRecord.find({ userId }).sort({ loginTime: -1 }).limit(20).lean();
+        return res.json(logins);
+      } catch (dbError) {
+        console.error('Mongoose login query failed, falling back to local file storage:', dbError.message);
+      }
+    }
+
+    // Fallback to local logins
+    const localLogins = getLocalLogins();
+    const userLogins = localLogins
+      .filter((item) => item.userId === userId)
+      .sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime))
+      .slice(0, 20);
+
+    return res.json(userLogins);
+  } catch (error) {
+    console.error('Failed to load login history:', error);
+    return res.status(500).json({ message: 'Failed to load login history.' });
+  }
+});
+
 // API 404 Route
 app.use('/api', (req, res) => {
   res.status(404).json({

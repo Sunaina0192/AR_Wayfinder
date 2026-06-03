@@ -15,3 +15,13 @@ export const loginUser = async (payload) => {
 
   return response.json();
 };
+
+export const fetchLogins = async (userId) => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/logins?userId=${encodeURIComponent(userId || '')}`);
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch login history');
+  }
+
+  return response.json();
+};

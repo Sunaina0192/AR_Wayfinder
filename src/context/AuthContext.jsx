@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchProfile, saveProfile } from '../api/profileApi';
 import { loginUser } from '../api/authApi';
@@ -41,10 +42,14 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    if (user && user.role !== 'Visitor') {
-      fetchAndSyncProfile(user.id);
-    }
-  }, []);
+    if (!user || user.role === 'Visitor') return;
+
+    const syncProfile = async () => {
+      await fetchAndSyncProfile(user.id);
+    };
+
+    syncProfile();
+  }, [user]);
 
   const login = async (role, extraData = {}) => {
     try {

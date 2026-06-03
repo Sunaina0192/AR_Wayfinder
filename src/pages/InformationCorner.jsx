@@ -11,7 +11,22 @@ import { useNotifications } from '../context/NotificationContext';
 const InformationCorner = () => {
   const { user } = useAuth();
   const isAdmin = user && user.role === 'Admin';
-  const [announcements, setAnnouncements] = useState([]);
+  const [announcements, setAnnouncements] = useState(() => {
+    const saved = localStorage.getItem('sbbsu_announcements');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return [];
+      }
+    }
+    const initial = [
+      { id: 1, title: 'End Semester Examinations', content: 'The end semester examination schedule for June 2026 has been released.', date: new Date().toLocaleDateString(), priority: 'high' },
+      { id: 2, title: 'Annual Convocation 2026', content: 'Registrations are now open for the 2026 Annual Convocation.', date: new Date().toLocaleDateString(), priority: 'normal' }
+    ];
+    localStorage.setItem('sbbsu_announcements', JSON.stringify(initial));
+    return initial;
+  });
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '', priority: 'normal' });
   const { onNewAnnouncement, markAllRead } = useNotifications();
 
@@ -19,21 +34,6 @@ const InformationCorner = () => {
   useEffect(() => {
     markAllRead();
   }, [markAllRead]);
-
-  // Load announcements from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('sbbsu_announcements');
-    if (saved) {
-      setAnnouncements(JSON.parse(saved));
-    } else {
-      const initial = [
-        { id: 1, title: 'End Semester Examinations', content: 'The end semester examination schedule for June 2026 has been released.', date: new Date().toLocaleDateString(), priority: 'high' },
-        { id: 2, title: 'Annual Convocation 2026', content: 'Registrations are now open for the 2026 Annual Convocation.', date: new Date().toLocaleDateString(), priority: 'normal' }
-      ];
-      setAnnouncements(initial);
-      localStorage.setItem('sbbsu_announcements', JSON.stringify(initial));
-    }
-  }, []);
 
   const handlePost = (e) => {
     e.preventDefault();

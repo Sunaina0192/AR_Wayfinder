@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { campusLocations, findShortestPath, generateDirections } from '../data/locations';
+/* eslint-disable react-hooks/set-state-in-effect */
 import { MapPin, ArrowRight, Navigation, AlertCircle, Star, History, Moon, Sun, Filter } from 'lucide-react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,7 @@ const Navigator = () => {
 
   const categories = ['All', 'Administrative', 'Blocks', 'Library', 'Hostels', 'Sports', 'Cafeteria', 'Labs', 'Parking'];
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!user) return;
 
@@ -50,11 +52,42 @@ const Navigator = () => {
     loadHistory();
   }, [user]);
 
+  const saveHistory = useCallback(async (id) => {
+    if (!user) return;
+    const destination = campusLocations.find((loc) => loc.id === id);
+    if (!destination) return;
+
+    try {
+      const updatedHistory = await saveHistoryItem({
+        destinationId: id,
+        name: destination.name,
+        userId: user.id,
+      });
+      setNavigationHistory(updatedHistory);
+      setHistoryError(null);
+    } catch (error) {
+      console.error('Unable to save history item', error);
+      setHistoryError('Could not save route. Backend may be offline.');
+    }
+  }, [user]);
+
+  const handleLocationSelect = useCallback((id, autoAR = false) => {
+    const normalizedId = campusLocations.find((loc) => loc.id === id)?.id || id;
+    const path = findShortestPath('entry-gate', normalizedId);
+    setSelectedLocation(normalizedId);
+    setActivePath(path || []);
+    saveHistory(normalizedId);
+    if (autoAR) {
+      setShowAR(true);
+    }
+  }, [saveHistory]);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (routerLocation.state?.destination) {
       handleLocationSelect(routerLocation.state.destination);
     }
-  }, [routerLocation.state?.destination]);
+  }, [routerLocation.state?.destination, handleLocationSelect]);
 
   if (!user) {
     return <Navigate to="/" replace />;
@@ -73,36 +106,6 @@ const Navigator = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     localStorage.setItem('navigator_dark_mode', newMode.toString());
-  };
-
-  const saveHistory = async (id) => {
-    if (!user) return;
-    const destination = campusLocations.find((loc) => loc.id === id);
-    if (!destination) return;
-
-    try {
-      const updatedHistory = await saveHistoryItem({
-        destinationId: id,
-        name: destination.name,
-        userId: user.id,
-      });
-      setNavigationHistory(updatedHistory);
-      setHistoryError(null);
-    } catch (error) {
-      console.error('Unable to save history item', error);
-      setHistoryError('Could not save route. Backend may be offline.');
-    }
-  };
-
-  const handleLocationSelect = (id, autoAR = false) => {
-    const normalizedId = campusLocations.find((loc) => loc.id === id)?.id || id;
-    const path = findShortestPath('entry-gate', normalizedId);
-    setSelectedLocation(normalizedId);
-    setActivePath(path || []);
-    saveHistory(normalizedId);
-    if (autoAR) {
-      setShowAR(true);
-    }
   };
 
   const filteredLocations = campusLocations.filter(

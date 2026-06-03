@@ -308,7 +308,7 @@ const Courses = () => {
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 space-y-12">
-        {programs.map((program, idx) => (
+        {programs.map((program) => (
           <div key={program.id} className="glass border border-white/10 rounded-4xl p-8 shadow-2xl">
             <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
               <div className="max-w-4xl">

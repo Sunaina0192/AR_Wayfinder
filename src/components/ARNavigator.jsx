@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { getLocationById, findShortestPath, generateDirections, campusLocations } from '../data/locations';
+import { getLocationById, findShortestPath, generateDirections } from '../data/locations';
+/* eslint-disable react-hooks/set-state-in-effect */
 import { MapPin, Navigation, ChevronLeft, ChevronRight, Volume2, X, Compass, Radio, AlertTriangle, Play, Pause, Camera, Maximize, Minimize, RotateCcw, Zap } from 'lucide-react';
 import MapView from './MapView';
 
@@ -14,7 +15,6 @@ const ARNavigator = ({ destination, onExit }) => {
   const [showAR, setShowAR] = useState(false);
   const [cameraStarted, setCameraStarted] = useState(false);
   const [userHeading, setUserHeading] = useState(0);
-  const [userLocation, setUserLocation] = useState(null);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [error, setError] = useState(null);
   const [isSimulating, setIsSimulating] = useState(false);
@@ -25,9 +25,117 @@ const ARNavigator = ({ destination, onExit }) => {
   const animationRef = useRef(null);
   const watchIdRef = useRef(null);
   const simIntervalRef = useRef(null);
+  const userLocationRef = useRef(null);
 
   const destLocation = useMemo(() => getLocationById(destination), [destination]);
 
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    if (simIntervalRef.current) {
+      clearInterval(simIntervalRef.current);
+      simIntervalRef.current = null;
+    }
+    setIsSimulating(false);
+    setCameraStarted(false);
+    setShowAR(false);
+  }, []);
+
+  const drawSmoothArrow = useCallback((ctx, x, y) => {
+    const time = Date.now() * 0.004;
+    const bounce = Math.sin(time) * 15;
+    const scale = 1 + Math.sin(time * 0.5) * 0.05;
+
+    ctx.save();
+    ctx.translate(x, y + bounce);
+    ctx.scale(scale, scale);
+
+    if (facingMode === 'user') {
+      ctx.scale(-1, 1);
+    }
+
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = 'rgba(59, 130, 246, 0.8)';
+
+    const gradient = ctx.createLinearGradient(0, -40, 0, 40);
+    gradient.addColorStop(0, '#60A5FA');
+    gradient.addColorStop(1, '#2563EB');
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.moveTo(0, -50);
+    ctx.lineTo(-25, 0);
+    ctx.lineTo(-12, 0);
+    ctx.lineTo(-12, 45);
+    ctx.lineTo(12, 45);
+    ctx.lineTo(12, 0);
+    ctx.lineTo(25, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.ellipse(0, 60, 40 * scale, 15 * scale, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.restore();
+  }, [facingMode]);
+
+  const drawAROverlay = useCallback(() => {
+    if (!canvasRef.current || !videoRef.current) return;
+    const ctx = canvasRef.current.getContext('2d');
+
+    const animate = () => {
+      if (!canvasRef.current) return;
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+      if (currentStep < directions.length) {
+        const centerX = canvasRef.current.width / 2;
+        const centerY = canvasRef.current.height / 2;
+        const headingOffset = (userHeading % 360) / 10;
+        drawSmoothArrow(ctx, centerX - headingOffset, centerY + 100);
+      }
+
+      if (showAR) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    if (!animationRef.current) {
+      animate();
+    }
+  }, [currentStep, directions.length, userHeading, showAR, drawSmoothArrow]);
+
+  const speakDirection = useCallback(() => {
+    if (currentStep < directions.length && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(directions[currentStep].instruction);
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+  }, [currentStep, directions]);
+
+  const resetARView = () => {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+    drawAROverlay();
+    speakDirection();
+  };
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (destination) {
       const newPath = findShortestPath('entry-gate', destination);
@@ -52,7 +160,7 @@ const ARNavigator = ({ destination, onExit }) => {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
+          userLocationRef.current = { lat: latitude, lng: longitude };
         },
         (err) => console.warn('Geolocation error:', err),
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
@@ -71,13 +179,13 @@ const ARNavigator = ({ destination, onExit }) => {
       if (watchIdRef.current) navigator.geolocation.clearWatch(watchIdRef.current);
       if (simIntervalRef.current) clearInterval(simIntervalRef.current);
     };
-  }, []);
+  }, [stopCamera]);
 
   useEffect(() => {
     if (isVoiceEnabled && directions.length > 0 && currentStep < directions.length) {
       speakDirection();
     }
-  }, [currentStep, directions]);
+  }, [currentStep, directions, isVoiceEnabled, speakDirection]);
 
   const startCamera = async (mode = facingMode) => {
     setError(null);
@@ -137,117 +245,11 @@ const ARNavigator = ({ destination, onExit }) => {
     }
   };
 
-  const resetARView = () => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-    drawAROverlay();
-    speakDirection();
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-    if (simIntervalRef.current) {
-      clearInterval(simIntervalRef.current);
-      simIntervalRef.current = null;
-    }
-    setIsSimulating(false);
-    setCameraStarted(false);
-    setShowAR(false);
-  };
-
   useEffect(() => {
     if (showAR && cameraStarted) {
       drawAROverlay();
     }
-  }, [showAR, cameraStarted, currentStep, userHeading]);
-
-  const drawAROverlay = () => {
-    if (!canvasRef.current || !videoRef.current) return;
-    const ctx = canvasRef.current.getContext('2d');
-
-    const animate = () => {
-      if (!canvasRef.current) return;
-      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
-      if (currentStep < directions.length) {
-        const centerX = canvasRef.current.width / 2;
-        const centerY = canvasRef.current.height / 2;
-        const headingOffset = (userHeading % 360) / 10; 
-        drawSmoothArrow(ctx, centerX - headingOffset, centerY + 100);
-      }
-
-      if (showAR) {
-        animationRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    if (!animationRef.current) {
-      animate();
-    }
-  };
-
-  const drawSmoothArrow = (ctx, x, y) => {
-    const time = Date.now() * 0.004;
-    const bounce = Math.sin(time) * 15;
-    const scale = 1 + Math.sin(time * 0.5) * 0.05;
-
-    ctx.save();
-    ctx.translate(x, y + bounce);
-    ctx.scale(scale, scale);
-    
-    if (facingMode === 'user') {
-      ctx.scale(-1, 1);
-    }
-
-    ctx.shadowBlur = 30;
-    ctx.shadowColor = 'rgba(59, 130, 246, 0.8)';
-
-    const gradient = ctx.createLinearGradient(0, -40, 0, 40);
-    gradient.addColorStop(0, '#60A5FA');
-    gradient.addColorStop(1, '#2563EB');
-    
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.moveTo(0, -50);
-    ctx.lineTo(-25, 0);
-    ctx.lineTo(-12, 0);
-    ctx.lineTo(-12, 45);
-    ctx.lineTo(12, 45);
-    ctx.lineTo(12, 0);
-    ctx.lineTo(25, 0);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.ellipse(0, 60, 40 * scale, 15 * scale, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    ctx.restore();
-  };
-
-  const speakDirection = () => {
-    if (currentStep < directions.length && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(directions[currentStep].instruction);
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+  }, [showAR, cameraStarted, drawAROverlay]);
 
   const calculateETA = () => {
     const remainingSteps = directions.length - currentStep;

@@ -2,7 +2,7 @@ import React from 'react'
 import { Clock3, MapPin, Navigation } from 'lucide-react'
 import { getLocationById } from '../data/locations'
 
-const RouteSummary = ({ selectedLocation, distance, stepCount, isDarkMode }) => {
+const RouteSummary = ({ selectedLocation, distance, isDarkMode }) => {
   const location = selectedLocation ? getLocationById(selectedLocation) : null
   const estimatedTime = selectedLocation ? Math.max(1, Math.round(distance / 50)) : 0
 

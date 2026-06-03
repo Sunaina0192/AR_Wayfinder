@@ -72,7 +72,7 @@ const getCoordsFromPath = (path) => {
   return path.map((point) => [mapGraph[point].x, mapGraph[point].y]);
 };
 
-  const getLocationData = (e) => {
+  const getLocationData = () => {
     const search = location.toLowerCase().trim();
 
     if (locationData[search]) {
@@ -85,10 +85,10 @@ const getCoordsFromPath = (path) => {
   };
 const handleLocation = (place) => {
   const path = findPath(currentLocation, place);
-
   const coords = getCoordsFromPath(path);
 
   setPathPoints(coords);
+  setCurrentLocation(place);
   setResult(`Path: ${path.join(" → ")}`);
 };
 navigator.geolocation.getCurrentPosition((pos) => {

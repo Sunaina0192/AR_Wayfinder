@@ -1,15 +1,43 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { fetchLogins } from '../api/authApi';
+import { fetchHistory } from '../api/historyApi';
 import { 
   User, Mail, Phone, MapPin, Calendar, BookOpen, Clock, 
   Award, Activity, ShieldCheck, Users, Settings, Edit,
-  GraduationCap
+  GraduationCap, History, Database, CheckCircle, ArrowRight
 } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
   const fileInputRef = useRef(null);
+  
+  const [logins, setLogins] = useState([]);
+  const [navHistory, setNavHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user || user.role === 'Visitor') return;
+
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const [loginsData, historyData] = await Promise.all([
+          fetchLogins(user.id),
+          fetchHistory(user.id)
+        ]);
+        setLogins(loginsData || []);
+        setNavHistory(historyData || []);
+      } catch (error) {
+        console.error("Failed to load user data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [user]);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files?.[0];
@@ -85,6 +113,15 @@ const Profile = () => {
                 <span className="flex items-center gap-1.5"><Phone className="w-4 h-4" /> +91 98765 43210</span>
               </div>
             </div>
+            
+            {/* Database Sync Status Indicator */}
+            <div className="md:ml-auto flex flex-col items-center justify-center bg-white/5 p-4 rounded-2xl border border-white/10">
+              <Database className={`w-8 h-8 mb-2 ${logins.length > 0 ? 'text-green-400' : 'text-slate-400'}`} />
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Atlas Sync</span>
+              <span className={`text-[10px] mt-1 font-bold ${logins.length > 0 ? 'text-green-500' : 'text-amber-500'}`}>
+                {isLoading ? 'SYNCING...' : (logins.length > 0 ? 'CONNECTED' : 'LOCAL FALLBACK')}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -94,102 +131,110 @@ const Profile = () => {
           {/* Main Content Area - 2 columns on desktop */}
           <div className="md:col-span-2 space-y-8">
             
-            {/* Conditional Content based on Role */}
-            {isStudent ? (
-              <>
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-                  <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                    <BookOpen className="w-6 h-6 text-accent" /> Enrolled Courses
-                  </h2>
-                  <div className="space-y-4">
-                    {[
-                      { code: 'CSE301', name: 'Database Management Systems', credits: 4, grade: 'A' },
-                      { code: 'CSE302', name: 'Computer Networks', credits: 4, grade: 'B+' },
-                      { code: 'CSE303', name: 'Operating Systems', credits: 4, grade: 'A' },
-                      { code: 'MTH301', name: 'Applied Mathematics III', credits: 3, grade: 'A-' }
-                    ].map((course, i) => (
-                      <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all">
-                        <div>
-                          <p className="text-sm font-bold text-accent mb-1">{course.code}</p>
-                          <p className="text-white font-medium">{course.name}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-black text-white">{course.grade}</p>
-                          <p className="text-xs text-slate-400 font-bold">{course.credits} Credits</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                      <Award className="w-5 h-5 text-accent" /> Academic Standing
-                    </h2>
-                    <div className="flex flex-col items-center justify-center p-6 bg-accent/5 rounded-2xl border border-accent/20">
-                      <span className="text-5xl font-black text-white mb-2">8.75</span>
-                      <span className="text-sm font-bold text-accent tracking-widest uppercase">Current CGPA</span>
-                    </div>
-                  </div>
-                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-accent" /> Overall Attendance
-                    </h2>
-                    <div className="flex flex-col items-center justify-center p-6 bg-green-500/10 rounded-2xl border border-green-500/20">
-                      <span className="text-5xl font-black text-green-400 mb-2">85%</span>
-                      <span className="text-sm font-bold text-green-500 tracking-widest uppercase">Excellent</span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-                  <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                    <Activity className="w-6 h-6 text-accent" /> System Overview
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {[
-                      { label: 'Total Students', value: '3,420', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                      { label: 'Active Faculty', value: '185', icon: User, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                      { label: 'Pending Approvals', value: '12', icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-                      { label: 'System Health', value: '99.9%', icon: ShieldCheck, color: 'text-green-400', bg: 'bg-green-500/10' }
-                    ].map((stat, i) => (
-                      <div key={i} className={`flex items-center gap-4 p-4 rounded-2xl ${stat.bg} border border-white/5`}>
-                        <div className={`p-3 rounded-xl bg-black/20 ${stat.color}`}>
-                          <stat.icon className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-slate-400 mb-1">{stat.label}</p>
-                          <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
+            {/* MongoDB Navigation History */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                  <MapPin className="w-6 h-6 text-accent" /> Navigation History
+                </h2>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{navHistory.length} Routes Saved</span>
+              </div>
+              
+              <div className="space-y-4">
+                {isLoading ? (
+                  <p className="text-slate-400 text-sm font-medium animate-pulse">Loading navigation data from database...</p>
+                ) : navHistory.length > 0 ? (
+                  navHistory.slice(0, 5).map((route, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group">
+                      <div>
+                        <p className="text-sm font-bold text-accent mb-1">{route.name}</p>
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3 h-3 text-slate-400" />
+                          <p className="text-xs text-slate-400 font-medium">
+                            {new Date(route.createdAt).toLocaleString()}
+                          </p>
                         </div>
                       </div>
-                    ))}
+                      <Link to="/navigator" state={{ destination: route.destinationId }} className="p-3 bg-accent/10 rounded-xl group-hover:bg-accent/20 transition-colors">
+                        <ArrowRight className="w-4 h-4 text-accent" />
+                      </Link>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-slate-400 text-sm font-bold mb-2">No navigation history found</p>
+                    <Link to="/navigator" className="text-xs font-bold text-accent hover:underline">Start Exploring Campus</Link>
                   </div>
-                </div>
+                )}
+              </div>
+            </div>
 
-                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-                  <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                    <Settings className="w-6 h-6 text-accent" /> Quick Actions
-                  </h2>
-                  <div className="space-y-3">
-                    <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors group/btn">
-                      <span className="font-bold text-white group-hover/btn:text-accent transition-colors">Manage User Roles</span>
-                      <Edit className="w-4 h-4 text-slate-400" />
-                    </button>
-                    <button className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors group/btn">
-                      <span className="font-bold text-white group-hover/btn:text-accent transition-colors">System Configuration</span>
-                      <Settings className="w-4 h-4 text-slate-400" />
-                    </button>
+            {/* MongoDB Login History */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                  <Activity className="w-6 h-6 text-accent" /> Login Records
+                </h2>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{logins.length} Recent Logins</span>
+              </div>
+              
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                {isLoading ? (
+                  <p className="text-slate-400 text-sm font-medium animate-pulse">Loading login data from database...</p>
+                ) : logins.length > 0 ? (
+                  logins.map((login, i) => (
+                    <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-colors gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-500/10 rounded-full border border-green-500/20">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">{login.role} Login</p>
+                          <p className="text-xs text-slate-400 font-medium">{login.userId}</p>
+                        </div>
+                      </div>
+                      <div className="text-left sm:text-right">
+                        <p className="text-sm font-bold text-accent">
+                          {new Date(login.loginTime).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-slate-400 font-medium">
+                          {new Date(login.loginTime).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center p-6 bg-white/5 rounded-2xl border border-white/5">
+                    <p className="text-slate-400 text-sm font-bold">No previous logins recorded</p>
                   </div>
-                </div>
-              </>
-            )}
+                )}
+              </div>
+            </div>
+
           </div>
 
           {/* Sidebar Area */}
           <div className="space-y-8">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                <Database className="w-5 h-5 text-accent" /> Data Overview
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                  <span className="text-sm font-medium text-slate-300">Total Logins</span>
+                  <span className="text-lg font-black text-white">{logins.length}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                  <span className="text-sm font-medium text-slate-300">Saved Routes</span>
+                  <span className="text-lg font-black text-white">{navHistory.length}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                  <span className="text-sm font-medium text-slate-300">Profile Synced</span>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
+                </div>
+              </div>
+            </div>
+
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
               <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-accent" /> Address Info
@@ -224,27 +269,6 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
-              <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-accent" /> Upcoming Events
-              </h2>
-              <div className="space-y-4">
-                {[
-                  { date: '24 May', title: 'Mid-Term Examinations Begin' },
-                  { date: '01 Jun', title: 'Tech Symposium 2026' }
-                ].map((event, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="flex flex-col items-center justify-center min-w-[50px] p-2 bg-accent/10 rounded-xl border border-accent/20">
-                      <span className="text-lg font-black text-white">{event.date.split(' ')[0]}</span>
-                      <span className="text-[10px] font-bold text-accent uppercase tracking-widest">{event.date.split(' ')[1]}</span>
-                    </div>
-                    <div className="flex-1 flex items-center">
-                      <p className="text-sm font-medium text-slate-300">{event.title}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>

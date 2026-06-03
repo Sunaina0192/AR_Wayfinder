@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const NotificationContext = createContext();
@@ -6,7 +7,22 @@ export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   // Track unread announcement count
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(() => {
+    const lastSeen = localStorage.getItem('sbbsu_announcements_last_seen');
+    const lastSeenTime = lastSeen ? parseInt(lastSeen, 10) : 0;
+    const saved = localStorage.getItem('sbbsu_announcements');
+
+    if (!saved) {
+      return 0;
+    }
+
+    try {
+      const announcements = JSON.parse(saved);
+      return announcements.filter(a => a.id > lastSeenTime).length;
+    } catch {
+      return 0;
+    }
+  });
 
   // Calculate unread count by comparing announcements with last-seen timestamp
   const recalculate = useCallback(() => {
@@ -28,11 +44,6 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(0);
     }
   }, []);
-
-  // Recalculate on mount
-  useEffect(() => {
-    recalculate();
-  }, [recalculate]);
 
   // Listen for storage changes from other tabs
   useEffect(() => {
