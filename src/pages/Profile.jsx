@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { fetchLogins } from '../api/authApi';
 import { fetchHistory } from '../api/historyApi';
+import { fetchNotifications, fetchAttendance, fetchFees, fetchResults, fetchCourses } from '../api/dataApi';
 import { 
   User, Mail, Phone, MapPin, Calendar, BookOpen, Clock, 
   Award, Activity, ShieldCheck, Users, Settings, Edit,
@@ -15,6 +16,11 @@ const Profile = () => {
   
   const [logins, setLogins] = useState([]);
   const [navHistory, setNavHistory] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [attendance, setAttendance] = useState([]);
+  const [fees, setFees] = useState([]);
+  const [results, setResults] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,12 +29,22 @@ const Profile = () => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [loginsData, historyData] = await Promise.all([
+        const [loginsData, historyData, notificationsData, attendanceData, feesData, resultsData, coursesData] = await Promise.all([
           fetchLogins(user.id),
-          fetchHistory(user.id)
+          fetchHistory(user.id),
+          fetchNotifications().catch(()=>[]),
+          fetchAttendance().catch(()=>[]),
+          fetchFees().catch(()=>[]),
+          fetchResults().catch(()=>[]),
+          fetchCourses().catch(()=>[])
         ]);
         setLogins(loginsData || []);
         setNavHistory(historyData || []);
+        setNotifications(notificationsData || []);
+        setAttendance(attendanceData || []);
+        setFees(feesData || []);
+        setResults(resultsData || []);
+        setCourses(coursesData || []);
       } catch (error) {
         console.error("Failed to load user data:", error);
       } finally {
@@ -165,6 +181,109 @@ const Profile = () => {
                     <p className="text-slate-400 text-sm font-bold mb-2">No navigation history found</p>
                     <Link to="/navigator" className="text-xs font-bold text-accent hover:underline">Start Exploring Campus</Link>
                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Academic Data for Students */}
+            {isStudent && (
+              <>
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                      <BookOpen className="w-6 h-6 text-accent" /> Enrolled Courses
+                    </h2>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{courses.length} Courses</span>
+                  </div>
+                  <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {courses.length > 0 ? courses.map((course, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all">
+                        <div>
+                          <p className="text-sm font-bold text-accent mb-1">{course.courseCode}</p>
+                          <p className="text-white font-medium">{course.name}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-slate-400 font-bold">{course.credits} Credits</p>
+                        </div>
+                      </div>
+                    )) : (
+                      <p className="text-slate-400 text-sm font-bold text-center">No courses assigned</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                      <Award className="w-5 h-5 text-accent" /> Latest Result
+                    </h2>
+                    <div className="flex flex-col items-center justify-center p-6 bg-accent/5 rounded-2xl border border-accent/20">
+                      {results.length > 0 ? (
+                        <>
+                          <span className="text-5xl font-black text-white mb-2">{results[0].sgpa.toFixed(2)}</span>
+                          <span className="text-sm font-bold text-accent tracking-widest uppercase">SGPA (Sem {results[0].semester})</span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-bold text-slate-400">N/A</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-accent" /> Attendance
+                    </h2>
+                    <div className="flex flex-col items-center justify-center p-6 bg-green-500/10 rounded-2xl border border-green-500/20">
+                      <span className="text-5xl font-black text-green-400 mb-2">
+                        {attendance.length > 0 ? Math.round((attendance.filter(a => a.status === 'Present').length / attendance.length) * 100) : 0}%
+                      </span>
+                      <span className="text-sm font-bold text-green-500 tracking-widest uppercase">Overall</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+                  <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                    <Activity className="w-6 h-6 text-accent" /> Fee Status
+                  </h2>
+                  <div className="space-y-4">
+                    {fees.length > 0 ? fees.map((fee, i) => (
+                      <div key={i} className="flex flex-col sm:flex-row justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div>
+                          <p className="text-sm font-bold text-white">Semester {fee.semester}</p>
+                          <p className="text-xs text-slate-400">Due: {new Date(fee.dueDate).toLocaleDateString()}</p>
+                        </div>
+                        <div className="text-left sm:text-right mt-2 sm:mt-0">
+                          <p className={`text-sm font-black ${fee.status === 'Paid' ? 'text-green-400' : 'text-red-400'}`}>₹{fee.totalAmount}</p>
+                          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{fee.status}</p>
+                        </div>
+                      </div>
+                    )) : (
+                      <p className="text-slate-400 text-sm font-bold text-center">No fee records</p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Notifications */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                  <Calendar className="w-6 h-6 text-accent" /> Notifications
+                </h2>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{notifications.length} Alerts</span>
+              </div>
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {notifications.length > 0 ? notifications.map((note, i) => (
+                  <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-white mb-1">{note.title}</p>
+                      <p className="text-xs text-slate-300 leading-relaxed">{note.message}</p>
+                      <p className="text-[10px] text-slate-500 mt-2 font-bold">{new Date(note.date).toLocaleString()}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <p className="text-slate-400 text-sm font-bold text-center">No new notifications</p>
                 )}
               </div>
             </div>

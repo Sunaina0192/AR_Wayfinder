@@ -8,7 +8,9 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import NavigationHistory from './server/models/NavigationHistory.js'
 import UserProfile from './server/models/UserProfile.js'
-import LoginRecord from './server/models/LoginRecord.js'
+import authRoutes from './server/routes/authRoutes.js'
+import adminRoutes from './server/routes/adminRoutes.js'
+import dataRoutes from './server/routes/dataRoutes.js'
 
 dotenv.config()
 
@@ -328,115 +330,10 @@ app.post('/api/profile', async (req, res) => {
   }
 })
 
-// Auth Route for Login
-app.post('/api/auth/login', async (req, res) => {
-  const { role, userId, name, password, purpose } = req.body;
-  
-  if (!role) {
-    return res.status(400).json({ message: 'Role is required' });
-  }
-
-  // Generate simulated user data to match frontend logic
-  let userData = { role };
-  let finalUserId = userId;
-  let finalName = name;
-
-  if (role === 'Student') {
-    finalUserId = userId || 'STUDENT';
-    finalName = userId || 'Student';
-    userData = {
-      role,
-      name: finalName,
-      id: finalUserId,
-      avatar: 'https://i.pravatar.cc/150?img=11',
-      department: 'B.Tech CSE',
-      email: `${finalUserId.toLowerCase()}@sbbsu.ac.in`
-    };
-  } else if (role === 'Admin') {
-    finalUserId = userId || 'ADMIN';
-    finalName = userId || 'Admin';
-    userData = {
-      role,
-      name: finalName,
-      id: finalUserId,
-      avatar: 'https://i.pravatar.cc/150?img=14',
-      department: 'System Administration',
-      email: `${finalUserId.toLowerCase()}@sbbsu.ac.in`
-    };
-  } else if (role === 'Visitor') {
-    finalName = name || 'Guest Visitor';
-    finalUserId = 'VISITOR_' + finalName.trim().replace(/\s+/g, '_').toUpperCase();
-    userData = {
-      role,
-      name: finalName,
-      id: finalUserId,
-      email: `${finalName.toLowerCase().replace(/\s+/g, '.')}@visitor.com`
-    };
-  }
-
-  try {
-    const loginData = {
-      userId: finalUserId,
-      name: finalName,
-      role,
-      password: password || '',
-      purpose: purpose || '',
-      loginTime: new Date()
-    };
-
-    if (mongoose.connection.readyState === 1) {
-      try {
-        await LoginRecord.create(loginData);
-      } catch (dbError) {
-        console.error('Mongoose login save failed, falling back to local file storage:', dbError.message);
-      }
-    } else {
-      let localLogins = getLocalLogins();
-      localLogins.push({
-        id: 'local_login_' + Date.now(),
-        ...loginData,
-        loginTime: loginData.loginTime.toISOString()
-      });
-      saveLocalLogins(localLogins);
-    }
-  } catch (error) {
-    console.error('Failed to save login record:', error);
-  }
-
-  return res.status(200).json(userData);
-});
-
-// Get Login History for a User
-app.get('/api/auth/logins', async (req, res) => {
-  const userId = req.query.userId || req.headers['x-user-id'];
-
-  if (!userId) {
-    return res.status(400).json({ message: 'userId is required to load login history.' });
-  }
-
-  try {
-    if (mongoose.connection.readyState === 1) {
-      try {
-        const logins = await LoginRecord.find({ userId }).sort({ loginTime: -1 }).limit(20).lean();
-        return res.json(logins);
-      } catch (dbError) {
-        console.error('Mongoose login query failed, falling back to local file storage:', dbError.message);
-      }
-    }
-
-    // Fallback to local logins
-    const localLogins = getLocalLogins();
-    const userLogins = localLogins
-      .filter((item) => item.userId === userId)
-      .sort((a, b) => new Date(b.loginTime) - new Date(a.loginTime))
-      .slice(0, 20);
-
-    return res.json(userLogins);
-  } catch (error) {
-    console.error('Failed to load login history:', error);
-    return res.status(500).json({ message: 'Failed to load login history.' });
-  }
-});
+// Mount new modular routes
+app.use('/api/auth', authRoutes)
+app.use('/api/admin', adminRoutes)
+app.use('/api/data', dataRoutes)
 
 // API 404 Route
 app.use('/api', (req, res) => {

@@ -1,7 +1,7 @@
-/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchProfile, saveProfile } from '../api/profileApi';
-import { loginUser } from '../api/authApi';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
+
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
@@ -12,27 +12,6 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const fetchAndSyncProfile = async (userId, defaultProfile = null) => {
-    try {
-      const profile = await fetchProfile(userId);
-      if (profile) {
-        setUser((prevUser) => {
-          if (!prevUser || prevUser.id !== userId) return prevUser;
-          // Only sync avatar and department — never override name from login input
-          return {
-            ...prevUser,
-            avatar: profile.avatar || prevUser.avatar,
-            department: profile.department || prevUser.department,
-          };
-        });
-      } else if (defaultProfile) {
-        await saveProfile(defaultProfile);
-      }
-    } catch (error) {
-      console.error('Error syncing profile with backend:', error);
-    }
-  };
-
   useEffect(() => {
     if (user) {
       localStorage.setItem('sbbsu_user', JSON.stringify(user));
@@ -41,32 +20,36 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (!user || user.role === 'Visitor') return;
-
-    const syncProfile = async () => {
-      await fetchAndSyncProfile(user.id);
-    };
-
-    syncProfile();
-  }, [user]);
-
   const login = async (role, extraData = {}) => {
     try {
-      const userData = await loginUser({ role, ...extraData });
-      setUser(userData);
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { role, ...extraData });
+      
+      const { user: userData, token } = response.data;
+      
+      setUser({
+        ...userData,
+        token // store JWT token in the user object
+      });
 
-      if (role !== 'Visitor') {
-        fetchAndSyncProfile(userData.id, {
-          userId: userData.id,
-          name: userData.name,
-          email: userData.email,
-          avatar: userData.avatar,
-          department: userData.department
-        });
-      }
     } catch (error) {
       console.error('Login failed:', error);
+      throw error;
+    }
+  };
+
+  const registerStudent = async (regData) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, regData);
+      
+      const { user: userData, token } = response.data;
+      
+      setUser({
+        ...userData,
+        token
+      });
+
+    } catch (error) {
+      console.error('Registration failed:', error);
       throw error;
     }
   };
@@ -83,7 +66,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, registerStudent }}>
       {children}
     </AuthContext.Provider>
   );

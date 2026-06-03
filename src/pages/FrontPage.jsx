@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { ArrowRight, X, User, Lock, LogIn, GraduationCap, ShieldCheck, Users } from 'lucide-react';
+import { ArrowRight, X, User, Lock, LogIn, GraduationCap, ShieldCheck, Users, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const FrontPage = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -11,10 +13,17 @@ const FrontPage = () => {
   const [visitorPurpose, setVisitorPurpose] = useState('');
   const [userId, setUserId] = useState('');
   const [passkey, setPasskey] = useState('');
+  
+  // Registration State
+  const [regData, setRegData] = useState({
+    fullName: '', fatherName: '', email: '', phoneNumber: '', course: '', semester: '', rollNumber: '', password: ''
+  });
+  const [regSuccess, setRegSuccess] = useState('');
+  
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  const { user, login, registerStudent } = useAuth();
 
   React.useEffect(() => {
     if (user) {
@@ -29,26 +38,33 @@ const FrontPage = () => {
     setUserId('');
     setPasskey('');
     setErrors({});
+    setRegSuccess('');
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     
+    if (loginRole === 'Registration') {
+      setIsLoggingIn(true);
+      setErrors({});
+      try {
+        await registerStudent(regData);
+        navigate('/home');
+      } catch (error) {
+        setErrors({ submit: error.response?.data?.message || 'Registration failed' });
+      } finally {
+        setIsLoggingIn(false);
+      }
+      return;
+    }
+
     // Validations
     let newErrors = {};
     const lettersOnlyRegex = /^[a-zA-Z\s]+$/;
-    const passkeyRegex = /^[\d\W_]+$/; // Only digits and special characters
-
+    
     if (loginRole === 'Visitor') {
       if (!lettersOnlyRegex.test(visitorName)) {
         newErrors.visitorName = "Name must contain only letters.";
-      }
-    } else {
-      if (!lettersOnlyRegex.test(userId)) {
-        newErrors.userId = "Username must contain only letters.";
-      }
-      if (!passkeyRegex.test(passkey)) {
-        newErrors.passkey = "Passkey must contain only numbers and special characters.";
       }
     }
 
@@ -71,7 +87,7 @@ const FrontPage = () => {
     } catch (error) {
       console.error('Login error', error);
       setIsLoggingIn(false);
-      alert('Login failed. Please make sure the backend is running.');
+      alert(error.response?.data?.message || 'Login failed. Please verify credentials.');
     }
   };
 
@@ -163,6 +179,16 @@ const FrontPage = () => {
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Explore campus directly</p>
                   </div>
                 </button>
+                
+                <button onClick={() => { setLoginRole('Registration'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                  <div className="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <ClipboardList className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold tracking-wider">Student Registration <span className="text-[10px] bg-accent text-dark px-2 py-0.5 rounded-full ml-2">NEW</span></h3>
+                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Apply for admission</p>
+                  </div>
+                </button>
               </div>
             ) : (
               /* Login Form */
@@ -178,7 +204,28 @@ const FrontPage = () => {
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
-                  {loginRole === 'Visitor' ? (
+                  {loginRole === 'Registration' ? (
+                    <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                      {regSuccess && <div className="p-4 bg-green-500/20 border border-green-500/50 text-green-400 rounded-2xl text-sm font-bold text-center">{regSuccess}</div>}
+                      {errors.submit && <div className="p-4 bg-red-500/20 border border-red-500/50 text-red-400 rounded-2xl text-sm font-bold text-center">{errors.submit}</div>}
+                      
+                      {['fullName', 'fatherName', 'email', 'phoneNumber', 'course', 'semester', 'rollNumber', 'password'].map((field) => (
+                        <div key={field} className="space-y-2">
+                          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">
+                            {field.replace(/([A-Z])/g, ' $1').trim()}
+                          </label>
+                          <input 
+                            type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+                            required
+                            value={regData[field]}
+                            onChange={(e) => setRegData({...regData, [field]: e.target.value})}
+                            placeholder={`Enter ${field.replace(/([A-Z])/g, ' $1').trim()}`}
+                            className="w-full glass border-white/10 rounded-2xl px-6 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-accent/50 transition-all shadow-inner bg-black/20"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : loginRole === 'Visitor' ? (
                     <>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">Full Name</label>
@@ -218,7 +265,9 @@ const FrontPage = () => {
                   ) : (
                     <>
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">Username</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">
+                          {loginRole === 'Student' ? 'Student ID' : 'Email ID'}
+                        </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500">
                             <User className="w-4 h-4" />
@@ -228,7 +277,7 @@ const FrontPage = () => {
                             required
                             value={userId}
                             onChange={(e) => { setUserId(e.target.value); setErrors({...errors, userId: null}); }}
-                            placeholder="Enter Username"
+                            placeholder={loginRole === 'Student' ? "Enter Student ID (e.g., STU260001)" : "Enter Email"}
                             className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.userId ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
@@ -236,7 +285,7 @@ const FrontPage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">Passkey</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">Password</label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500">
                             <Lock className="w-4 h-4" />
@@ -244,10 +293,9 @@ const FrontPage = () => {
                           <input 
                             type="password" 
                             required
-                            maxLength={6}
                             value={passkey}
                             onChange={(e) => { setPasskey(e.target.value); setErrors({...errors, passkey: null}); }}
-                            placeholder="Enter passkey (max 6 chars)"
+                            placeholder="Enter password"
                             className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.passkey ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
@@ -264,7 +312,7 @@ const FrontPage = () => {
                     {isLoggingIn ? (
                       <div className="w-5 h-5 border-4 border-current border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      'Login'
+                      loginRole === 'Registration' ? 'Submit Application' : 'Login'
                     )}
                   </button>
                   
