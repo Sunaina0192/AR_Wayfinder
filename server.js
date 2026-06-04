@@ -11,6 +11,7 @@ import UserProfile from './server/models/UserProfile.js'
 import authRoutes from './server/routes/authRoutes.js'
 import adminRoutes from './server/routes/adminRoutes.js'
 import dataRoutes from './server/routes/dataRoutes.js'
+import admissionRoutes from './server/routes/admissionRoutes.js'
 
 dotenv.config()
 
@@ -334,6 +335,7 @@ app.post('/api/profile', async (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/data', dataRoutes)
+app.use('/api/admissions', admissionRoutes)
 
 // API 404 Route
 app.use('/api', (req, res) => {

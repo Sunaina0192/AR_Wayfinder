@@ -22,6 +22,8 @@ const Alumni = lazy(() => import('./pages/Alumni'))
 const Admissions = lazy(() => import('./pages/Admissions'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
+const AdmissionForm = lazy(() => import('./pages/AdmissionForm'))
+const AdminAdmissions = lazy(() => import('./pages/AdminAdmissions'))
 
 // Loading component
 const Loading = () => (
@@ -81,6 +83,8 @@ const App = () => {
                 <Route path="/rti" element={<RTI />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/admissions" element={<Admissions />} />
+                <Route path="/apply" element={<AdmissionForm />} />
+                <Route path="/admin/admissions" element={<AdminAdmissions />} />
                 <Route path="/alumni" element={<Alumni />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />

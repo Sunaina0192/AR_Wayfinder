@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, User, Settings, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Menu, X, LogOut, User, Settings, GraduationCap, ShieldCheck, ClipboardList } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 
@@ -128,6 +128,11 @@ const Navbar = () => {
                         <Link to="/settings" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-slate-300 font-bold hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                           <Settings className="w-4 h-4" /> Settings
                         </Link>
+                        {user.role === 'Admin' && (
+                          <Link to="/admin/admissions" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
+                            <ClipboardList className="w-4 h-4" /> Admission Applications
+                          </Link>
+                        )}
                       </div>
 
                       <div className="p-2 border-t border-white/5">

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, CreditCard, ExternalLink, ShieldCheck, Truck } from 'lucide-react'
 
 const courseRates = [
@@ -99,6 +100,7 @@ const currency = (value) =>
   }).format(value)
 
 const Admissions = () => {
+  const navigate = useNavigate()
   const [selectedCourseId, setSelectedCourseId] = useState('btech')
   const [selectedScholarshipId, setSelectedScholarshipId] = useState('none')
   const [includeBus, setIncludeBus] = useState(false)
@@ -131,11 +133,17 @@ const Admissions = () => {
                 <span className="text-[10px] uppercase tracking-[0.35em] font-black text-accent">Admissions & Fees</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tight uppercase mb-6">
-                Complete Course Fee & Admission Guide
+                Complete Course Fee &amp; Admission Guide
               </h1>
               <p className="max-w-3xl text-slate-300 leading-relaxed text-lg">
                 Choose your program, pick a scholarship category, and see your exact fee obligation with separate hostel and bus fees. Manage payment status and pay instantly with QR or visit the admission cell for in-person support.
               </p>
+              <button
+                onClick={() => navigate('/apply')}
+                className="mt-8 inline-flex items-center gap-3 px-8 py-4 rounded-3xl bg-gradient-to-r from-accent to-cyan-500 text-dark font-black uppercase tracking-[0.2em] text-sm hover:shadow-[0_20px_60px_rgba(6,182,212,0.35)] hover:scale-105 transition-all duration-300"
+              >
+                <ArrowRight className="w-5 h-5" /> Apply Now 2026
+              </button>
             </div>
 
             <div className="glass border border-white/10 rounded-4xl p-8 shadow-2xl">
