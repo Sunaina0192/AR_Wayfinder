@@ -5,6 +5,10 @@ import { protect, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
 
+const isValidGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email);
+const isValidMobile = (mobile) => /^\d{10}$/.test(mobile);
+const isValidDocumentBase64 = (doc) => typeof doc === 'string' && doc.startsWith('data:image/');
+
 // ─── Public Routes ─────────────────────────────────────────────────────────
 
 // @route   POST /api/admissions/apply
@@ -12,14 +16,81 @@ const router = express.Router();
 // @access  Public
 router.post('/apply', async (req, res) => {
   try {
-    const application = await AdmissionApplication.create(req.body);
+    const {
+      fullName, fatherName, motherName, dob, gender, mobile, email,
+      state, district, city, address,
+      marks10, marks12, prevQualification, course,
+      documents,
+    } = req.body;
+
+    const missingFields = [];
+
+    if (!fullName?.trim()) missingFields.push('fullName');
+    if (!fatherName?.trim()) missingFields.push('fatherName');
+    if (!motherName?.trim()) missingFields.push('motherName');
+    if (!dob) missingFields.push('dob');
+    if (!gender) missingFields.push('gender');
+    if (!mobile || !isValidMobile(mobile)) missingFields.push('mobile');
+    if (!email || !isValidGmail(email)) missingFields.push('email');
+    if (!state?.trim()) missingFields.push('state');
+    if (!district?.trim()) missingFields.push('district');
+    if (!city?.trim()) missingFields.push('city');
+    if (!address?.trim()) missingFields.push('address');
+    if (!marks10?.trim()) missingFields.push('marks10');
+    if (!marks12?.trim()) missingFields.push('marks12');
+    if (!prevQualification?.trim()) missingFields.push('prevQualification');
+    if (!course) missingFields.push('course');
+
+    if (!documents || typeof documents !== 'object') {
+      return res.status(400).json({ message: 'All documents are required and must be uploaded.' });
+    }
+
+    const invalidDocument = [];
+    if (!isValidDocumentBase64(documents.passportPhoto)) invalidDocument.push('passportPhoto');
+    if (!isValidDocumentBase64(documents.aadhaarCard)) invalidDocument.push('aadhaarCard');
+    if (!isValidDocumentBase64(documents.certificate10th)) invalidDocument.push('certificate10th');
+    if (!isValidDocumentBase64(documents.certificate12th)) invalidDocument.push('certificate12th');
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Please complete all required fields.', missingFields });
+    }
+    if (invalidDocument.length > 0) {
+      return res.status(400).json({ message: 'Uploaded documents must be valid image files.', invalidDocuments: invalidDocument });
+    }
+
+    const applicationData = {
+      fullName: fullName.trim(),
+      fatherName: fatherName.trim(),
+      motherName: motherName.trim(),
+      dob,
+      gender,
+      mobile,
+      email: email.trim(),
+      state: state.trim(),
+      district: district.trim(),
+      city: city.trim(),
+      address: address.trim(),
+      marks10: marks10.trim(),
+      marks12: marks12.trim(),
+      prevQualification: prevQualification.trim(),
+      course,
+      documents: {
+        passportPhoto: documents.passportPhoto,
+        aadhaarCard: documents.aadhaarCard,
+        certificate10th: documents.certificate10th,
+        certificate12th: documents.certificate12th,
+      },
+      status: 'Pending Verification',
+    };
+
+    const application = await AdmissionApplication.create(applicationData);
     res.status(201).json({
       message: 'Application submitted successfully!',
       applicationId: application.applicationId,
       application,
     });
-  } catch (error) {
-    console.error('Admission application error:', error);
+  } catch {
+    console.error('Admission application error.');
     res.status(500).json({ message: 'Failed to submit application. Please try again.' });
   }
 });
@@ -34,7 +105,7 @@ router.get('/status/:applicationId', async (req, res) => {
       return res.status(404).json({ message: 'Application not found.' });
     }
     res.json(app);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Server error.' });
   }
 });
@@ -50,7 +121,7 @@ router.get('/', protect, adminOnly, async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
     res.json(applications);
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Server error.' });
   }
 });
@@ -61,8 +132,8 @@ router.get('/', protect, adminOnly, async (req, res) => {
 router.put('/:id/status', protect, adminOnly, async (req, res) => {
   try {
     const { status } = req.body;
-    if (!['Approved', 'Rejected'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status. Must be Approved or Rejected.' });
+    if (!['Approved', 'Rejected', 'Pending', 'Pending Verification'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status.' });
     }
 
     const application = await AdmissionApplication.findByIdAndUpdate(
@@ -76,7 +147,7 @@ router.put('/:id/status', protect, adminOnly, async (req, res) => {
     }
 
     res.json({ message: `Application ${status} successfully.`, application });
-  } catch (error) {
+  } catch {
     res.status(500).json({ message: 'Server error.' });
   }
 });
