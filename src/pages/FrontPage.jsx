@@ -266,7 +266,7 @@ const FrontPage = () => {
                     <>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">
-                          {loginRole === 'Student' ? 'Student ID' : 'Email ID'}
+                          {loginRole === 'Student' ? 'Roll Number' : 'Email ID'}
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500">
@@ -277,7 +277,7 @@ const FrontPage = () => {
                             required
                             value={userId}
                             onChange={(e) => { setUserId(e.target.value); setErrors({...errors, userId: null}); }}
-                            placeholder={loginRole === 'Student' ? "Enter Student ID (e.g., STU260001)" : "Enter Email"}
+                            placeholder={loginRole === 'Student' ? "Enter Roll Number" : "Enter Email"}
                             className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.userId ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
