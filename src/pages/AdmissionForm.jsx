@@ -448,10 +448,10 @@ const AdmissionForm = () => {
       );
       case 3: return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <DocumentUpload label="Passport Photo" value={form.documents.passportPhoto} onChange={(v) => handleDocUpload('passportPhoto', v)} error={docErrors.passportPhoto} validating={docValidating.passportPhoto} />
-          <DocumentUpload label="Aadhaar Card" value={form.documents.aadhaarCard} onChange={(v) => handleDocUpload('aadhaarCard', v)} error={docErrors.aadhaarCard} validating={docValidating.aadhaarCard} />
-          <DocumentUpload label="10th Certificate" value={form.documents.certificate10th} onChange={(v) => handleDocUpload('certificate10th', v)} error={docErrors.certificate10th} validating={docValidating.certificate10th} />
-          <DocumentUpload label="12th Certificate" value={form.documents.certificate12th} onChange={(v) => handleDocUpload('certificate12th', v)} error={docErrors.certificate12th} validating={docValidating.certificate12th} />
+          <DocumentUpload label="Passport Photo" value={form.documents.passportPhoto} onChange={(v, f) => handleDocUpload('passportPhoto', v, f)} error={docErrors.passportPhoto} validating={docValidating.passportPhoto} />
+          <DocumentUpload label="Aadhaar Card" value={form.documents.aadhaarCard} onChange={(v, f) => handleDocUpload('aadhaarCard', v, f)} error={docErrors.aadhaarCard} validating={docValidating.aadhaarCard} />
+          <DocumentUpload label="10th Certificate" value={form.documents.certificate10th} onChange={(v, f) => handleDocUpload('certificate10th', v, f)} error={docErrors.certificate10th} validating={docValidating.certificate10th} />
+          <DocumentUpload label="12th Certificate" value={form.documents.certificate12th} onChange={(v, f) => handleDocUpload('certificate12th', v, f)} error={docErrors.certificate12th} validating={docValidating.certificate12th} />
         </div>
       );
       case 4: return (
