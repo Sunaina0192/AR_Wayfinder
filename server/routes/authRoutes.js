@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import Student from '../models/Student.js';
 import Admin from '../models/Admin.js';
 import LoginRecord from '../models/LoginRecord.js';
+import UserProfile from '../models/UserProfile.js';
 
 const router = express.Router();
 
@@ -38,6 +39,15 @@ router.post('/register', async (req, res) => {
     });
 
     if (student) {
+      // Create user profile with empty avatar to default to grey avatar
+      await UserProfile.create({
+        userId: student.studentId,
+        name: student.fullName,
+        email: student.email,
+        department: student.course,
+        avatar: '' // default empty avatar
+      });
+
       await LoginRecord.create({
         userId: student.studentId,
         name: student.fullName,
@@ -52,7 +62,7 @@ router.post('/register', async (req, res) => {
           name: student.fullName,
           email: student.email,
           role: 'Student',
-          avatar: 'https://i.pravatar.cc/150?img=11',
+          avatar: '',
           department: student.course,
           mongoId: student._id
         },
@@ -113,14 +123,16 @@ router.post('/login', async (req, res) => {
           loginTime: new Date()
         });
 
+        const userProfile = await UserProfile.findOne({ userId: admin.email }).lean();
+
         return res.json({
           user: {
             id: admin._id,
-            name: admin.name,
-            email: admin.email,
+            name: userProfile?.name || admin.name,
+            email: userProfile?.email || admin.email,
             role: 'Admin',
-            avatar: 'https://i.pravatar.cc/150?img=14',
-            department: 'System Administration'
+            avatar: userProfile?.avatar || '',
+            department: userProfile?.department || 'System Administration'
           },
           token: generateToken(admin._id, 'Admin'),
         });
@@ -151,14 +163,16 @@ router.post('/login', async (req, res) => {
           loginTime: new Date()
         });
 
+        const userProfile = await UserProfile.findOne({ userId: student.studentId }).lean();
+
         return res.json({
           user: {
             id: student.studentId,
-            name: student.fullName,
-            email: student.email,
+            name: userProfile?.name || student.fullName,
+            email: userProfile?.email || student.email,
             role: 'Student',
-            avatar: 'https://i.pravatar.cc/150?img=11',
-            department: student.course,
+            avatar: userProfile?.avatar || '',
+            department: userProfile?.department || student.course,
             mongoId: student._id
           },
           token: generateToken(student._id, 'Student'),

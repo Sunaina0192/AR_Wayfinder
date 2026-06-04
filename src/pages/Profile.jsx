@@ -9,6 +9,8 @@ import {
   GraduationCap, History, Database, CheckCircle, ArrowRight
 } from 'lucide-react';
 import { Navigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -59,8 +61,24 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        updateUser({ avatar: reader.result });
+      reader.onloadend = async () => {
+        try {
+          const avatarData = reader.result;
+          // Optimistically update UI
+          updateUser({ avatar: avatarData });
+          
+          // Save to backend permanently
+          await axios.post(`${API_BASE_URL}/api/profile`, {
+            userId: user.id,
+            name: user.name,
+            email: user.email,
+            department: user.department,
+            avatar: avatarData
+          });
+        } catch (error) {
+          console.error("Failed to save avatar to database:", error);
+          alert("Failed to permanently save avatar. Please try again.");
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -93,7 +111,7 @@ const Profile = () => {
                 {user.avatar ? (
                   <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-accent/10 flex items-center justify-center text-accent">
+                  <div className="w-full h-full bg-slate-800/80 flex items-center justify-center text-slate-400">
                     <User className="w-16 h-16" />
                   </div>
                 )}
