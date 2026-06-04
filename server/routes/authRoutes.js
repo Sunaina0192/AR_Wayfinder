@@ -143,9 +143,9 @@ router.post('/login', async (req, res) => {
 
     // Student Login
     if (role === 'Student') {
-      const student = await Student.findOne({ rollNumber: userId });
+      const student = await Student.findOne({ studentId: userId });
       if (!student) {
-        return res.status(401).json({ message: 'Invalid Roll Number' });
+        return res.status(401).json({ message: 'Invalid Student ID' });
       }
 
       if (await student.comparePassword(password)) {
@@ -178,7 +178,7 @@ router.post('/login', async (req, res) => {
           token: generateToken(student._id, 'Student'),
         });
       } else {
-        return res.status(401).json({ message: 'Invalid Roll Number or password' });
+        return res.status(401).json({ message: 'Invalid Student ID or password' });
       }
     }
 
