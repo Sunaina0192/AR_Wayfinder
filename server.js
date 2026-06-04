@@ -24,7 +24,9 @@ const LOGIN_FILE = path.join(__dirname, 'login_db.json')
 const app = express()
 
 app.use(cors())
-app.use(express.json())
+// Increase JSON body size to allow base64-encoded images in form submissions
+app.use(express.json({ limit: '10mb' }))
+app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
 // Set global mongoose options to fail fast instead of buffering
 mongoose.set('bufferCommands', false)
