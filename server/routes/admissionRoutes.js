@@ -1,13 +1,46 @@
 import express from 'express';
+import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import AdmissionApplication from '../models/AdmissionApplication.js';
 import Student from '../models/Student.js';
 import { protect, adminOnly } from '../middleware/auth.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ADMISSIONS_FILE = path.join(__dirname, '../../admissions_db.json');
 
 const router = express.Router();
 
 const isValidGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email);
 const isValidMobile = (mobile) => /^\d{10}$/.test(mobile);
 const isValidDocumentBase64 = (doc) => typeof doc === 'string' && doc.startsWith('data:image/');
+
+// ─── JSON File Database Helpers ─────────────────────────────────────────────
+const getLocalAdmissions = () => {
+  try {
+    if (!fs.existsSync(ADMISSIONS_FILE)) return [];
+    const data = fs.readFileSync(ADMISSIONS_FILE, 'utf-8');
+    return JSON.parse(data || '[]');
+  } catch (err) {
+    console.error('Error reading local admissions db:', err);
+    return [];
+  }
+};
+
+const saveLocalAdmissions = (admissions) => {
+  try {
+    fs.writeFileSync(ADMISSIONS_FILE, JSON.stringify(admissions, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error writing local admissions db:', err);
+  }
+};
+
+const generateApplicationId = (admissions) => {
+  const year = new Date().getFullYear();
+  const count = admissions.length + 1;
+  return `SBBSU${year}${String(count).padStart(3, '0')}`;
+};
 
 // ─── Public Routes ─────────────────────────────────────────────────────────
 
@@ -83,15 +116,38 @@ router.post('/apply', async (req, res) => {
       status: 'Pending Verification',
     };
 
-    const application = await AdmissionApplication.create(applicationData);
+    // Try MongoDB first
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const application = await AdmissionApplication.create(applicationData);
+        return res.status(201).json({
+          message: 'Application submitted successfully!',
+          applicationId: application.applicationId,
+          application,
+          savedTo: 'MongoDB',
+        });
+      } catch (mongoError) {
+        console.error('MongoDB write failed, falling back to local file storage:', mongoError.message);
+      }
+    }
+
+    // Fallback to local JSON file
+    console.log('MongoDB not available, using local file storage for admission application');
+    const localAdmissions = getLocalAdmissions();
+    const applicationId = generateApplicationId(localAdmissions);
+    const applicationWithId = { ...applicationData, applicationId, createdAt: new Date().toISOString() };
+    localAdmissions.push(applicationWithId);
+    saveLocalAdmissions(localAdmissions);
+
     res.status(201).json({
       message: 'Application submitted successfully!',
-      applicationId: application.applicationId,
-      application,
+      applicationId,
+      application: applicationWithId,
+      savedTo: 'Local Storage (JSON)',
     });
-  } catch {
-    console.error('Admission application error.');
-    res.status(500).json({ message: 'Failed to submit application. Please try again.' });
+  } catch (error) {
+    console.error('Admission application error:', error.message || error);
+    res.status(500).json({ message: 'Failed to submit application. Please try again.', error: error.message });
   }
 });
 
