@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, Star, Info, ChevronRight, Zap, Users, BookOpen, Trophy, Utensils, Dumbbell, Building2, Clock, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { campusLocations } from '../data/locations';
+import Campus3DView from '../components/Campus3DView';
 
 const CampusExplorer = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [hoveredLocation, setHoveredLocation] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const navigate = useNavigate();
+
+  const handleBuildingSelect = (buildingData) => {
+    navigate(`/navigator?location=${buildingData.id}`);
+  };
 
   const categories = [
     { id: 'All', label: 'All Locations', icon: MapPin },
@@ -103,6 +109,20 @@ const CampusExplorer = () => {
         {/* OVERVIEW TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-12">
+            {/* 3D Campus View */}
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-black text-white mb-2 flex items-center gap-3">
+                  <span className="w-10 h-10 bg-accent/20 border border-accent/50 rounded-lg flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-accent" />
+                  </span>
+                  Interactive 3D Campus Tour
+                </h2>
+                <p className="text-slate-400 text-sm">Explore the campus in real-time - hover over buildings to highlight them, click to navigate</p>
+              </div>
+              <Campus3DView onBuildingSelect={handleBuildingSelect} />
+            </div>
+
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
