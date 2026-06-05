@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Navigation, Star, Info, ChevronRight, Zap, Users, BookOpen, Trophy, Utensils, Dumbbell, Building2, Clock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { campusLocations } from '../data/locations';
-import Campus3DMap from '../components/Campus3DMap';
+import CampusRealisticMap from '../components/CampusRealisticMap';
 
 const CampusExplorer = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -120,7 +120,7 @@ const CampusExplorer = () => {
                 </h2>
                 <p className="text-slate-400 text-sm">Explore the campus in real-time - hover over buildings to highlight them, click to navigate</p>
               </div>
-              <Campus3DMap onBuildingSelect={handleBuildingSelect} />
+              <CampusRealisticMap onBuildingSelect={handleBuildingSelect} />
             </div>
 
             {/* Quick Stats */}
