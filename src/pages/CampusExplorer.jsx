@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Navigation, Star, Info, ChevronRight, Zap, Users, BookOpen, Trophy, Utensils, Dumbbell, Building2, Clock, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { campusLocations } from '../data/locations';
@@ -17,6 +17,7 @@ const CampusExplorer = () => {
   const categories = [
     { id: 'All', label: 'All Locations', icon: MapPin },
     { id: 'Academic', label: 'Academic', icon: BookOpen },
+    { id: 'Administrative', label: 'Admin', icon: Building2 },
     { id: 'Hostels', label: 'Hostels', icon: Building2 },
     { id: 'Sports', label: 'Sports', icon: Dumbbell },
     { id: 'Facilities', label: 'Facilities', icon: Utensils },
@@ -49,23 +50,30 @@ const CampusExplorer = () => {
     },
   ];
 
-  const locationDetails = {
-    'entry-gate': { category: 'Administrative', visitors: '5K+', highlight: 'Main Entry Point' },
-    'school-block': { category: 'Academic', visitors: '2K+', highlight: 'Classes & Lectures' },
-    'block-5-uiet': { category: 'Academic', visitors: '1.5K+', highlight: 'Engineering Labs' },
-    'library': { category: 'Academic', visitors: '3K+', highlight: '50K+ Books Collection' },
-    'admission-cell': { category: 'Administrative', visitors: '500+', highlight: 'Admissions Hub' },
-    'block-3': { category: 'Academic', visitors: '1K+', highlight: 'Classrooms' },
-    'girls-hostel': { category: 'Hostels', visitors: '800+', highlight: 'Accommodation' },
-    'boys-hostel': { category: 'Hostels', visitors: '1.2K+', highlight: 'Accommodation' },
-    'stadium': { category: 'Sports', visitors: '2K+', highlight: 'Sports Complex' },
-    'canteen-block-7': { category: 'Facilities', visitors: '1.5K+', highlight: 'Dining Hub' },
-    'workshop-center': { category: 'Facilities', visitors: '500+', highlight: 'Workshops & Training' },
-  };
+  const locationDetails = campusLocations.reduce((details, location, index) => {
+    const highlightByCategory = {
+      Academic: 'Learning Zone',
+      Administrative: 'Service Hub',
+      Hostels: 'Residential Zone',
+      Sports: 'Sports Zone',
+      Facilities: 'Campus Facility',
+      Cafeteria: 'Dining Hub',
+      Library: 'Study Hub',
+      Parking: 'Transit Zone',
+    };
+
+    details[location.id] = {
+      category: location.explorerCategory || location.category,
+      visitors: `${0.5 + (index % 5) * 0.4}K+`,
+      highlight: highlightByCategory[location.category] || 'Campus Node',
+    };
+
+    return details;
+  }, {});
 
   const filteredLocations = selectedCategory === 'All'
     ? campusLocations
-    : campusLocations.filter(loc => locationDetails[loc.id]?.category.includes(selectedCategory));
+    : campusLocations.filter(loc => locationDetails[loc.id]?.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-dark text-white pt-24 pb-12">
@@ -127,7 +135,7 @@ const CampusExplorer = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
                 { label: 'Total Area', value: '50+ Acres', icon: MapPin },
-                { label: 'Locations', value: '11 Major', icon: Building2 },
+                { label: 'Locations', value: '19 Major', icon: Building2 },
                 { label: 'Students', value: '10K+', icon: Users },
                 { label: 'Daily Visitors', value: '5K+ Avg', icon: Clock },
               ].map((stat, i) => (

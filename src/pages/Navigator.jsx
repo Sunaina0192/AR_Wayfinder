@@ -26,9 +26,8 @@ const Navigator = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const routerLocation = useLocation();
 
-  const categories = ['All', 'Administrative', 'Blocks', 'Library', 'Hostels', 'Sports', 'Cafeteria', 'Labs', 'Parking'];
+  const categories = ['All', 'Academic', 'Administrative', 'Library', 'Hostels', 'Sports', 'Facilities', 'Cafeteria', 'Parking'];
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (!user) return;
 
@@ -82,12 +81,17 @@ const Navigator = () => {
     }
   }, [saveHistory]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (routerLocation.state?.destination) {
       handleLocationSelect(routerLocation.state.destination);
+      return;
     }
-  }, [routerLocation.state?.destination, handleLocationSelect]);
+
+    const destinationFromQuery = new URLSearchParams(routerLocation.search).get('location');
+    if (destinationFromQuery) {
+      handleLocationSelect(destinationFromQuery);
+    }
+  }, [routerLocation.state?.destination, routerLocation.search, handleLocationSelect]);
 
   if (!user) {
     return <Navigate to="/" replace />;
