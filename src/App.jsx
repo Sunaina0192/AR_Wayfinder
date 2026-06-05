@@ -24,6 +24,7 @@ const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
 const AdmissionForm = lazy(() => import('./pages/AdmissionForm'))
 const AdminAdmissions = lazy(() => import('./pages/AdminAdmissions'))
+const CampusExplorer = lazy(() => import('./pages/CampusExplorer'))
 
 // Loading component
 const Loading = () => (
@@ -77,6 +78,7 @@ const App = () => {
                 <Route path="/academics" element={<Courses />} />
                 <Route path="/events" element={<Events />} />
                 <Route path="/navigator" element={<Navigator />} />
+                <Route path="/explore-campus" element={<CampusExplorer />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/information-corner" element={<InformationCorner />} />

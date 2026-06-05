@@ -54,9 +54,12 @@ const HeroSection = () => {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
             </span>
           </Link>
-          <button className="px-10 py-5 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 hover:border-accent/50 transition-all backdrop-blur-xl">
-            Explore Campus
-          </button>
+          <Link to="/explore-campus" className="group px-10 py-5 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest rounded-2xl hover:bg-white/10 hover:border-accent/50 transition-all backdrop-blur-xl hover:scale-105 hover:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.1)]">
+            <span className="flex items-center gap-3">
+              Explore Campus
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+            </span>
+          </Link>
         </div>
 
         {/* Stats Summary */}
