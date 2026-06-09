@@ -50,7 +50,8 @@ router.post('/register', async (req, res) => {
       const teacherId = `TCH${new Date().getFullYear().toString().slice(-2)}${String(count + 1).padStart(3, '0')}`;
 
       const teacher = await Teacher.create({
-        teacherId, name, email, department, mobile, password, status: 'active'
+        teacherId, name, email, department, mobile, password, status: 'active',
+        qualification: 'N/A', experience: 'N/A'
       });
 
       if (teacher) {
