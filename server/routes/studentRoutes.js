@@ -65,4 +65,18 @@ router.get('/materials', async (req, res) => {
   }
 });
 
+// ==========================================
+// FEES
+// ==========================================
+import Fee from '../models/Fee.js';
+
+router.get('/fees', async (req, res) => {
+  try {
+    const fees = await Fee.find({ studentId: req.user.studentId }).sort({ createdAt: -1 });
+    res.json(fees);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 export default router;

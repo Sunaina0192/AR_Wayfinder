@@ -5,14 +5,31 @@ const studentSchema = new mongoose.Schema({
   studentId: { type: String, unique: true },
   fullName: { type: String, required: true },
   fatherName: { type: String, required: true },
+  motherName: { type: String, default: '' },
+  dob: { type: Date },
+  gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Other' },
   email: { type: String, required: true, unique: true },
   phoneNumber: { type: String, required: true },
+  address: { type: String, default: '' },
   course: { type: String, required: true },
   semester: { type: String, required: true },
   rollNumber: { type: String, required: true, unique: true },
+  registrationNumber: { type: String, default: '' },
+  aadhaarNumber: { type: String, default: '' },
+  bloodGroup: { type: String, default: '' },
+  category: { type: String, default: 'General' },
+  // Documents (Store URLs or base64 strings)
+  passportPhoto: { type: String, default: '' },
+  tenthCertificate: { type: String, default: '' },
+  twelfthCertificate: { type: String, default: '' },
+  aadhaarCardDoc: { type: String, default: '' },
+  // Statuses
+  feeStatus: { type: String, enum: ['paid', 'pending', 'partial'], default: 'pending' },
+  hostelStatus: { type: String, enum: ['Not Applied', 'Allocated', 'Pending'], default: 'Not Applied' },
   password: { type: String, required: true },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-  registrationDate: { type: Date, default: Date.now }
+  registrationDate: { type: Date, default: Date.now },
+  role: { type: String, default: 'Student' }
 }, {
   timestamps: true
 });
