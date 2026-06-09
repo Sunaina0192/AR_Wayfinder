@@ -8,6 +8,7 @@ import { API_BASE_URL } from '../config';
 
 const FrontPage = () => {
   const [showLogin, setShowLogin] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
   const [loginRole, setLoginRole] = useState(null);
   const [visitorName, setVisitorName] = useState('');
   const [visitorPurpose, setVisitorPurpose] = useState('');
@@ -32,6 +33,7 @@ const FrontPage = () => {
   }, [user, navigate]);
   const handleCloseLogin = () => {
     setShowLogin(false);
+    setActiveTab('login');
     setLoginRole(null);
     setVisitorName('');
     setVisitorPurpose('');
@@ -43,20 +45,6 @@ const FrontPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    if (loginRole === 'Registration') {
-      setIsLoggingIn(true);
-      setErrors({});
-      try {
-        await registerStudent(regData);
-        navigate('/home');
-      } catch (error) {
-        setErrors({ submit: error.response?.data?.message || 'Registration failed' });
-      } finally {
-        setIsLoggingIn(false);
-      }
-      return;
-    }
 
     // Validations
     let newErrors = {};
@@ -132,8 +120,8 @@ const FrontPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-[fade-in_0.3s_ease-out]">
           <div className="absolute inset-0 bg-dark/80 backdrop-blur-xl" onClick={handleCloseLogin}></div>
           
-          <div className="relative w-full max-w-md p-10 rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden group">
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-accent/20 rounded-full blur-3xl group-hover:bg-accent/30 transition-colors duration-500"></div>
+          <div className="relative w-full max-w-md p-8 sm:p-10 rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden group">
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-accent/20 rounded-full blur-3xl group-hover:bg-accent/30 transition-colors duration-500 pointer-events-none"></div>
             
             <button 
               onClick={handleCloseLogin}
@@ -143,59 +131,93 @@ const FrontPage = () => {
             </button>
 
             {!loginRole ? (
-              /* Role Selection */
-              <div className="space-y-4">
-                <div className="text-center mb-8">
-                  <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Select Portal</h2>
-                  <p className="text-xs text-slate-400 font-bold tracking-[0.2em] uppercase">Choose your access level</p>
+              <div className="space-y-6">
+                <div className="flex mb-6 border-b border-white/10 relative">
+                  <div className={`absolute bottom-0 left-0 h-0.5 bg-accent transition-all duration-300 w-1/2 ${activeTab === 'register' ? 'translate-x-full' : 'translate-x-0'}`}></div>
+                  <button 
+                    onClick={() => setActiveTab('login')} 
+                    className={`flex-1 pb-4 font-black uppercase tracking-widest text-sm transition-colors ${activeTab === 'login' ? 'text-accent' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    Login
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('register')} 
+                    className={`flex-1 pb-4 font-black uppercase tracking-widest text-sm transition-colors ${activeTab === 'register' ? 'text-accent' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    Register
+                  </button>
                 </div>
 
-                <button onClick={() => { setLoginRole('Student'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <GraduationCap className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold tracking-wider">Student Login</h3>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Access academic records</p>
-                  </div>
-                </button>
+                <div className="relative overflow-hidden min-h-[300px]">
+                  <div className={`absolute w-full transition-transform duration-500 ease-in-out ${activeTab === 'login' ? 'translate-x-0' : '-translate-x-full'}`}>
+                    <div className="space-y-3">
+                      <button onClick={() => { setLoginRole('Student'); setErrors({}); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-blue-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                          <GraduationCap className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold tracking-wider text-sm">Student Login</h3>
+                          <p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Access academic records</p>
+                        </div>
+                      </button>
 
-                <button onClick={() => { setLoginRole('Admin'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ShieldCheck className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold tracking-wider">Admin Login</h3>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Staff and faculty portal</p>
-                  </div>
-                </button>
+                      <button onClick={() => { setLoginRole('Teacher'); setErrors({}); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-amber-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold tracking-wider text-sm">Teacher Login</h3>
+                          <p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Manage academics</p>
+                        </div>
+                      </button>
 
-                <button onClick={() => { setLoginRole('Visitor'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="w-6 h-6" />
+                      <button onClick={() => { setLoginRole('Admin'); setErrors({}); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                          <ShieldCheck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold tracking-wider text-sm">Admin Login</h3>
+                          <p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Staff and faculty portal</p>
+                        </div>
+                      </button>
+
+                      <button onClick={() => { setLoginRole('Visitor'); setErrors({}); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                          <Users className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold tracking-wider text-sm">New User / Visitor</h3>
+                          <p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Explore campus directly</p>
+                        </div>
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-white font-bold tracking-wider">New User / Visitor</h3>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Explore campus directly</p>
+
+                  <div className={`absolute w-full transition-transform duration-500 ease-in-out ${activeTab === 'register' ? 'translate-x-0' : 'translate-x-full'}`}>
+                    <div className="text-center py-6 px-4">
+                      <div className="w-16 h-16 mx-auto bg-orange-500/10 text-orange-400 rounded-2xl flex items-center justify-center mb-6">
+                        <ClipboardList className="w-8 h-8" />
+                      </div>
+                      <h3 className="text-xl font-black text-white uppercase tracking-tight mb-3">Apply for Admission</h3>
+                      <p className="text-sm text-slate-400 mb-8 leading-relaxed">
+                        Start your journey at SBBSU. Fill out the comprehensive admission form, upload your documents, and track your application status.
+                      </p>
+                      <button 
+                        onClick={() => navigate('/apply')}
+                        className="w-full py-4 rounded-2xl bg-gradient-to-r from-accent to-cyan-500 text-dark font-black uppercase tracking-[0.2em] text-xs hover:opacity-90 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                      >
+                        Go to Admission Portal
+                      </button>
+                    </div>
                   </div>
-                </button>
-                
-                <button onClick={() => { setLoginRole('Registration'); setErrors({}); }} className="w-full group relative px-6 py-5 rounded-2xl bg-white/5 border border-white/10 hover:border-accent/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
-                  <div className="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ClipboardList className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold tracking-wider">Student Registration <span className="text-[10px] bg-accent text-dark px-2 py-0.5 rounded-full ml-2">NEW</span></h3>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Apply for admission</p>
-                  </div>
-                </button>
+                </div>
               </div>
             ) : (
               /* Login Form */
               <div className="animate-[fade-in_0.3s_ease-out]">
                 <div className="flex justify-center mb-6 mt-4">
-                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${loginRole === 'Student' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : loginRole === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'} border`}>
-                    {loginRole === 'Student' ? <GraduationCap className="w-8 h-8" /> : loginRole === 'Admin' ? <ShieldCheck className="w-8 h-8" /> : <Users className="w-8 h-8" />}
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${loginRole === 'Student' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : loginRole === 'Admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : loginRole === 'Teacher' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'} border`}>
+                    {loginRole === 'Student' ? <GraduationCap className="w-8 h-8" /> : loginRole === 'Admin' ? <ShieldCheck className="w-8 h-8" /> : loginRole === 'Teacher' ? <User className="w-8 h-8" /> : <Users className="w-8 h-8" />}
                   </div>
                 </div>
                 
@@ -204,28 +226,7 @@ const FrontPage = () => {
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-6">
-                  {loginRole === 'Registration' ? (
-                    <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                      {regSuccess && <div className="p-4 bg-green-500/20 border border-green-500/50 text-green-400 rounded-2xl text-sm font-bold text-center">{regSuccess}</div>}
-                      {errors.submit && <div className="p-4 bg-red-500/20 border border-red-500/50 text-red-400 rounded-2xl text-sm font-bold text-center">{errors.submit}</div>}
-                      
-                      {['fullName', 'fatherName', 'email', 'phoneNumber', 'course', 'semester', 'rollNumber', 'password'].map((field) => (
-                        <div key={field} className="space-y-2">
-                          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">
-                            {field.replace(/([A-Z])/g, ' $1').trim()}
-                          </label>
-                          <input 
-                            type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
-                            required
-                            value={regData[field]}
-                            onChange={(e) => setRegData({...regData, [field]: e.target.value})}
-                            placeholder={`Enter ${field.replace(/([A-Z])/g, ' $1').trim()}`}
-                            className="w-full glass border-white/10 rounded-2xl px-6 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-accent/50 transition-all shadow-inner bg-black/20"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : loginRole === 'Visitor' ? (
+                  {loginRole === 'Visitor' ? (
                     <>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">Full Name</label>
@@ -266,7 +267,7 @@ const FrontPage = () => {
                     <>
                       <div className="space-y-2">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] ml-4">
-                          {loginRole === 'Student' ? 'Student ID' : 'Email ID'}
+                          {loginRole === 'Student' ? 'Student ID' : loginRole === 'Teacher' ? 'Teacher ID' : 'Email ID'}
                         </label>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500">
@@ -277,7 +278,7 @@ const FrontPage = () => {
                             required
                             value={userId}
                             onChange={(e) => { setUserId(e.target.value); setErrors({...errors, userId: null}); }}
-                            placeholder={loginRole === 'Student' ? "Enter Student ID (e.g., STU260001)" : "Enter Email"}
+                            placeholder={loginRole === 'Student' ? "Enter Student ID (e.g., STU260001)" : loginRole === 'Teacher' ? "Enter Teacher ID" : "Enter Email"}
                             className={`w-full glass rounded-2xl pl-14 pr-6 py-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-all shadow-inner bg-black/20 ${errors.userId ? 'border border-red-500 focus:border-red-500' : 'border-white/10 border focus:border-accent/50'}`}
                           />
                         </div>
@@ -312,7 +313,7 @@ const FrontPage = () => {
                     {isLoggingIn ? (
                       <div className="w-5 h-5 border-4 border-current border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                      loginRole === 'Registration' ? 'Submit Application' : 'Login'
+                      'Login'
                     )}
                   </button>
                   
