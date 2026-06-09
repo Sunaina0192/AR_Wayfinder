@@ -1,2 +1,4 @@
-// export const API_BASE_URL = "https://ar-wayfinder10.onrender.com";
-export const API_BASE_URL = "http://localhost:5000";
+// Automatically use localhost during local development and relative URL in production (Render)
+export const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? "http://localhost:5000"
+  : "";
