@@ -6,8 +6,9 @@ import { Navigate } from 'react-router-dom';
 import {
   Users, Search, Pencil, Trash2, X, CheckCircle, XCircle, Clock,
   GraduationCap, Shield, AlertTriangle, RefreshCw, ChevronDown,
-  User, Mail, Phone, BookOpen, Hash, Calendar
+  User, Mail, Phone, BookOpen, Hash, Calendar, Settings, Database, Briefcase
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const statusStyles = {
   pending:  { bg: 'bg-amber-400/10', border: 'border-amber-400/30', text: 'text-amber-400', icon: Clock },
@@ -538,6 +539,61 @@ const AdminDashboard = () => {
             </>
           )}
         </div>
+
+        {/* ERP Quick Links (Phase 1 Expansion) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
+          <Link to="/admin/teachers" className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Briefcase className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-white mb-1">Teacher Management</h3>
+            <p className="text-sm text-slate-400">Add, edit, and assign subjects to teachers.</p>
+            <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest mt-4">Manage Now →</p>
+          </Link>
+          <Link to="/admin/academics" className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <GraduationCap className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-white mb-1">Academic Setup</h3>
+            <p className="text-sm text-slate-400">Manage courses, departments, and semesters.</p>
+            <p className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-4">Manage Now →</p>
+          </Link>
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-white mb-1">Fee & Finance</h3>
+            <p className="text-sm text-slate-400">Track fee collections, pending dues, and receipts.</p>
+            <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-4">Coming in Phase 4 →</p>
+          </div>
+        </div>
+
+        {/* Super Admin Section */}
+        {user.isSuperAdmin && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-3xl p-6 md:p-8 mt-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Shield className="w-6 h-6 text-amber-400" />
+              <h2 className="text-xl font-black uppercase tracking-widest text-amber-400">Super Admin Controls</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <button className="flex items-center justify-between p-4 bg-black/30 border border-amber-500/20 rounded-2xl hover:bg-black/50 transition-all">
+                <div className="flex items-center gap-3">
+                  <Settings className="w-5 h-5 text-slate-400" />
+                  <span className="font-bold text-slate-200">Manage System Admins</span>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">View</span>
+              </button>
+              <button className="flex items-center justify-between p-4 bg-black/30 border border-amber-500/20 rounded-2xl hover:bg-black/50 transition-all">
+                <div className="flex items-center gap-3">
+                  <Database className="w-5 h-5 text-slate-400" />
+                  <span className="font-bold text-slate-200">System Backup</span>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Run</span>
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Modals */}

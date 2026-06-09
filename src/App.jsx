@@ -26,6 +26,12 @@ const AdmissionForm = lazy(() => import('./pages/AdmissionForm'))
 const AdminAdmissions = lazy(() => import('./pages/AdminAdmissions'))
 const CampusExplorer = lazy(() => import('./pages/CampusExplorer'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AdminTeachers = lazy(() => import('./pages/AdminTeachers'))
+const AdminAcademics = lazy(() => import('./pages/AdminAcademics'))
+const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
+const TeacherAcademics = lazy(() => import('./pages/TeacherAcademics'))
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard'))
+const StudentAcademics = lazy(() => import('./pages/StudentAcademics'))
 
 // Loading component
 const Loading = () => (
@@ -89,6 +95,12 @@ const App = () => {
                 <Route path="/apply" element={<AdmissionForm />} />
                 <Route path="/admin/admissions" element={<AdminAdmissions />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/teachers" element={<AdminTeachers />} />
+                <Route path="/admin/academics" element={<AdminAcademics />} />
+                <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+                <Route path="/teacher/academics" element={<TeacherAcademics />} />
+                <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/academics" element={<StudentAcademics />} />
                 <Route path="/alumni" element={<Alumni />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />

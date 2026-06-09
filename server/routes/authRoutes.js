@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import Student from '../models/Student.js';
 import Admin from '../models/Admin.js';
+import Teacher from '../models/Teacher.js';
 import LoginRecord from '../models/LoginRecord.js';
 import UserProfile from '../models/UserProfile.js';
 
@@ -131,6 +132,7 @@ router.post('/login', async (req, res) => {
             name: userProfile?.name || admin.name,
             email: userProfile?.email || admin.email,
             role: 'Admin',
+            isSuperAdmin: admin.isSuperAdmin,
             avatar: userProfile?.avatar || '',
             department: userProfile?.department || 'System Administration'
           },
@@ -138,6 +140,44 @@ router.post('/login', async (req, res) => {
         });
       } else {
         return res.status(401).json({ message: 'Invalid email or password' });
+      }
+    }
+
+    // Teacher Login
+    if (role === 'Teacher') {
+      const teacher = await Teacher.findOne({ teacherId: userId });
+      if (!teacher) {
+        return res.status(401).json({ message: 'Invalid Teacher ID' });
+      }
+
+      if (await teacher.comparePassword(password)) {
+        if (teacher.status === 'inactive') {
+          return res.status(401).json({ message: 'Account is inactive. Please contact administration.' });
+        }
+
+        await LoginRecord.create({
+          userId: teacher.teacherId,
+          name: teacher.name,
+          role: 'Teacher',
+          loginTime: new Date()
+        });
+
+        const userProfile = await UserProfile.findOne({ userId: teacher.teacherId }).lean();
+
+        return res.json({
+          user: {
+            id: teacher.teacherId,
+            name: userProfile?.name || teacher.name,
+            email: userProfile?.email || teacher.email,
+            role: 'Teacher',
+            avatar: userProfile?.avatar || '',
+            department: userProfile?.department || teacher.department,
+            mongoId: teacher._id
+          },
+          token: generateToken(teacher._id, 'Teacher'),
+        });
+      } else {
+        return res.status(401).json({ message: 'Invalid Teacher ID or password' });
       }
     }
 

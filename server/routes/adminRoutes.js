@@ -1,5 +1,6 @@
 import express from 'express';
 import Student from '../models/Student.js';
+import Teacher from '../models/Teacher.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -118,6 +119,115 @@ router.delete('/students/:id', async (req, res) => {
     res.json({ message: 'Student deleted successfully' });
   } catch (error) {
     console.error('Delete student error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// ==========================================
+// TEACHER MANAGEMENT ROUTES
+// ==========================================
+
+// @desc    Get all teachers
+// @route   GET /api/admin/teachers
+// @access  Private/Admin
+router.get('/teachers', async (req, res) => {
+  try {
+    const teachers = await Teacher.find().select('-password').sort({ createdAt: -1 });
+    res.json(teachers);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Add a new teacher
+// @route   POST /api/admin/teachers
+// @access  Private/Admin
+router.post('/teachers', async (req, res) => {
+  try {
+    const { name, department, qualification, experience, mobile, email, salary, subjects, classesAssigned, password } = req.body;
+
+    const teacherExists = await Teacher.findOne({ email });
+    if (teacherExists) {
+      return res.status(400).json({ message: 'Teacher with this email already exists' });
+    }
+
+    const teacher = await Teacher.create({
+      name,
+      department,
+      qualification,
+      experience,
+      mobile,
+      email,
+      salary,
+      subjects: subjects || [],
+      classesAssigned: classesAssigned || [],
+      password
+    });
+
+    const createdTeacher = await Teacher.findById(teacher._id).select('-password');
+    res.status(201).json({ message: 'Teacher created successfully', teacher: createdTeacher });
+  } catch (error) {
+    console.error('Create teacher error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Edit a teacher's details
+// @route   PUT /api/admin/teachers/:id
+// @access  Private/Admin
+router.put('/teachers/:id', async (req, res) => {
+  try {
+    const { name, department, qualification, experience, mobile, email, salary, subjects, classesAssigned, status } = req.body;
+
+    const teacher = await Teacher.findById(req.params.id);
+    if (!teacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    // Check for duplicate email if changed
+    if (email && email !== teacher.email) {
+      const emailExists = await Teacher.findOne({ email, _id: { $ne: req.params.id } });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email already in use by another teacher' });
+      }
+    }
+
+    // Update fields
+    if (name) teacher.name = name;
+    if (department) teacher.department = department;
+    if (qualification) teacher.qualification = qualification;
+    if (experience) teacher.experience = experience;
+    if (mobile) teacher.mobile = mobile;
+    if (email) teacher.email = email;
+    if (salary !== undefined) teacher.salary = salary;
+    if (subjects) teacher.subjects = subjects;
+    if (classesAssigned) teacher.classesAssigned = classesAssigned;
+    if (status && ['active', 'inactive'].includes(status)) teacher.status = status;
+
+    await teacher.save();
+
+    const updatedTeacher = await Teacher.findById(req.params.id).select('-password');
+    res.json({ message: 'Teacher updated successfully', teacher: updatedTeacher });
+  } catch (error) {
+    console.error('Edit teacher error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Delete a teacher
+// @route   DELETE /api/admin/teachers/:id
+// @access  Private/Admin
+router.delete('/teachers/:id', async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.params.id);
+    if (!teacher) {
+      return res.status(404).json({ message: 'Teacher not found' });
+    }
+
+    await Teacher.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Teacher deleted successfully' });
+  } catch (error) {
+    console.error('Delete teacher error:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 });

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
 import Student from '../models/Student.js';
+import Teacher from '../models/Teacher.js';
 
 export const protect = async (req, res, next) => {
   let token;
@@ -15,6 +16,8 @@ export const protect = async (req, res, next) => {
         user = await Admin.findById(decoded.id).select('-password');
       } else if (decoded.role === 'Student') {
         user = await Student.findById(decoded.id).select('-password');
+      } else if (decoded.role === 'Teacher') {
+        user = await Teacher.findById(decoded.id).select('-password');
       }
 
       if (!user) {
@@ -38,5 +41,21 @@ export const adminOnly = (req, res, next) => {
     next();
   } else {
     return res.status(403).json({ message: 'Not authorized as an admin' });
+  }
+};
+
+export const superAdminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'Admin' && req.user.isSuperAdmin) {
+    next();
+  } else {
+    return res.status(403).json({ message: 'Not authorized as a super admin' });
+  }
+};
+
+export const teacherOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'Teacher') {
+    next();
+  } else {
+    return res.status(403).json({ message: 'Not authorized as a teacher' });
   }
 };

@@ -12,6 +12,9 @@ import authRoutes from './server/routes/authRoutes.js'
 import adminRoutes from './server/routes/adminRoutes.js'
 import dataRoutes from './server/routes/dataRoutes.js'
 import admissionRoutes from './server/routes/admissionRoutes.js'
+import academicRoutes from './server/routes/academicRoutes.js'
+import teacherRoutes from './server/routes/teacherRoutes.js'
+import studentRoutes from './server/routes/studentRoutes.js'
 
 dotenv.config()
 
@@ -338,6 +341,9 @@ app.use('/api/auth', authRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/data', dataRoutes)
 app.use('/api/admissions', admissionRoutes)
+app.use('/api/academic', academicRoutes)
+app.use('/api/teacher', teacherRoutes)
+app.use('/api/student', studentRoutes)
 
 // API 404 Route
 app.use('/api', (req, res) => {
