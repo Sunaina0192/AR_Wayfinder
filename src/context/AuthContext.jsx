@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const registerStudent = async (regData) => {
+  const register = async (regData) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/auth/register`, regData);
       
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser, registerStudent }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, register }}>
       {children}
     </AuthContext.Provider>
   );
