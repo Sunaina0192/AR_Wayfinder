@@ -1,12 +1,149 @@
 import express from 'express';
 import Student from '../models/Student.js';
 import Teacher from '../models/Teacher.js';
+import Course from '../models/Course.js';
+import Department from '../models/Department.js';
+import Fee from '../models/Fee.js';
+import Notification from '../models/Notification.js';
+import AdmissionApplication from '../models/AdmissionApplication.js';
+import Attendance from '../models/Attendance.js';
 import { protect, adminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // All routes here require Admin JWT
 router.use(protect, adminOnly);
+
+// @desc    ERP dashboard overview
+// @route   GET /api/admin/overview
+// @access  Private/Admin
+router.get('/overview', async (req, res) => {
+  try {
+    const [
+      totalStudents,
+      totalTeachers,
+      totalCourses,
+      totalDepartments,
+      totalAdmissions,
+      pendingFees,
+      attendanceRecords,
+      notificationCount,
+      recentAdmissions,
+      recentPayments,
+      recentNotifications,
+      feeTotals
+    ] = await Promise.all([
+      Student.countDocuments(),
+      Teacher.countDocuments(),
+      Course.countDocuments(),
+      Department.countDocuments(),
+      AdmissionApplication.countDocuments(),
+      Fee.countDocuments({ status: { $in: ['Pending', 'Overdue'] } }),
+      Attendance.countDocuments(),
+      Notification.countDocuments(),
+      AdmissionApplication.find().sort({ createdAt: -1 }).limit(5).select('applicationId fullName course status createdAt'),
+      Fee.find({ paidAmount: { $gt: 0 } }).sort({ updatedAt: -1 }).limit(5).select('studentId semester totalAmount paidAmount status updatedAt'),
+      Notification.find().sort({ createdAt: -1 }).limit(5).select('title target date createdAt'),
+      Fee.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalCollection: { $sum: '$paidAmount' },
+            pendingAmount: { $sum: { $subtract: ['$totalAmount', '$paidAmount'] } }
+          }
+        }
+      ])
+    ]);
+
+    res.json({
+      stats: {
+        totalStudents,
+        totalTeachers,
+        totalCourses,
+        totalDepartments,
+        totalAdmissions,
+        totalFeeCollection: feeTotals[0]?.totalCollection || 0,
+        pendingFees,
+        pendingFeeAmount: feeTotals[0]?.pendingAmount || 0,
+        totalHostels: 2,
+        notificationsSent: notificationCount,
+        attendanceRecords
+      },
+      recentAdmissions,
+      recentPayments,
+      recentNotifications
+    });
+  } catch (error) {
+    console.error('Overview error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Create notification for students, teachers, departments, or all users
+// @route   POST /api/admin/notifications
+// @access  Private/Admin
+router.post('/notifications', async (req, res) => {
+  try {
+    const { title, message, target = 'All', targetId = '' } = req.body;
+    if (!title || !message) {
+      return res.status(400).json({ message: 'Title and message are required' });
+    }
+
+    const notification = await Notification.create({
+      title,
+      message,
+      target,
+      targetId,
+      createdBy: req.user?._id
+    });
+
+    res.status(201).json({ message: 'Notification sent successfully', notification });
+  } catch (error) {
+    console.error('Create notification error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.get('/notifications', async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({ createdAt: -1 }).limit(50);
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.get('/fees', async (req, res) => {
+  try {
+    const fees = await Fee.find().sort({ createdAt: -1 }).limit(100);
+    res.json(fees);
+  } catch (_error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.post('/fees', async (req, res) => {
+  try {
+    const { studentId, semester, totalAmount, paidAmount = 0, dueDate, status } = req.body;
+    if (!studentId || !semester || !totalAmount || !dueDate) {
+      return res.status(400).json({ message: 'Student ID, semester, total amount, and due date are required' });
+    }
+
+    const fee = await Fee.create({
+      studentId,
+      semester,
+      totalAmount,
+      paidAmount,
+      dueDate,
+      status: status || (Number(paidAmount) >= Number(totalAmount) ? 'Paid' : 'Pending')
+    });
+
+    res.status(201).json({ message: 'Fee record created successfully', fee });
+  } catch (_error) {
+    console.error('Create fee error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 // @desc    Get all students
 // @route   GET /api/admin/students
@@ -15,7 +152,7 @@ router.get('/students', async (req, res) => {
   try {
     const students = await Student.find().select('-password').sort({ createdAt: -1 });
     res.json(students);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -27,7 +164,7 @@ router.get('/students/pending', async (req, res) => {
   try {
     const students = await Student.find({ status: 'pending' }).sort({ registrationDate: -1 });
     res.json(students);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -51,7 +188,7 @@ router.put('/students/:id/status', async (req, res) => {
     await student.save();
     
     res.json({ message: `Student ${status} successfully`, student });
-  } catch (error) {
+  } catch (_error) {
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -99,7 +236,7 @@ router.put('/students/:id', async (req, res) => {
     // Return student without password
     const updatedStudent = await Student.findById(req.params.id).select('-password');
     res.json({ message: 'Student updated successfully', student: updatedStudent });
-  } catch (error) {
+  } catch (_error) {
     console.error('Edit student error:', error);
     res.status(500).json({ message: 'Server Error' });
   }

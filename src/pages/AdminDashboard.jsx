@@ -541,7 +541,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* ERP Quick Links (Phase 1 Expansion) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
           <Link to="/admin/teachers" className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
             <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <Briefcase className="w-6 h-6" />
@@ -558,14 +558,22 @@ const AdminDashboard = () => {
             <p className="text-sm text-slate-400">Manage courses, departments, and semesters.</p>
             <p className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mt-4">Manage Now →</p>
           </Link>
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
+          <Link to="/admin/erp" className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
               <BookOpen className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-black text-white mb-1">Fee & Finance</h3>
             <p className="text-sm text-slate-400">Track fee collections, pending dues, and receipts.</p>
             <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-4">Coming in Phase 4 →</p>
-          </div>
+          </Link>
+          <Link to="/admin/erp" className="bg-white/5 border border-white/10 rounded-3xl p-6 hover:border-accent/30 transition-all cursor-pointer group block">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Shield className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-black text-white mb-1">ERP Control Center</h3>
+            <p className="text-sm text-slate-400">Dashboard stats, notifications, activity, hostel, and library roadmap.</p>
+            <p className="text-[10px] text-amber-400 font-bold uppercase tracking-widest mt-4">Manage Now</p>
+          </Link>
         </div>
 
         {/* Super Admin Section */}

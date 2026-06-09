@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { BookOpen, Users, CheckSquare, UploadCloud, Bell } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();

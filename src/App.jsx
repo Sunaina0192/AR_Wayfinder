@@ -28,6 +28,7 @@ const CampusExplorer = lazy(() => import('./pages/CampusExplorer'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const AdminTeachers = lazy(() => import('./pages/AdminTeachers'))
 const AdminAcademics = lazy(() => import('./pages/AdminAcademics'))
+const AdminERP = lazy(() => import('./pages/AdminERP'))
 const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
 const TeacherAcademics = lazy(() => import('./pages/TeacherAcademics'))
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard'))
@@ -97,6 +98,7 @@ const App = () => {
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/teachers" element={<AdminTeachers />} />
                 <Route path="/admin/academics" element={<AdminAcademics />} />
+                <Route path="/admin/erp" element={<AdminERP />} />
                 <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
                 <Route path="/teacher/academics" element={<TeacherAcademics />} />
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
