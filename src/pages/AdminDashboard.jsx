@@ -6,7 +6,7 @@ import { Navigate, Link } from 'react-router-dom';
 import {
   Users, Search, BookOpen, Clock, AlertTriangle, CheckCircle, 
   Shield, Calendar, IndianRupee, Hash, Bell, RefreshCw, BarChart2,
-  Database, Settings, GraduationCap, Briefcase
+  Database, Settings, GraduationCap, Briefcase, Map
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line
@@ -235,17 +235,25 @@ const AdminDashboard = () => {
             <span className="font-black uppercase tracking-widest text-sm text-white">Manage Teachers</span>
             <Briefcase className="w-5 h-5 text-white/80" />
           </Link>
+          <Link to="/admin/navigation" className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl p-5 flex items-center justify-between hover:opacity-90 transition-all shadow-lg shadow-emerald-500/20">
+            <span className="font-black uppercase tracking-widest text-sm text-white">AR Navigation</span>
+            <Map className="w-5 h-5 text-white/80" />
+          </Link>
+          <Link to="/admin/events" className="bg-gradient-to-r from-rose-500 to-pink-500 rounded-3xl p-5 flex items-center justify-between hover:opacity-90 transition-all shadow-lg shadow-rose-500/20">
+            <span className="font-black uppercase tracking-widest text-sm text-white">Manage Events</span>
+            <Calendar className="w-5 h-5 text-white/80" />
+          </Link>
 
           {user.isSuperAdmin && (
             <>
-              <button className="bg-black/50 border border-amber-500/30 rounded-3xl p-5 flex items-center justify-between hover:bg-black/70 transition-all group">
-                <span className="font-black uppercase tracking-widest text-sm text-amber-400 group-hover:text-amber-300">System Backup</span>
+              <Link to="/admin/security" className="bg-black/50 border border-amber-500/30 rounded-3xl p-5 flex items-center justify-between hover:bg-black/70 transition-all group">
+                <span className="font-black uppercase tracking-widest text-sm text-amber-400 group-hover:text-amber-300">System Security</span>
                 <Database className="w-5 h-5 text-amber-400/80" />
-              </button>
-              <button className="bg-black/50 border border-amber-500/30 rounded-3xl p-5 flex items-center justify-between hover:bg-black/70 transition-all group">
+              </Link>
+              <Link to="/admin/users" className="bg-black/50 border border-amber-500/30 rounded-3xl p-5 flex items-center justify-between hover:bg-black/70 transition-all group">
                 <span className="font-black uppercase tracking-widest text-sm text-amber-400 group-hover:text-amber-300">Manage Admins</span>
                 <Settings className="w-5 h-5 text-amber-400/80" />
-              </button>
+              </Link>
             </>
           )}
         </div>

@@ -584,13 +584,13 @@ const AdminDashboard = () => {
               <h2 className="text-xl font-black uppercase tracking-widest text-amber-400">Super Admin Controls</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button className="flex items-center justify-between p-4 bg-black/30 border border-amber-500/20 rounded-2xl hover:bg-black/50 transition-all">
+              <Link to="/admin/users" className="flex items-center justify-between p-4 bg-black/30 border border-amber-500/20 rounded-2xl hover:bg-black/50 transition-all">
                 <div className="flex items-center gap-3">
                   <Settings className="w-5 h-5 text-slate-400" />
                   <span className="font-bold text-slate-200">Manage System Admins</span>
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">View</span>
-              </button>
+              </Link>
               <button className="flex items-center justify-between p-4 bg-black/30 border border-amber-500/20 rounded-2xl hover:bg-black/50 transition-all">
                 <div className="flex items-center gap-3">
                   <Database className="w-5 h-5 text-slate-400" />

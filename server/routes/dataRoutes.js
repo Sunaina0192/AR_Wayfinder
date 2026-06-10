@@ -5,10 +5,21 @@ import Attendance from '../models/Attendance.js';
 import Fee from '../models/Fee.js';
 import Result from '../models/Result.js';
 import Course from '../models/Course.js';
+import Event from '../models/Event.js';
 
 const router = express.Router();
 
-// Apply protection to all these routes
+// Public routes (don't require auth)
+router.get('/events', async (req, res) => {
+  try {
+    const events = await Event.find({ status: { $ne: 'cancelled' } }).sort({ date: 1 });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching events' });
+  }
+});
+
+// Apply protection to the rest of the routes
 router.use(protect);
 
 // Notifications

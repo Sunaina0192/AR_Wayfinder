@@ -1,63 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import { Calendar, MapPin, Users, ArrowRight, Bell, ChevronRight, LayoutGrid } from 'lucide-react';
 
 const Events = () => {
-  const events = [
-    {
-      title: 'Annual Convocation',
-      date: 'March 15, 2026',
-      time: '10:00 AM',
-      location: 'Main Auditorium',
-      category: 'Academic',
-      description: 'Degree awarding ceremony for graduating students across all faculties.',
-      gradient: 'from-blue-600 to-indigo-600'
-    },
-    {
-      title: 'Tech Summit 2026',
-      date: 'April 5-6, 2026',
-      time: '9:00 AM',
-      location: 'Block 5 (UIET)',
-      category: 'Workshop',
-      description: 'Latest trends in technology, innovation and sustainable development.',
-      gradient: 'from-purple-600 to-blue-600'
-    },
-    {
-      title: 'Sports Festival',
-      date: 'April 20, 2026',
-      time: '8:00 AM',
-      location: 'Sports Stadium',
-      category: 'Sports',
-      description: 'Inter-college sports competitions and athletic meets.',
-      gradient: 'from-emerald-600 to-teal-600'
-    },
-    {
-      title: 'Freshers Welcome',
-      date: 'May 1, 2026',
-      time: '2:00 PM',
-      location: 'Auditorium & Grounds',
-      category: 'Social',
-      description: 'Welcome program and orientation for new students.',
-      gradient: 'from-pink-600 to-rose-600'
-    },
-    {
-      title: 'Innovation Challenge',
-      date: 'May 10-12, 2026',
-      time: '9:00 AM',
-      location: 'Workshop Center',
-      category: 'Innovation',
-      description: 'University-wide hackathon and innovative project competition.',
-      gradient: 'from-orange-600 to-amber-600'
-    },
-    {
-      title: 'Cultural Fest',
-      date: 'June 1, 2026',
-      time: '5:00 PM',
-      location: 'Main Campus Grounds',
-      category: 'Cultural',
-      description: 'A celebration of music, dance, and creative performances.',
-      gradient: 'from-indigo-600 to-purple-600'
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/data/events`);
+        setEvents(res.data);
+      } catch (err) {
+        console.error('Failed to fetch events', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  const getGradient = (category) => {
+    switch(category) {
+      case 'Academic': return 'from-blue-600 to-indigo-600';
+      case 'Sports': return 'from-emerald-600 to-teal-600';
+      case 'Cultural': return 'from-indigo-600 to-purple-600';
+      default: return 'from-pink-600 to-rose-600';
     }
-  ];
+  };
 
   return (
     <div className="min-h-screen bg-dark text-white pt-24 pb-20 selection:bg-accent/30 selection:text-white">
@@ -101,10 +72,14 @@ const Events = () => {
 
           {/* Events Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {events.map((event, idx) => (
+            {loading ? (
+              <div className="col-span-full text-center py-20 text-slate-400">Loading events...</div>
+            ) : events.length === 0 ? (
+              <div className="col-span-full text-center py-20 text-slate-400">No upcoming events at the moment.</div>
+            ) : events.map((event, idx) => (
               <div key={idx} className="group relative rounded-[3rem] glass border-white/5 overflow-hidden transition-all duration-700 hover:scale-[1.02] hover:shadow-2xl hover:shadow-accent/5 flex flex-col h-full">
                 {/* Visual Header */}
-                <div className={`h-40 bg-gradient-to-br ${event.gradient} p-8 flex flex-col justify-between relative overflow-hidden`}>
+                <div className={`h-40 bg-gradient-to-br ${getGradient(event.category)} p-8 flex flex-col justify-between relative overflow-hidden`}>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
                   <div className="flex justify-between items-start relative z-10">
                     <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[9px] font-black uppercase tracking-widest text-white border border-white/10">
@@ -136,7 +111,7 @@ const Events = () => {
                       </div>
                       <div>
                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Date</p>
-                        <p className="text-white font-bold text-sm tracking-tight">{event.date}</p>
+                        <p className="text-white font-bold text-sm tracking-tight">{new Date(event.date).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-slate-400">

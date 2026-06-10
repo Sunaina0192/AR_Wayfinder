@@ -20,7 +20,8 @@ import {
   Send,
   Shield,
   Users,
-  WalletCards
+  WalletCards,
+  Download
 } from 'lucide-react';
 
 const formatCurrency = (value) =>
@@ -138,6 +139,32 @@ const AdminERP = () => {
     }
   };
 
+  const downloadReport = () => {
+    if (!fees.length) return setMessage('No fee records to download.');
+    const csvContent = [
+      ['Student ID', 'Semester', 'Total Amount', 'Paid Amount', 'Pending Amount', 'Due Date', 'Status'],
+      ...fees.map(f => [
+        f.studentId,
+        f.semester,
+        f.totalAmount,
+        f.paidAmount,
+        (f.totalAmount || 0) - (f.paidAmount || 0),
+        new Date(f.dueDate).toLocaleDateString(),
+        f.status
+      ])
+    ].map(e => e.join(",")).join("\n");
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "Fee_Report.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="min-h-screen bg-dark text-white pt-24 pb-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -149,13 +176,21 @@ const AdminERP = () => {
             <h1 className="text-4xl font-black uppercase tracking-tight">College ERP Control Center</h1>
             <p className="text-slate-400 mt-1">Fees, notifications, recent activity, and admin operations in one place.</p>
           </div>
-          <button
-            onClick={loadData}
-            disabled={loading}
-            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold hover:bg-white/10 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={downloadReport}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-bold hover:bg-amber-500/20 transition-all"
+            >
+              <Download className="w-4 h-4" /> Download Report
+            </button>
+            <button
+              onClick={loadData}
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold hover:bg-white/10 disabled:opacity-50"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
+            </button>
+          </div>
         </div>
 
         {message && (

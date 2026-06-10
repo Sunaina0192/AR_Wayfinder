@@ -7,7 +7,11 @@ import Fee from '../models/Fee.js';
 import Notification from '../models/Notification.js';
 import AdmissionApplication from '../models/AdmissionApplication.js';
 import Attendance from '../models/Attendance.js';
-import { protect, adminOnly } from '../middleware/auth.js';
+import Admin from '../models/Admin.js';
+import Location from '../models/Location.js';
+import Event from '../models/Event.js';
+import Notification from '../models/Notification.js';
+import { protect, adminOnly, superAdminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -367,6 +371,265 @@ router.delete('/teachers/:id', async (req, res) => {
     console.error('Delete teacher error:', error);
     res.status(500).json({ message: 'Server Error' });
   }
+});
+
+// ==========================================
+// ADMIN MANAGEMENT ROUTES (SUPER ADMIN ONLY)
+// ==========================================
+
+// @desc    Get all admins
+// @route   GET /api/admin/users/admins
+// @access  Private/SuperAdmin
+router.get('/users/admins', superAdminOnly, async (req, res) => {
+  try {
+    const admins = await Admin.find().select('-password').sort({ createdAt: -1 });
+    res.json(admins);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Add a new admin
+// @route   POST /api/admin/users/admins
+// @access  Private/SuperAdmin
+router.post('/users/admins', superAdminOnly, async (req, res) => {
+  try {
+    const { name, email, password, isSuperAdmin } = req.body;
+
+    const adminExists = await Admin.findOne({ email });
+    if (adminExists) {
+      return res.status(400).json({ message: 'Admin with this email already exists' });
+    }
+
+    const admin = await Admin.create({
+      name,
+      email,
+      password,
+      isSuperAdmin: Boolean(isSuperAdmin)
+    });
+
+    const createdAdmin = await Admin.findById(admin._id).select('-password');
+    res.status(201).json({ message: 'Admin created successfully', admin: createdAdmin });
+  } catch (error) {
+    console.error('Create admin error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Delete an admin
+// @route   DELETE /api/admin/users/admins/:id
+// @access  Private/SuperAdmin
+router.delete('/users/admins/:id', superAdminOnly, async (req, res) => {
+  try {
+    if (req.user._id.toString() === req.params.id) {
+      return res.status(400).json({ message: 'You cannot delete yourself' });
+    }
+
+    const admin = await Admin.findById(req.params.id);
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    await Admin.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Admin deleted successfully' });
+  } catch (error) {
+    console.error('Delete admin error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// ==========================================
+// AR NAVIGATION MANAGEMENT
+// ==========================================
+
+// @desc    Get all locations
+// @route   GET /api/admin/locations
+// @access  Private/Admin
+router.get('/locations', async (req, res) => {
+  try {
+    const locations = await Location.find().sort({ name: 1 });
+    res.json(locations);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Add a location
+// @route   POST /api/admin/locations
+// @access  Private/Admin
+router.post('/locations', async (req, res) => {
+  try {
+    const locationExists = await Location.findOne({ locationId: req.body.locationId });
+    if (locationExists) return res.status(400).json({ message: 'Location ID already exists' });
+    
+    const location = await Location.create(req.body);
+    res.status(201).json({ message: 'Location created', location });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Update a location
+// @route   PUT /api/admin/locations/:id
+// @access  Private/Admin
+router.put('/locations/:id', async (req, res) => {
+  try {
+    const location = await Location.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!location) return res.status(404).json({ message: 'Location not found' });
+    res.json({ message: 'Location updated', location });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Delete a location
+// @route   DELETE /api/admin/locations/:id
+// @access  Private/Admin
+router.delete('/locations/:id', async (req, res) => {
+  try {
+    const location = await Location.findByIdAndDelete(req.params.id);
+    if (!location) return res.status(404).json({ message: 'Location not found' });
+    res.json({ message: 'Location deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Upload 3D Map (Mock)
+// @route   POST /api/admin/locations/map
+// @access  Private/Admin
+router.post('/locations/map', async (req, res) => {
+  try {
+    // In a real scenario, handle multer file upload here.
+    res.json({ message: '3D Campus Map updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// ==========================================
+// EVENT MANAGEMENT
+// ==========================================
+
+// @desc    Get all events
+// @route   GET /api/admin/events
+// @access  Private/Admin
+router.get('/events', async (req, res) => {
+  try {
+    const events = await Event.find().sort({ date: 1 });
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Add an event
+// @route   POST /api/admin/events
+// @access  Private/Admin
+router.post('/events', async (req, res) => {
+  try {
+    const event = await Event.create(req.body);
+    res.status(201).json({ message: 'Event created', event });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Update an event
+// @route   PUT /api/admin/events/:id
+// @access  Private/Admin
+router.put('/events/:id', async (req, res) => {
+  try {
+    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ message: 'Event updated', event });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Delete an event
+// @route   DELETE /api/admin/events/:id
+// @access  Private/Admin
+router.delete('/events/:id', async (req, res) => {
+  try {
+    const event = await Event.findByIdAndDelete(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ message: 'Event deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// ==========================================
+// NOTIFICATION MANAGEMENT
+// ==========================================
+
+// @desc    Get all notifications (Admin)
+// @route   GET /api/admin/notifications
+// @access  Private/Admin
+router.get('/notifications', async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({ createdAt: -1 });
+    res.json(notifications);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Send a notification
+// @route   POST /api/admin/notifications
+// @access  Private/Admin
+router.post('/notifications', async (req, res) => {
+  try {
+    const notification = await Notification.create({ ...req.body, date: new Date() });
+    res.status(201).json({ message: 'Notification sent', notification });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// @desc    Delete a notification
+// @route   DELETE /api/admin/notifications/:id
+// @access  Private/Admin
+router.delete('/notifications/:id', async (req, res) => {
+  try {
+    const notification = await Notification.findByIdAndDelete(req.params.id);
+    if (!notification) return res.status(404).json({ message: 'Notification not found' });
+    res.json({ message: 'Notification deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// ==========================================
+// SYSTEM SECURITY & LOGS
+// ==========================================
+
+let mockLogs = [
+  { timestamp: new Date(Date.now() - 3600000).toISOString(), level: 'INFO', action: 'SYSTEM_START', details: 'Server started successfully' },
+  { timestamp: new Date(Date.now() - 1800000).toISOString(), level: 'WARN', action: 'FAILED_LOGIN', details: 'Invalid credentials attempt from 192.168.1.5' }
+];
+
+// @desc    Get system logs
+// @route   GET /api/admin/logs
+// @access  Private/SuperAdmin
+router.get('/logs', superAdminOnly, (req, res) => {
+  res.json(mockLogs);
+});
+
+// @desc    Trigger system backup
+// @route   POST /api/admin/backup
+// @access  Private/SuperAdmin
+router.post('/backup', superAdminOnly, (req, res) => {
+  const newLog = {
+    timestamp: new Date().toISOString(),
+    level: 'INFO',
+    action: 'SYSTEM_BACKUP',
+    details: 'Database backup initiated by SuperAdmin'
+  };
+  mockLogs.unshift(newLog);
+  res.json({ message: 'Backup initiated successfully' });
 });
 
 export default router;

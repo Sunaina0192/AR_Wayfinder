@@ -30,6 +30,11 @@ const AdminStudents = lazy(() => import('./pages/AdminStudents'))
 const AdminTeachers = lazy(() => import('./pages/AdminTeachers'))
 const AdminAcademics = lazy(() => import('./pages/AdminAcademics'))
 const AdminERP = lazy(() => import('./pages/AdminERP'))
+const AdminUsers = lazy(() => import('./pages/AdminUsers'))
+const AdminNavigation = lazy(() => import('./pages/AdminNavigation'))
+const AdminEvents = lazy(() => import('./pages/AdminEvents'))
+const AdminNotifications = lazy(() => import('./pages/AdminNotifications'))
+const AdminSecurity = lazy(() => import('./pages/AdminSecurity'))
 const TeacherDashboard = lazy(() => import('./pages/TeacherDashboard'))
 const TeacherAcademics = lazy(() => import('./pages/TeacherAcademics'))
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard'))
@@ -101,6 +106,11 @@ const App = () => {
                 <Route path="/admin/teachers" element={<AdminTeachers />} />
                 <Route path="/admin/academics" element={<AdminAcademics />} />
                 <Route path="/admin/erp" element={<AdminERP />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/navigation" element={<AdminNavigation />} />
+                <Route path="/admin/events" element={<AdminEvents />} />
+                <Route path="/admin/notifications" element={<AdminNotifications />} />
+                <Route path="/admin/security" element={<AdminSecurity />} />
                 
                 {/* Teacher Routes */}
                 <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
