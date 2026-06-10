@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, CheckCircle2, CreditCard, ExternalLink, ShieldCheck, Truck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, CreditCard, ExternalLink, ShieldCheck, Truck, X } from 'lucide-react'
 
 const courseRates = [
   {
@@ -106,6 +106,7 @@ const Admissions = () => {
   const [includeBus, setIncludeBus] = useState(false)
   const [includeHostel, setIncludeHostel] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState('none')
+  const [showQR, setShowQR] = useState(false)
 
   const selectedCourse = courseRates.find((course) => course.id === selectedCourseId)
   const selectedScholarship = scholarships.find((sch) => sch.id === selectedScholarshipId)
@@ -265,7 +266,7 @@ const Admissions = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               <button
                 className="flex items-center gap-3 rounded-3xl bg-linear-to-r from-accent to-cyan-500 px-6 py-5 font-black uppercase tracking-[0.2em] text-dark transition-all hover:shadow-[0_20px_60px_rgba(6,182,212,0.25)]"
-                onClick={() => alert('QR payment flow is simulated here. Use the SBBSU payment page or mobile app to scan the QR code.')}
+                onClick={() => setShowQR(true)}
               >
                 <CreditCard className="w-5 h-5" />
                 Scan QR to Pay
@@ -494,6 +495,45 @@ const Admissions = () => {
           </div>
         </div>
       </section>
+
+      {/* QR Code Modal */}
+      {showQR && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-[fade-in_0.3s_ease-out]">
+          <div className="absolute inset-0 bg-dark/80 backdrop-blur-sm" onClick={() => setShowQR(false)}></div>
+          <div className="relative z-10 glass border border-white/10 rounded-4xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <button onClick={() => setShowQR(false)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors">
+               <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">Scan to Pay</h3>
+            <p className="text-slate-400 text-sm mb-6">Scan with Google Pay, PhonePe, or Paytm.</p>
+            <div className="bg-white p-4 rounded-3xl mx-auto mb-6">
+              <img 
+                src="/payment_qr.png" 
+                alt="Payment QR Code" 
+                className="w-full h-auto rounded-xl" 
+                onError={(e) => { 
+                  // Fallback generic QR if user hasn't uploaded payment_qr.png yet
+                  e.target.src = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=sbbsu@okicici'; 
+                }} 
+              />
+            </div>
+            <p className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-2">Amount to Pay</p>
+            <p className="text-3xl font-black text-white mb-6">
+              {currency(dueAmount > 0 ? dueAmount : payableAmount)}
+            </p>
+            <button 
+              onClick={() => { 
+                setShowQR(false); 
+                setPaymentStatus('full'); 
+                alert('Payment verification in progress. Thank you!');
+              }} 
+              className="w-full rounded-full bg-accent text-dark font-black uppercase tracking-widest text-xs py-4 hover:scale-105 transition-all shadow-xl shadow-accent/20"
+            >
+              I Have Paid
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
