@@ -129,9 +129,14 @@ const Navbar = () => {
                           <Settings className="w-4 h-4" /> Settings
                         </Link>
                         {user.role === 'Admin' && (
-                          <Link to="/admin/admissions" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
-                            <ClipboardList className="w-4 h-4" /> Admission Applications
-                          </Link>
+                          <>
+                            <Link to="/admin/dashboard" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
+                              <ShieldCheck className="w-4 h-4" /> Admin Dashboard
+                            </Link>
+                            <Link to="/admin/admissions" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
+                              <ClipboardList className="w-4 h-4" /> Admission Applications
+                            </Link>
+                          </>
                         )}
                       </div>
 
