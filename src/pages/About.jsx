@@ -1,4 +1,5 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight, ArrowRight, Building2, Target, Users, BookOpen, Award, Shield, UserCircle, Briefcase, FileText, Quote, LayoutGrid } from 'lucide-react';
 
 const SIDEBAR_LINKS = [
@@ -18,6 +19,7 @@ const SIDEBAR_LINKS = [
 
 const About = () => {
   const [activeTab, setActiveTab] = useState('about');
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-dark text-white pt-24 pb-20 selection:bg-accent/30 selection:text-white">
@@ -83,7 +85,7 @@ const About = () => {
                     A vibrant campus culture with sports, cultural clubs, and leadership forums supporting every student journey.
                   </p>
                 </div>
-                <button className="inline-flex items-center gap-3 rounded-full bg-accent px-6 py-4 text-sm font-black uppercase tracking-[0.25em] text-dark transition-all hover:scale-[1.01] shadow-lg shadow-accent/20">
+                <button onClick={() => navigate('/explore-campus')} className="inline-flex items-center gap-3 rounded-full bg-accent px-6 py-4 text-sm font-black uppercase tracking-[0.25em] text-dark transition-all hover:scale-[1.01] shadow-lg shadow-accent/20">
                   Explore Campus
                   <ArrowRight className="w-4 h-4" />
                 </button>
