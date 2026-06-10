@@ -137,6 +137,9 @@ const Navbar = () => {
                             <Link to="/admin/dashboard" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
                               <ShieldCheck className="w-4 h-4" /> Admin Dashboard
                             </Link>
+                            <Link to="/admin/admissions" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
+                              <ClipboardList className="w-4 h-4" /> Admission Applications
+                            </Link>
                           </>
                         )}
                       </div>
@@ -223,6 +226,17 @@ const Navbar = () => {
                     </div>
                     <User className="w-5 h-5 text-slate-400" />
                   </Link>
+                  
+                  <Link to="/settings" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-sm font-bold text-slate-300">
+                    <Settings className="w-4 h-4" /> Settings
+                  </Link>
+
+                  {user.role === 'Admin' && (
+                    <Link to="/admin/admissions" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-all text-sm font-bold text-accent">
+                      <ClipboardList className="w-4 h-4" /> Admission Applications
+                    </Link>
+                  )}
+
                   <button onClick={() => { logout(); window.location.href = '/'; }} className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-all text-xs tracking-widest uppercase">
                     <LogOut className="w-4 h-4" /> Log Out
                   </button>
