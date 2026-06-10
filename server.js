@@ -15,6 +15,8 @@ import admissionRoutes from './server/routes/admissionRoutes.js'
 import academicRoutes from './server/routes/academicRoutes.js'
 import teacherRoutes from './server/routes/teacherRoutes.js'
 import studentRoutes from './server/routes/studentRoutes.js'
+import uploadRoutes from './server/routes/uploadRoutes.js'
+import resultRoutes from './server/routes/resultRoutes.js'
 
 dotenv.config()
 
@@ -113,6 +115,13 @@ const saveLocalLogins = (logins) => {
 if (fs.existsSync(path.join(__dirname, 'dist'))) {
   app.use(express.static(path.join(__dirname, 'dist')))
 }
+
+// Serve uploaded documents statically
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+app.use('/uploads', express.static(uploadDir));
 
 // Get History
 app.get('/api/history', async (req, res) => {
@@ -344,6 +353,8 @@ app.use('/api/admissions', admissionRoutes)
 app.use('/api/academic', academicRoutes)
 app.use('/api/teacher', teacherRoutes)
 app.use('/api/student', studentRoutes)
+app.use('/api/upload', uploadRoutes)
+app.use('/api/results', resultRoutes)
 
 // API 404 Route
 app.use('/api', (req, res) => {

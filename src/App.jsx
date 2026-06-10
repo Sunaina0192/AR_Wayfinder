@@ -23,6 +23,8 @@ const Admissions = lazy(() => import('./pages/Admissions'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Settings = lazy(() => import('./pages/Settings'))
 const AdmissionForm = lazy(() => import('./pages/AdmissionForm'))
+const AdminResults = lazy(() => import('./pages/AdminResults'))
+const AdminInformationCorner = lazy(() => import('./pages/AdminInformationCorner'))
 const AdminAdmissions = lazy(() => import('./pages/AdminAdmissions'))
 const CampusExplorer = lazy(() => import('./pages/CampusExplorer'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
@@ -75,6 +77,8 @@ const AppLayout = ({ children }) => {
   );
 };
 
+import AdminLayout from './components/AdminLayout';
+
 const App = () => {
   return (
     <AuthProvider>
@@ -99,19 +103,6 @@ const App = () => {
                 <Route path="/admissions" element={<Admissions />} />
                 <Route path="/apply" element={<AdmissionForm />} />
                 
-                {/* Admin Routes */}
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/students" element={<AdminStudents />} />
-                <Route path="/admin/admissions" element={<AdminAdmissions />} />
-                <Route path="/admin/teachers" element={<AdminTeachers />} />
-                <Route path="/admin/academics" element={<AdminAcademics />} />
-                <Route path="/admin/erp" element={<AdminERP />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/navigation" element={<AdminNavigation />} />
-                <Route path="/admin/events" element={<AdminEvents />} />
-                <Route path="/admin/notifications" element={<AdminNotifications />} />
-                <Route path="/admin/security" element={<AdminSecurity />} />
-                
                 {/* Teacher Routes */}
                 <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
                 <Route path="/teacher/academics" element={<TeacherAcademics />} />
@@ -127,6 +118,32 @@ const App = () => {
               </Routes>
             </Suspense>
           </AppLayout>
+
+          <Suspense fallback={<Loading />}>
+            <Routes>
+              {/* Admin Routes with Dedicated Layout */}
+              <Route path="/admin/*" element={
+                <AdminLayout>
+                  <Routes>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="students" element={<AdminStudents />} />
+                    <Route path="admissions" element={<AdminAdmissions />} />
+                    <Route path="teachers" element={<AdminTeachers />} />
+                    <Route path="academics" element={<AdminAcademics />} />
+                    <Route path="erp" element={<AdminERP />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="navigation" element={<AdminNavigation />} />
+                    <Route path="events" element={<AdminEvents />} />
+                    <Route path="notifications" element={<AdminNotifications />} />
+                    <Route path="security" element={<AdminSecurity />} />
+                    <Route path="results" element={<AdminResults />} />
+                    <Route path="information-corner" element={<AdminInformationCorner />} />
+                  </Routes>
+                </AdminLayout>
+              } />
+            </Routes>
+          </Suspense>
+
           <FloatingContact />
         </Router>
       </NotificationProvider>

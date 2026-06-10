@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import { 
   FileText, Bell, Newspaper, Briefcase, Users, Globe, Landmark, 
   ShieldCheck, GraduationCap, FileCheck, Calculator, FileWarning, 
-  ClipboardList, Info, ChevronRight, Send, Shield, User, Trash2, Clock
+  ClipboardList, Info, ChevronRight, Send, Shield, User, Trash2, Clock,
+  Download, FileSpreadsheet, Image
 } from 'lucide-react';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 
@@ -28,12 +31,23 @@ const InformationCorner = () => {
     return initial;
   });
   const [newAnnouncement, setNewAnnouncement] = useState({ title: '', content: '', priority: 'normal' });
+  const [documents, setDocuments] = useState([]);
   const { onNewAnnouncement, markAllRead } = useNotifications();
 
   // Mark all announcements as read when user visits this page
   useEffect(() => {
     markAllRead();
+    fetchDocuments();
   }, [markAllRead]);
+
+  const fetchDocuments = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/upload`);
+      setDocuments(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handlePost = (e) => {
     e.preventDefault();
@@ -160,6 +174,35 @@ const InformationCorner = () => {
                 </div>
               </div>
             ))}
+
+            {/* Dynamic Documents Section */}
+            {documents.length > 0 && (
+              <div className="space-y-10 mt-20">
+                <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.4em] pl-4 border-l-4 border-blue-500/50">
+                  Official Documents & Downloads
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {documents.map(doc => (
+                    <div key={doc._id} className="bg-slate-900/40 border border-slate-800 backdrop-blur-xl rounded-3xl p-6 hover:border-blue-500/40 transition-all group relative overflow-hidden shadow-xl">
+                      <div className="flex justify-between items-start mb-4 relative z-10">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                          {doc.type === 'PDF' ? <FileText className="w-5 h-5" /> : doc.type === 'Excel' ? <FileSpreadsheet className="w-5 h-5" /> : doc.type === 'Image' ? <Image className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                        </div>
+                        <a href={`${API_BASE_URL}${doc.fileUrl}`} target="_blank" rel="noreferrer" className="p-2 bg-white/5 hover:bg-blue-500 hover:text-white rounded-lg text-slate-400 transition-all shadow-md">
+                          <Download className="w-4 h-4" />
+                        </a>
+                      </div>
+                      <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2 relative z-10">{doc.title}</h3>
+                      {doc.description && <p className="text-sm text-slate-400 line-clamp-2 mb-4 relative z-10">{doc.description}</p>}
+                      <div className="mt-auto pt-4 border-t border-slate-800 flex justify-between items-center relative z-10">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{doc.size || 'Unknown'}</span>
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{new Date(doc.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Sidebar: Announcements */}

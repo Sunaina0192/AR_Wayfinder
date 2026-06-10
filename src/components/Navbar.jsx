@@ -23,10 +23,6 @@ const Navbar = () => {
     { path: '/information-corner', label: 'INFORMATION CORNER' }
   ];
 
-  if (user && user.role === 'Admin') {
-    navLinks.push({ path: '/admin/dashboard', label: 'ADMIN DASHBOARD' });
-  }
-
   return (
 
     <nav className="
