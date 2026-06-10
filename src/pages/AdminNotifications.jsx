@@ -154,8 +154,8 @@ const AdminNotifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark text-white pt-24 pb-20 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="p-6">
+      <div className="max-w-5xl mx-auto space-y-8">
         
         {toast && (
           <div className={`fixed top-6 right-6 z-[60] flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-2xl animate-[slide-in_0.3s_ease-out] ${

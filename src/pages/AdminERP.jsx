@@ -166,7 +166,7 @@ const AdminERP = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark text-white pt-24 pb-20 px-4 sm:px-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
