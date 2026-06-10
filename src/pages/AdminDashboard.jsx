@@ -6,14 +6,14 @@ import { Navigate, Link } from 'react-router-dom';
 import {
   Users, Search, BookOpen, Clock, AlertTriangle, CheckCircle, 
   Shield, Calendar, IndianRupee, Hash, Bell, RefreshCw, BarChart2,
-  Database, Settings, GraduationCap, Briefcase, Map
+  Database, Settings, GraduationCap, Briefcase, Map, User, LogOut
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, LineChart, Line
 } from 'recharts';
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -84,12 +84,23 @@ const AdminDashboard = () => {
             <h1 className="text-4xl font-black text-white uppercase tracking-tight">System Overview</h1>
             <p className="text-slate-400 text-sm mt-1">College ERP real-time statistics and activities</p>
           </div>
-          <button
-            onClick={fetchDashboardData}
-            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-sm font-bold text-slate-300 hover:bg-white/10 transition-all"
-          >
-            <RefreshCw className="w-4 h-4" /> Refresh Data
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={fetchDashboardData}
+              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/5 border border-white/10 text-sm font-bold text-slate-300 hover:bg-white/10 transition-all"
+            >
+              <RefreshCw className="w-4 h-4" /> Refresh Data
+            </button>
+            <Link to="/settings" className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-sm font-bold text-slate-300 hover:bg-white/10 transition-all" title="Settings">
+              <Settings className="w-4 h-4" />
+            </Link>
+            <button
+              onClick={() => { logout(); window.location.href='/'; }}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-sm font-bold text-red-400 hover:bg-red-500/20 transition-all" title="Logout"
+            >
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
+          </div>
         </div>
 
         {/* 8-Grid Stats */}
