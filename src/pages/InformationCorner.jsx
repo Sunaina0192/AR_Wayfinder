@@ -34,12 +34,6 @@ const InformationCorner = () => {
   const [documents, setDocuments] = useState([]);
   const { onNewAnnouncement, markAllRead } = useNotifications();
 
-  // Mark all announcements as read when user visits this page
-  useEffect(() => {
-    markAllRead();
-    fetchDocuments();
-  }, [markAllRead]);
-
   const fetchDocuments = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/api/upload`);
@@ -48,6 +42,12 @@ const InformationCorner = () => {
       console.error(err);
     }
   };
+
+  // Mark all announcements as read when user visits this page
+  useEffect(() => {
+    markAllRead();
+    fetchDocuments();
+  }, [markAllRead]);
 
   const handlePost = (e) => {
     e.preventDefault();
