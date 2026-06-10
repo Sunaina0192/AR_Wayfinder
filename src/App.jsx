@@ -6,6 +6,7 @@ import FrontPage from './pages/FrontPage'
 import FloatingContact from './components/FloatingContact'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
+import AdminLayout from './components/AdminLayout';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'))
@@ -77,52 +78,15 @@ const AppLayout = ({ children }) => {
   );
 };
 
-import AdminLayout from './components/AdminLayout';
-
 const App = () => {
   return (
     <AuthProvider>
       <NotificationProvider>
         <Router>
-          <AppLayout>
-            <Suspense fallback={<Loading />}>
-              <Routes>
-                <Route path="/" element={<FrontPage />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/courses" element={<Courses />} />
-                <Route path="/academics" element={<Courses />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/navigator" element={<Navigator />} />
-                <Route path="/explore-campus" element={<CampusExplorer />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/information-corner" element={<InformationCorner />} />
-                <Route path="/rti" element={<RTI />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/admissions" element={<Admissions />} />
-                <Route path="/apply" element={<AdmissionForm />} />
-                
-                {/* Teacher Routes */}
-                <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
-                <Route path="/teacher/academics" element={<TeacherAcademics />} />
-                
-                {/* Student Routes */}
-                <Route path="/student/dashboard" element={<StudentDashboard />} />
-                <Route path="/student/academics" element={<StudentAcademics />} />
-                
-                {/* Common/Misc */}
-                <Route path="/alumni" element={<Alumni />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </Suspense>
-          </AppLayout>
-
-          <Suspense fallback={<Loading />}>
-            <Routes>
-              {/* Admin Routes with Dedicated Layout */}
-              <Route path="/admin/*" element={
+          <Routes>
+            {/* Admin Routes with Dedicated Layout */}
+            <Route path="/admin/*" element={
+              <Suspense fallback={<Loading />}>
                 <AdminLayout>
                   <Routes>
                     <Route path="dashboard" element={<AdminDashboard />} />
@@ -140,10 +104,47 @@ const App = () => {
                     <Route path="information-corner" element={<AdminInformationCorner />} />
                   </Routes>
                 </AdminLayout>
-              } />
-            </Routes>
-          </Suspense>
+              </Suspense>
+            } />
 
+            {/* Main App Routes */}
+            <Route path="/*" element={
+              <AppLayout>
+                <Suspense fallback={<Loading />}>
+                  <Routes>
+                    <Route path="/" element={<FrontPage />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/courses" element={<Courses />} />
+                    <Route path="/academics" element={<Courses />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/navigator" element={<Navigator />} />
+                    <Route path="/explore-campus" element={<CampusExplorer />} />
+                    <Route path="/history" element={<History />} />
+                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/information-corner" element={<InformationCorner />} />
+                    <Route path="/rti" element={<RTI />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/admissions" element={<Admissions />} />
+                    <Route path="/apply" element={<AdmissionForm />} />
+                    
+                    {/* Teacher Routes */}
+                    <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+                    <Route path="/teacher/academics" element={<TeacherAcademics />} />
+                    
+                    {/* Student Routes */}
+                    <Route path="/student/dashboard" element={<StudentDashboard />} />
+                    <Route path="/student/academics" element={<StudentAcademics />} />
+                    
+                    {/* Common/Misc */}
+                    <Route path="/alumni" element={<Alumni />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
+                  </Routes>
+                </Suspense>
+              </AppLayout>
+            } />
+          </Routes>
           <FloatingContact />
         </Router>
       </NotificationProvider>
