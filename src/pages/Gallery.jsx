@@ -5,6 +5,7 @@ const Gallery = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [shareToast, setShareToast] = useState('');
 
   const categories = [
     { id: 'all', label: 'All Moments', icon: LayoutGrid },
@@ -282,6 +283,46 @@ const Gallery = () => {
     return matchesTab && matchesSearch;
   });
 
+  const handleDownload = async (e, img) => {
+    e.stopPropagation();
+    try {
+      const response = await fetch(img.src);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${img.title.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      // Fallback: open in new tab
+      window.open(img.src, '_blank');
+    }
+  };
+
+  const handleShare = async (img) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: img.title,
+          text: img.description,
+          url: img.src.startsWith('http') ? img.src : window.location.origin + img.src,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback to copy to clipboard
+      const url = img.src.startsWith('http') ? img.src : window.location.origin + img.src;
+      navigator.clipboard.writeText(url);
+      setShareToast('Link copied to clipboard!');
+      setTimeout(() => setShareToast(''), 3000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-dark text-white pt-24 pb-20 selection:bg-accent/30 selection:text-white">
       {/* Hero Section */}
@@ -306,6 +347,13 @@ const Gallery = () => {
           </p>
         </div>
       </section>
+
+      {/* Share Toast */}
+      {shareToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-accent text-dark font-black px-6 py-3 rounded-full shadow-2xl animate-[fade-in_0.3s_ease-out]">
+          {shareToast}
+        </div>
+      )}
 
       {/* Main Content */}
       <section className="relative z-10 -mt-20 px-6">
@@ -380,12 +428,15 @@ const Gallery = () => {
                     </span>
                     <h3 className="text-white font-black text-xl uppercase tracking-tighter leading-tight">{img.title}</h3>
                     <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md">
+                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white backdrop-blur-md hover:bg-white/20 transition-all">
                         <Maximize2 className="w-4 h-4" />
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-dark shadow-lg shadow-accent/20">
+                      <button 
+                        onClick={(e) => handleDownload(e, img)}
+                        className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-dark shadow-lg shadow-accent/20 hover:scale-110 transition-all cursor-pointer"
+                      >
                         <Download className="w-4 h-4" />
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -450,11 +501,17 @@ const Gallery = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 pt-8">
-                <button className="flex-1 px-8 py-5 rounded-[2rem] bg-accent text-dark font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-3 shadow-2xl">
+                <button 
+                  onClick={(e) => handleDownload(e, selectedImage)}
+                  className="flex-1 px-8 py-5 rounded-[2rem] bg-accent text-dark font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center justify-center gap-3 shadow-2xl cursor-pointer"
+                >
                   <Download className="w-4 h-4" />
                   Save Image
                 </button>
-                <button className="w-full sm:w-16 h-16 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                <button 
+                  onClick={() => handleShare(selectedImage)}
+                  className="w-full sm:w-16 h-16 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10 transition-all cursor-pointer"
+                >
                   <Share2 className="w-5 h-5" />
                 </button>
               </div>
