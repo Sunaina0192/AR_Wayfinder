@@ -10,7 +10,6 @@ import Attendance from '../models/Attendance.js';
 import Admin from '../models/Admin.js';
 import Location from '../models/Location.js';
 import Event from '../models/Event.js';
-import Notification from '../models/Notification.js';
 import { protect, adminOnly, superAdminOnly } from '../middleware/auth.js';
 
 const router = express.Router();
