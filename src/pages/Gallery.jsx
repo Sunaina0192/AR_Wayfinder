@@ -75,7 +75,7 @@ const Gallery = () => {
       },
       {
         id: 'campus-9',
-        src: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
+        src: 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80',
         category: 'campus',
         title: 'Academic Block Greenery',
         description: 'Serene landscape surrounding the central academic infrastructure.'
