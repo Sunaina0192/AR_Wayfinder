@@ -17,6 +17,7 @@ import teacherRoutes from './server/routes/teacherRoutes.js'
 import studentRoutes from './server/routes/studentRoutes.js'
 import uploadRoutes from './server/routes/uploadRoutes.js'
 import resultRoutes from './server/routes/resultRoutes.js'
+import contactRoutes from './server/routes/contactRoutes.js'
 
 dotenv.config()
 
@@ -355,6 +356,7 @@ app.use('/api/teacher', teacherRoutes)
 app.use('/api/student', studentRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/results', resultRoutes)
+app.use('/api/contact', contactRoutes)
 
 // API 404 Route
 app.use('/api', (req, res) => {

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, Mail, MapPin, Send, Globe, MessageSquare, Clock, ArrowRight, Search, Landmark, ChevronRight } from 'lucide-react';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const TelephoneDirectory = () => {
   const [search, setSearch] = useState('');
@@ -119,14 +121,19 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/contact`, formData);
       alert('Your message has been transmitted successfully to our command center!');
-      setIsSubmitting(false);
       setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1500);
+    } catch (error) {
+      console.error('Failed to send contact message:', error);
+      alert('Error: Failed to transmit message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
