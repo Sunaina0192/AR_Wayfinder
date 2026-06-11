@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const EventsSection = () => {
   const navigate = useNavigate();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 0, 1)); // Start at Jan 2026
 
   const events = [
     { 
@@ -29,11 +30,15 @@ const EventsSection = () => {
     }
   ];
 
-  // Helper to generate a mock calendar for June 2026
+  // Helper to generate a dynamic calendar for the current selected month
   const generateCalendarDays = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startDayOfWeek = new Date(year, month, 1).getDay(); // 0 = Sun, 1 = Mon
+    
     const days = [];
-    const daysInMonth = 30; // June has 30 days
-    const startDayOfWeek = 1; // June 1, 2026 is a Monday (0=Sun, 1=Mon)
 
     // Add empty slots for days before the 1st
     for (let i = 0; i < startDayOfWeek; i++) {
@@ -42,28 +47,52 @@ const EventsSection = () => {
 
     // Add actual days
     for (let i = 1; i <= daysInMonth; i++) {
-      const dayOfWeek = (startDayOfWeek + i - 1) % 7;
+      const currentDayDate = new Date(year, month, i);
+      const dayOfWeek = currentDayDate.getDay();
       
       // Determine day type
       let type = 'college'; // default
+      let description = 'Regular College Day';
+      
+      // Weekends are holidays
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        type = 'holiday'; // Weekends are holidays
+        type = 'holiday'; 
+        description = 'Weekend';
       }
-      // Specific mock holidays
-      if (i === 15) type = 'event'; // Cultural Fest
-      if (i === 24) type = 'holiday'; // Random holiday
+      
+      // Some mock specific events/holidays across the year
+      if (month === 0 && i === 26) { type = 'holiday'; description = 'Republic Day'; } // Jan 26
+      if (month === 4 && i === 20) { type = 'event'; description = 'Inter-College Sports Meet'; } // May 20
+      if (month === 5 && i === 15) { type = 'event'; description = 'Cultural Fest - Rhythm'; } // June 15
+      if (month === 6 && i === 10) { type = 'event'; description = 'AI Trends Seminar'; } // July 10
+      if (month === 7 && i === 5) { type = 'event'; description = 'Alumni Meet'; } // Aug 5
+      if (month === 7 && i === 15) { type = 'holiday'; description = 'Independence Day'; } // Aug 15
+      if (month === 9 && i === 2) { type = 'holiday'; description = 'Gandhi Jayanti'; } // Oct 2
+      if (month === 11 && i === 25) { type = 'holiday'; description = 'Christmas'; } // Dec 25
 
       days.push({
         date: i,
-        type: type, // 'college', 'holiday', 'event'
+        type: type, 
+        description: description,
         empty: false
       });
     }
     return days;
   };
 
+  const handlePrevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
   const calendarDays = generateCalendarDays();
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const currentMonthName = monthNames[currentDate.getMonth()];
+  const currentYear = currentDate.getFullYear();
 
   return (
     <section className="py-24 md:py-32 relative overflow-hidden flex flex-col items-center w-full">
@@ -140,7 +169,7 @@ const EventsSection = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-black text-white tracking-tight uppercase">Academic Calendar</h3>
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">June 2026</p>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Full Year Access</p>
                 </div>
               </div>
               
@@ -156,11 +185,11 @@ const EventsSection = () => {
             <div className="p-6 md:p-8">
               {/* Controls */}
               <div className="flex justify-between items-center mb-8">
-                <button className="p-2 glass rounded-full hover:bg-white/10 transition-colors">
+                <button onClick={handlePrevMonth} className="p-2 glass rounded-full hover:bg-white/10 transition-colors">
                   <ChevronLeft className="w-5 h-5 text-white" />
                 </button>
-                <h4 className="text-xl font-black text-white tracking-widest uppercase">June 2026</h4>
-                <button className="p-2 glass rounded-full hover:bg-white/10 transition-colors">
+                <h4 className="text-xl font-black text-white tracking-widest uppercase">{currentMonthName} {currentYear}</h4>
+                <button onClick={handleNextMonth} className="p-2 glass rounded-full hover:bg-white/10 transition-colors">
                   <ChevronRight className="w-5 h-5 text-white" />
                 </button>
               </div>
@@ -226,7 +255,7 @@ const EventsSection = () => {
                       
                       {/* Tooltip on hover */}
                       <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-dark border border-white/20 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-lg pointer-events-none z-20 whitespace-nowrap">
-                        {dayObj.type === 'holiday' ? 'Holiday / Weekend' : dayObj.type === 'event' ? 'Cultural Fest' : 'Regular College Day'}
+                        {dayObj.description}
                       </div>
                     </div>
                   );
