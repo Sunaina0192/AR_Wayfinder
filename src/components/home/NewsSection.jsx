@@ -1,25 +1,29 @@
-import React from 'react';
-import { Newspaper } from 'lucide-react';
+import React, { useState } from 'react';
+import { Newspaper, X } from 'lucide-react';
 
 const NewsSection = () => {
+  const [selectedArticle, setSelectedArticle] = useState(null);
   const news = [
     { 
       title: "SBBSU hosts International Conference on AI & Future Tech", 
       date: "May 10, 2026", 
       image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=500&auto=format&fit=crop",
-      category: "Research"
+      category: "Research",
+      content: "Sant Baba Bhag Singh University recently hosted a 3-day International Conference on Artificial Intelligence and Future Technologies. Renowned scholars and industry experts from around the globe gathered to discuss the transformative potential of AI in various sectors including healthcare, education, and autonomous systems. The event featured keynote speeches, panel discussions, and interactive workshops, providing our students with unparalleled exposure to cutting-edge research."
     },
     { 
       title: "Students win National Robotics Championship 2026", 
       date: "April 28, 2026", 
       image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&auto=format&fit=crop",
-      category: "Achievement"
+      category: "Achievement",
+      content: "Our exceptional engineering students have secured the first position at the National Robotics Championship 2026 held in New Delhi. Competing against top universities across the country, the SBBSU team showcased their innovative autonomous rover design, which successfully navigated complex terrains and completed all assigned tasks. This victory highlights our commitment to practical, hands-on learning and technological excellence."
     },
     { 
       title: "New Research Grant awarded to Science Dept for AI Lab", 
       date: "April 15, 2026", 
       image: "https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?w=500&auto=format&fit=crop",
-      category: "Department"
+      category: "Department",
+      content: "The Department of Computer Science has been awarded a prestigious research grant to establish a state-of-the-art AI and Machine Learning Laboratory. This new facility will be equipped with high-performance computing clusters and advanced software tools, enabling students and faculty to conduct groundbreaking research in deep learning, natural language processing, and computer vision. The lab is expected to be operational by the next academic semester."
     }
   ];
 
@@ -66,7 +70,10 @@ const NewsSection = () => {
                 </h3>
                 
                 <div className="mt-auto">
-                  <button className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest group/btn">
+                  <button 
+                    onClick={() => setSelectedArticle(item)}
+                    className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest group/btn"
+                  >
                     Read Article 
                     <span className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover/btn:bg-accent group-hover/btn:text-dark transition-all">
                       →
@@ -78,6 +85,37 @@ const NewsSection = () => {
           ))}
         </div>
       </div>
+
+      {/* Article Modal */}
+      {selectedArticle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-dark/80 backdrop-blur-sm" onClick={() => setSelectedArticle(null)}></div>
+          <div className="relative w-full max-w-2xl glass border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl animate-fade-in-up">
+            <button 
+              onClick={() => setSelectedArticle(null)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 bg-dark/50 hover:bg-accent hover:text-dark rounded-full flex items-center justify-center transition-colors text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="h-64 overflow-hidden relative">
+              <img src={selectedArticle.image} alt={selectedArticle.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+              <div className="absolute bottom-6 left-8 right-8">
+                <span className="px-3 py-1 bg-accent/20 border border-accent/30 text-accent text-[10px] font-black uppercase tracking-widest rounded-full mb-3 inline-block">
+                  {selectedArticle.category}
+                </span>
+                <h3 className="text-2xl md:text-3xl font-black text-white leading-tight">{selectedArticle.title}</h3>
+              </div>
+            </div>
+            <div className="p-8">
+              <p className="text-slate-400 text-sm font-black uppercase tracking-widest mb-6">{selectedArticle.date}</p>
+              <p className="text-slate-300 leading-relaxed font-medium">
+                {selectedArticle.content}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

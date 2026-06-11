@@ -1,6 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
 
 const HomeFooter = () => {
+  const navigate = useNavigate();
   const importantLinks = [
     "Counselling Appointment Request",
     "Statutory Declaration under Section 4 (1) (b) of the RTI Act 2005",
@@ -60,8 +63,14 @@ const HomeFooter = () => {
         ></iframe>
         
         {/* Map Float Overlay */}
-        <div className="absolute bottom-8 left-8 p-6 glass rounded-3xl max-w-sm hidden md:block z-20 animate-float">
-          <h4 className="text-accent text-lg font-black mb-2 tracking-widest uppercase">Our Campus</h4>
+        <div 
+          onClick={() => navigate('/explore-campus')}
+          className="absolute bottom-8 left-8 p-6 glass rounded-3xl max-w-sm hidden md:block z-20 animate-float cursor-pointer hover:bg-white/10 hover:scale-105 transition-all shadow-2xl"
+        >
+          <h4 className="text-accent text-lg font-black mb-2 tracking-widest uppercase flex items-center gap-2">
+            Our Campus 
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+          </h4>
           <p className="text-white text-sm font-medium leading-relaxed">
             Visit our state-of-the-art campus in Jalandhar. Modern facilities integrated with spiritual wisdom.
           </p>
@@ -81,22 +90,31 @@ const HomeFooter = () => {
             {/* Branding Column */}
             <div className="lg:col-span-1">
               <div className="flex items-center gap-4 mb-8">
-                <img src="https://sbbsuniversity.ac.in/images/logo.png" alt="SBBSU Logo" className="h-14 w-auto brightness-110" />
                 <div className="flex flex-col">
-                  <span className="text-white font-black text-2xl tracking-tighter">SBBSU</span>
-                  <span className="text-[10px] text-accent font-bold tracking-[0.3em] uppercase">University</span>
+                  <span className="text-white font-black text-3xl tracking-tighter">SBBSU</span>
+                  <span className="text-xs text-accent font-bold tracking-[0.3em] uppercase">University</span>
                 </div>
               </div>
               <p className="text-sm leading-relaxed mb-8 text-slate-400 font-medium">
                 Established vide Punjab Govt. Act No. 6 of 2015. A premier institution dedicated to academic excellence and holistic development.
               </p>
               <div className="flex gap-4">
-                {['Facebook', 'Twitter', 'LinkedIn', 'Instagram'].map((social) => (
-                  <a key={social} href="#" className="w-10 h-10 rounded-xl glass flex items-center justify-center hover:bg-accent hover:text-dark hover:-translate-y-1 transition-all duration-300">
-                    <span className="sr-only">{social}</span>
-                    <div className="w-5 h-5 bg-current opacity-50"></div> {/* Placeholder for icons */}
-                  </a>
-                ))}
+                <a href="#" className="w-10 h-10 rounded-xl glass flex items-center justify-center hover:bg-blue-500 hover:text-white hover:-translate-y-1 transition-all duration-300 text-slate-400">
+                  <span className="sr-only">Facebook</span>
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl glass flex items-center justify-center hover:bg-pink-500 hover:text-white hover:-translate-y-1 transition-all duration-300 text-slate-400">
+                  <span className="sr-only">Instagram</span>
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl glass flex items-center justify-center hover:bg-red-500 hover:text-white hover:-translate-y-1 transition-all duration-300 text-slate-400">
+                  <span className="sr-only">YouTube</span>
+                  <Youtube className="w-5 h-5" />
+                </a>
+                <a href="#" className="w-10 h-10 rounded-xl glass flex items-center justify-center hover:bg-sky-500 hover:text-white hover:-translate-y-1 transition-all duration-300 text-slate-400">
+                  <span className="sr-only">Twitter</span>
+                  <Twitter className="w-5 h-5" />
+                </a>
               </div>
             </div>
 
