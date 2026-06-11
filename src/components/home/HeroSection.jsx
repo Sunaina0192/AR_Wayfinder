@@ -29,7 +29,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-screen min-h-[700px] w-full overflow-hidden flex items-center justify-center">
+    <section className="relative min-h-screen w-full overflow-hidden flex items-center justify-center py-24">
       {/* Background with Depth and Motion */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-dark/60 z-10 transition-colors duration-1000"></div>
