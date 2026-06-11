@@ -7,7 +7,7 @@ const RouteSummary = ({ selectedLocation, distance, isDarkMode }) => {
   const estimatedTime = selectedLocation ? Math.max(1, Math.round(distance / 50)) : 0
 
   return (
-    <div className={`rounded-[2.5rem] transition-all duration-500 p-8 h-full flex flex-col justify-between border ${
+    <div className={`rounded-[2.5rem] transition-all duration-500 p-8 h-fit flex flex-col justify-between border ${
       isDarkMode 
         ? 'bg-white/5 border-white/10 shadow-2xl' 
         : 'bg-white border-white shadow-xl shadow-slate-200/50'

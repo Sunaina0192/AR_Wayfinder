@@ -183,7 +183,7 @@ const Navigator = () => {
               onSelect={(id) => handleLocationSelect(id, true)}
               isDarkMode={isDarkMode}
             />
-            <div className={`rounded-3xl overflow-hidden shadow-2xl border ${isDarkMode ? 'border-white/10' : 'border-white'} h-[400px]`}>
+            <div className={`rounded-3xl overflow-hidden shadow-2xl border ${isDarkMode ? 'border-white/10' : 'border-white'}`}>
               <MapView
                 selectedLocation={selectedLocation}
                 activePath={activePath}
