@@ -1,18 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
+  const [currentBg, setCurrentBg] = useState(0);
+
+  const backgroundImages = [
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2086&auto=format&fit=crop", // Library/Study
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop", // Campus
+    "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop"  // Students/Project
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBg((prev) => (prev + 1) % backgroundImages.length);
+    }, 2000); // Change image every 2 seconds
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePrev = () => {
+    setCurrentBg((prev) => (prev === 0 ? backgroundImages.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentBg((prev) => (prev + 1) % backgroundImages.length);
+  };
+
   return (
     <section className="relative h-screen min-h-[700px] w-full overflow-hidden flex items-center justify-center">
       {/* Background with Depth and Motion */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-dark/60 z-10"></div>
-        <img 
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop" 
-          alt="SBBSU Campus Life" 
-          className="w-full h-full object-cover scale-110 animate-[pulse_20s_ease-in-out_infinite_alternate]"
-        />
+        <div className="absolute inset-0 bg-dark/60 z-10 transition-colors duration-1000"></div>
+        {backgroundImages.map((img, idx) => (
+          <img 
+            key={idx}
+            src={img} 
+            alt="SBBSU Campus Life" 
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              idx === currentBg ? 'opacity-100 scale-110' : 'opacity-0 scale-100'
+            }`}
+          />
+        ))}
         
         {/* Animated Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-dark/20 via-dark/40 to-dark z-20"></div>
@@ -77,11 +107,17 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Decorative Navigation Arrows */}
-      <button className="absolute left-8 bottom-12 w-14 h-14 glass rounded-2xl flex items-center justify-center text-white hover:bg-accent hover:text-dark transition-all hover:scale-110 z-50 group hidden md:flex">
+      {/* Navigation Arrows - Centered Vertically */}
+      <button 
+        onClick={handlePrev}
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 glass rounded-full md:rounded-2xl flex items-center justify-center text-white hover:bg-accent hover:text-dark transition-all hover:scale-110 z-50 group hidden md:flex"
+      >
         <ChevronLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
       </button>
-      <button className="absolute right-8 bottom-12 w-14 h-14 glass rounded-2xl flex items-center justify-center text-white hover:bg-accent hover:text-dark transition-all hover:scale-110 z-50 group hidden md:flex">
+      <button 
+        onClick={handleNext}
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 glass rounded-full md:rounded-2xl flex items-center justify-center text-white hover:bg-accent hover:text-dark transition-all hover:scale-110 z-50 group hidden md:flex"
+      >
         <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
       </button>
     </section>
