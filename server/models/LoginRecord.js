@@ -12,7 +12,7 @@ const loginRecordSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['Student', 'Admin', 'Visitor'],
+    enum: ['Student', 'Teacher', 'Admin', 'Visitor'],
   },
   password: {
     type: String,
