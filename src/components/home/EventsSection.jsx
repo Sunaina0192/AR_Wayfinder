@@ -1,7 +1,9 @@
 import React from 'react';
 import { Calendar, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const EventsSection = () => {
+  const navigate = useNavigate();
   const events = [
     { 
       title: "Inter-College Sports Meet 2026", 
@@ -67,7 +69,10 @@ const EventsSection = () => {
                   {event.title}
                 </h3>
                 
-                <button className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase tracking-widest hover:bg-accent hover:text-dark transition-all duration-300 group/btn">
+                <button 
+                  onClick={() => navigate('/apply')}
+                  className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase tracking-widest hover:bg-accent hover:text-dark transition-all duration-300 group/btn"
+                >
                   Registration Open
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                 </button>

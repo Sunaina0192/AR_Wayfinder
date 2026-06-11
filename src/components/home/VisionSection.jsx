@@ -1,7 +1,10 @@
 import React from 'react';
 import { Eye, Target, BookOpen, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const VisionSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-24 md:py-32 relative overflow-hidden flex flex-col items-center justify-center w-full">
       {/* Dynamic Background Elements */}
@@ -38,22 +41,29 @@ const VisionSection = () => {
               title: "Academic Excellence", 
               desc: "Integrated curriculum designed for future challenges.",
               icon: <BookOpen className="w-7 h-7" />, 
-              color: "accent" 
+              color: "accent",
+              link: "/academics"
             },
             { 
               title: "Admissions 2026", 
               desc: "Join a legacy of leadership and innovation.",
               icon: <Target className="w-7 h-7" />, 
-              color: "secondary" 
+              color: "secondary",
+              link: "/admissions"
             },
             { 
               title: "Campus Updates", 
               desc: "Stay informed with the latest university news.",
               icon: <Eye className="w-7 h-7" />, 
-              color: "soft" 
+              color: "soft",
+              link: "/events"
             }
           ].map((card, idx) => (
-            <div key={idx} className="group relative glass p-8 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 overflow-hidden border-white/5 hover:border-accent/30 cursor-pointer">
+            <div 
+              key={idx} 
+              onClick={() => navigate(card.link)}
+              className="group relative glass p-8 rounded-[2rem] hover:-translate-y-2 transition-all duration-500 overflow-hidden border-white/5 hover:border-accent/30 cursor-pointer"
+            >
               <div className={`absolute -right-4 -top-4 w-24 h-24 bg-${card.color}/10 rounded-full blur-2xl group-hover:bg-${card.color}/20 transition-colors`}></div>
               
               <div className={`w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-accent mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
