@@ -3,10 +3,17 @@ import React from 'react';
 const RecruitersSection = () => {
   const logos = [
     { name: "Wipro", url: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Wipro_Primary_Logo_Color_RGB.svg" },
+    { name: "Tech Mahindra", url: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Tech_Mahindra_New_Logo.svg" },
     { name: "Justdial", url: "https://upload.wikimedia.org/wikipedia/commons/2/23/Justdial_logo.png" },
-    { name: "TCS", url: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Tata_Consultancy_Services_Logo.svg" },
     { name: "Infosys", url: "https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" },
-    { name: "Tech Mahindra", url: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Tech_Mahindra_New_Logo.svg" }
+    { name: "Infotech", url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/LTI_Let%27s_Solve_Logo.svg" },
+    { name: "Alpha", url: "https://upload.wikimedia.org/wikipedia/commons/e/e4/Alphabet_Inc_logo.svg" },
+    { name: "TCS", url: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Tata_Consultancy_Services_Logo.svg" },
+    { name: "Cognizant", url: "https://upload.wikimedia.org/wikipedia/commons/4/43/Cognizant_logo_2022.svg" },
+    { name: "Accenture", url: "https://upload.wikimedia.org/wikipedia/commons/c/cd/Accenture_2017.svg" },
+    { name: "IBM", url: "https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg" },
+    { name: "Capgemini", url: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Capgemini_201x_logo.svg" },
+    { name: "HCL", url: "https://upload.wikimedia.org/wikipedia/commons/2/22/HCL_Technologies_logo.svg" }
   ];
 
   return (
