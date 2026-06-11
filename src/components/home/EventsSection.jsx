@@ -154,66 +154,66 @@ const EventsSection = () => {
 
       {/* Calendar Modal */}
       {isCalendarOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
           <div 
             className="absolute inset-0 bg-dark/90 backdrop-blur-sm" 
             onClick={() => setIsCalendarOpen(false)}
           ></div>
           
-          <div className="relative glass bg-[#0a0a0a]/95 border border-white/10 rounded-3xl w-full max-w-4xl shadow-2xl animate-fade-in-up overflow-hidden">
+          <div className="relative glass bg-[#0a0a0a]/95 border border-white/10 rounded-2xl md:rounded-3xl w-full max-w-2xl shadow-2xl animate-fade-in-up overflow-hidden max-h-[90vh] flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 md:p-8 border-b border-white/10">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
-                  <CalendarIcon className="w-6 h-6 text-accent" />
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/10 flex-shrink-0">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-accent/10 flex items-center justify-center border border-accent/20">
+                  <CalendarIcon className="w-5 h-5 md:w-6 md:h-6 text-accent" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-white tracking-tight uppercase">Academic Calendar</h3>
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Full Year Access</p>
+                  <h3 className="text-lg md:text-xl font-black text-white tracking-tight uppercase">Academic Calendar</h3>
+                  <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-0.5 md:mt-1">Full Year Access</p>
                 </div>
               </div>
               
               <button 
                 onClick={() => setIsCalendarOpen(false)}
-                className="p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                className="p-2 md:p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 md:w-5 md:h-5" />
               </button>
             </div>
 
             {/* Calendar Body */}
-            <div className="p-6 md:p-8">
+            <div className="p-4 md:p-6 overflow-y-auto overflow-x-hidden flex-1">
               {/* Controls */}
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-6">
                 <button onClick={handlePrevMonth} className="p-2 glass rounded-full hover:bg-white/10 transition-colors">
-                  <ChevronLeft className="w-5 h-5 text-white" />
+                  <ChevronLeft className="w-4 h-4 text-white" />
                 </button>
-                <h4 className="text-xl font-black text-white tracking-widest uppercase">{currentMonthName} {currentYear}</h4>
+                <h4 className="text-lg md:text-xl font-black text-white tracking-widest uppercase">{currentMonthName} {currentYear}</h4>
                 <button onClick={handleNextMonth} className="p-2 glass rounded-full hover:bg-white/10 transition-colors">
-                  <ChevronRight className="w-5 h-5 text-white" />
+                  <ChevronRight className="w-4 h-4 text-white" />
                 </button>
               </div>
 
               {/* Legends */}
-              <div className="flex flex-wrap gap-6 mb-8 justify-center bg-black/30 p-4 rounded-2xl border border-white/5">
+              <div className="flex flex-wrap gap-3 md:gap-6 mb-6 justify-center bg-black/30 p-3 md:p-4 rounded-xl md:rounded-2xl border border-white/5">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full border-2 border-green-500 bg-green-500/10"></div>
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">College Day</span>
+                  <div className="w-3 h-3 rounded-full border-2 border-green-500 bg-green-500/10"></div>
+                  <span className="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-widest">College Day</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Holiday</span>
+                  <div className="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                  <span className="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-widest">Holiday</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-accent shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">Event</span>
+                  <div className="w-3 h-3 rounded-full bg-accent shadow-[0_0_10px_rgba(6,182,212,0.5)]"></div>
+                  <span className="text-[10px] md:text-xs font-bold text-slate-300 uppercase tracking-widest">Event</span>
                 </div>
               </div>
 
               {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-2 md:gap-4 text-center">
+              <div className="grid grid-cols-7 gap-1 md:gap-2 text-center w-full">
                 {weekDays.map((day) => (
-                  <div key={day} className="text-xs font-black text-slate-500 uppercase tracking-widest mb-4">
+                  <div key={day} className="text-[10px] md:text-xs font-black text-slate-500 uppercase tracking-widest mb-2">
                     {day}
                   </div>
                 ))}
@@ -235,11 +235,11 @@ const EventsSection = () => {
                     textClass = "text-red-400 font-black";
                     extraEffects = "shadow-[inset_0_0_15px_rgba(239,68,68,0.2)]";
                   } else if (dayObj.type === 'college') {
-                    borderClass = "border-2 border-green-500/70";
+                    borderClass = "border md:border-2 border-green-500/70";
                     extraEffects = "hover:bg-green-500/10";
                   } else if (dayObj.type === 'event') {
                     bgClass = "bg-accent/20";
-                    borderClass = "border-accent";
+                    borderClass = "border md:border-2 border-accent";
                     textClass = "text-accent font-black";
                     extraEffects = "shadow-[0_0_20px_rgba(6,182,212,0.3)] scale-105 z-10";
                   }
@@ -247,14 +247,14 @@ const EventsSection = () => {
                   return (
                     <div 
                       key={`day-${dayObj.date}`} 
-                      className={`relative aspect-square flex flex-col items-center justify-center rounded-2xl glass ${bgClass} ${borderClass} ${extraEffects} transition-all duration-300 cursor-pointer group`}
+                      className={`relative aspect-square flex flex-col items-center justify-center rounded-lg md:rounded-xl glass ${bgClass} ${borderClass} ${extraEffects} transition-all duration-300 cursor-pointer group`}
                     >
-                      <span className={`text-lg md:text-2xl font-bold ${textClass}`}>
+                      <span className={`text-base md:text-xl font-bold ${textClass}`}>
                         {dayObj.date}
                       </span>
                       
                       {/* Tooltip on hover */}
-                      <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-dark border border-white/20 text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-lg pointer-events-none z-20 whitespace-nowrap">
+                      <div className="absolute -top-8 md:-top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-dark border border-white/20 text-white text-[8px] md:text-[10px] uppercase font-bold tracking-widest px-2 py-1 rounded-md md:rounded-lg pointer-events-none z-20 whitespace-nowrap hidden sm:block">
                         {dayObj.description}
                       </div>
                     </div>
