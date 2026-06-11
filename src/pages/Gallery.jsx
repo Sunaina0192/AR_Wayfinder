@@ -75,7 +75,7 @@ const Gallery = () => {
       },
       {
         id: 'campus-9',
-        src: 'https://images.unsplash.com/photo-1525921429624-479b6c29454f?auto=format&fit=crop&w=800&q=80',
+        src: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80',
         category: 'campus',
         title: 'Academic Block Greenery',
         description: 'Serene landscape surrounding the central academic infrastructure.'
@@ -119,7 +119,7 @@ const Gallery = () => {
       },
       {
         id: 'agr-3',
-        src: 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&w=800&q=80',
+        src: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
         category: 'agriculture',
         title: 'Soil Science Laboratory',
         description: 'Analyzing nutrient profiles and soil health to optimize crop rotation.'
@@ -198,14 +198,14 @@ const Gallery = () => {
       },
       {
         id: 'law-2',
-        src: 'https://images.unsplash.com/photo-1453733190148-c44698c26588?auto=format&fit=crop&w=800&q=80',
+        src: 'https://images.unsplash.com/photo-1589391886645-d51941baf7fb?auto=format&fit=crop&w=800&q=80',
         category: 'law',
         title: 'Legal Aid & Library',
         description: 'Accessing law reports, case studies, and preparing legal briefs.'
       },
       {
         id: 'law-3',
-        src: 'https://images.unsplash.com/photo-1505664194779-8bebcb95c539?auto=format&fit=crop&w=800&q=80',
+        src: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80',
         category: 'law',
         title: 'Constitutional Law Seminar',
         description: 'Panel discussion by legal scholars on recent judicial judgments.'
