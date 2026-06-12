@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../config';
 import {
   User, Phone, Mail, MapPin, BookOpen, FileText,
   Upload, CheckCircle, ChevronRight, ChevronLeft,
-  GraduationCap, ClipboardList, Camera, AlertCircle
+  GraduationCap, ClipboardList, Camera, AlertCircle, Lock
 } from 'lucide-react';
 
 const STEPS = ['Personal Details', 'Address', 'Academic Details', 'Documents', 'Review & Submit'];
