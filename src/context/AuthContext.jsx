@@ -20,10 +20,9 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  // Unified Login: Just email and password
-  const login = async (email, password) => {
+  const login = async (role, extraData = {}) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { role, ...extraData });
       
       const { user: userData, token } = response.data;
       
@@ -32,7 +31,6 @@ export const AuthProvider = ({ children }) => {
         token // store JWT token in the user object
       });
 
-      return userData; // Return userData to allow caller to inspect the role and route accordingly
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -42,39 +40,16 @@ export const AuthProvider = ({ children }) => {
   const register = async (regData) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/auth/register`, regData);
-      return response.data; // Return success message (no auto-login, needs OTP)
+      
+      const { user: userData, token } = response.data;
+      
+      setUser({
+        ...userData,
+        token
+      });
+
     } catch (error) {
       console.error('Registration failed:', error);
-      throw error;
-    }
-  };
-
-  const verifyOTP = async (email, otp) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/verify-otp`, { email, otp });
-      return response.data;
-    } catch (error) {
-      console.error('OTP Verification failed:', error);
-      throw error;
-    }
-  };
-
-  const forgotPassword = async (email) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { email });
-      return response.data;
-    } catch (error) {
-      console.error('Forgot password failed:', error);
-      throw error;
-    }
-  };
-
-  const resetPassword = async (email, otp, newPassword) => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/api/auth/reset-password`, { email, otp, newPassword });
-      return response.data;
-    } catch (error) {
-      console.error('Reset password failed:', error);
       throw error;
     }
   };
@@ -91,7 +66,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser, register, verifyOTP, forgotPassword, resetPassword }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, register }}>
       {children}
     </AuthContext.Provider>
   );

@@ -6,10 +6,7 @@ const adminSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, default: 'Admin' },
-  isSuperAdmin: { type: Boolean, default: false },
-  otp: { type: String },
-  otpExpires: { type: Date },
-  isEmailVerified: { type: Boolean, default: false }
+  isSuperAdmin: { type: Boolean, default: false }
 }, {
   timestamps: true
 });
