@@ -18,7 +18,10 @@ const teacherSchema = new mongoose.Schema({
   joiningDate: { type: Date, default: Date.now },
   password: { type: String, required: true },
   role: { type: String, default: 'Teacher' },
-  status: { type: String, enum: ['active', 'inactive'], default: 'active' }
+  status: { type: String, enum: ['pending_verification', 'active', 'inactive'], default: 'pending_verification' },
+  otp: { type: String },
+  otpExpires: { type: Date },
+  isEmailVerified: { type: Boolean, default: false }
 }, {
   timestamps: true
 });

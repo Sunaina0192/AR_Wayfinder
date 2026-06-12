@@ -27,9 +27,12 @@ const studentSchema = new mongoose.Schema({
   feeStatus: { type: String, enum: ['paid', 'pending', 'partial'], default: 'pending' },
   hostelStatus: { type: String, enum: ['Not Applied', 'Allocated', 'Pending'], default: 'Not Applied' },
   password: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  status: { type: String, enum: ['pending_verification', 'pending', 'approved', 'rejected'], default: 'pending_verification' },
   registrationDate: { type: Date, default: Date.now },
-  role: { type: String, default: 'Student' }
+  role: { type: String, default: 'Student' },
+  otp: { type: String },
+  otpExpires: { type: Date },
+  isEmailVerified: { type: Boolean, default: false }
 }, {
   timestamps: true
 });
