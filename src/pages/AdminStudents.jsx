@@ -287,6 +287,18 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      const res = await axios.put(`${API_BASE_URL}/api/admin/students/${id}/status`, { status: newStatus }, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      setStudents(prev => prev.map(s => s._id === id ? { ...s, status: newStatus } : s));
+      showToast(`Student ${newStatus} successfully!`);
+    } catch (err) {
+      showToast(err.response?.data?.message || `Failed to ${newStatus} student.`, 'error');
+    }
+  };
+
   // ── Filtering & Search ──────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
@@ -460,6 +472,24 @@ const AdminDashboard = () => {
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2">
+                              {s.status === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => handleStatusChange(s._id, 'approved')}
+                                    className="p-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all"
+                                    title="Approve student"
+                                  >
+                                    <CheckCircle className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleStatusChange(s._id, 'rejected')}
+                                    className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+                                    title="Reject student"
+                                  >
+                                    <XCircle className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
+                              )}
                               <button
                                 onClick={() => setEditStudent(s)}
                                 className="p-2 rounded-xl bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-all"
@@ -501,6 +531,16 @@ const AdminDashboard = () => {
                           <p className="text-xs text-accent font-bold">{s.studentId}</p>
                         </div>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {s.status === 'pending' && (
+                            <>
+                              <button onClick={() => handleStatusChange(s._id, 'approved')} className="p-2 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-all">
+                                <CheckCircle className="w-3.5 h-3.5" />
+                              </button>
+                              <button onClick={() => handleStatusChange(s._id, 'rejected')} className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all">
+                                <XCircle className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
                           <button onClick={() => setEditStudent(s)} className="p-2 rounded-xl bg-accent/10 border border-accent/20 text-accent hover:bg-accent/20 transition-all">
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
