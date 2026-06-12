@@ -33,7 +33,10 @@ const FrontPage = () => {
 
   React.useEffect(() => {
     if (user) {
-      navigate('/home');
+      if (user.role === 'Student') navigate('/student/dashboard');
+      else if (user.role === 'Teacher') navigate('/teacher/dashboard');
+      else if (user.role === 'Admin') navigate('/admin/dashboard');
+      else navigate('/home');
     }
   }, [user, navigate]);
 
@@ -81,7 +84,10 @@ const FrontPage = () => {
     try {
       await login(loginRole, extraData);
       setIsLoggingIn(false);
-      navigate('/home');
+      if (loginRole === 'Student') navigate('/student/dashboard');
+      else if (loginRole === 'Teacher') navigate('/teacher/dashboard');
+      else if (loginRole === 'Admin') navigate('/admin/dashboard');
+      else navigate('/home');
     } catch (error) {
       console.error('Login error', error);
       setIsLoggingIn(false);
@@ -109,7 +115,12 @@ const FrontPage = () => {
       await register(submitData);
       setIsRegistering(false);
       setRegSuccess('Registration successful! Redirecting...');
-      setTimeout(() => navigate('/home'), 1500);
+      setTimeout(() => {
+        if (regRole === 'Student') navigate('/student/dashboard');
+        else if (regRole === 'Teacher') navigate('/teacher/dashboard');
+        else if (regRole === 'Admin') navigate('/admin/dashboard');
+        else navigate('/home');
+      }, 1500);
     } catch (error) {
       console.error('Registration error', error);
       setIsRegistering(false);

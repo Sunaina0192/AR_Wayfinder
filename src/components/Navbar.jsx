@@ -128,12 +128,22 @@ const Navbar = () => {
                         <Link to="/settings" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-slate-300 font-bold hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                           <Settings className="w-4 h-4" /> Settings
                         </Link>
+                        {user.role === 'Student' && (
+                          <Link to="/student/dashboard" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-blue-400 font-bold hover:text-white hover:bg-blue-500/10 rounded-lg transition-colors">
+                            <GraduationCap className="w-4 h-4" /> Student Dashboard
+                          </Link>
+                        )}
+                        {user.role === 'Teacher' && (
+                          <Link to="/teacher/dashboard" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-amber-400 font-bold hover:text-white hover:bg-amber-500/10 rounded-lg transition-colors">
+                            <User className="w-4 h-4" /> Teacher Dashboard
+                          </Link>
+                        )}
                         {user.role === 'Admin' && (
                           <>
-                            <Link to="/admin/dashboard" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
+                            <Link to="/admin/dashboard" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-purple-400 font-bold hover:text-white hover:bg-purple-500/10 rounded-lg transition-colors">
                               <ShieldCheck className="w-4 h-4" /> Admin Dashboard
                             </Link>
-                            <Link to="/admin/admissions" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-accent font-bold hover:text-white hover:bg-accent/10 rounded-lg transition-colors">
+                            <Link to="/admin/admissions" onClick={() => setShowProfileMenu(false)} className="w-full flex items-center gap-3 px-3 py-2 text-xs text-purple-400 font-bold hover:text-white hover:bg-purple-500/10 rounded-lg transition-colors">
                               <ClipboardList className="w-4 h-4" /> Admission Applications
                             </Link>
                           </>
@@ -227,10 +237,25 @@ const Navbar = () => {
                     <Settings className="w-4 h-4" /> Settings
                   </Link>
 
-                  {user.role === 'Admin' && (
-                    <Link to="/admin/admissions" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-all text-sm font-bold text-accent">
-                      <ClipboardList className="w-4 h-4" /> Admission Applications
+                  {user.role === 'Student' && (
+                    <Link to="/student/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all text-sm font-bold text-blue-400">
+                      <GraduationCap className="w-4 h-4" /> Student Dashboard
                     </Link>
+                  )}
+                  {user.role === 'Teacher' && (
+                    <Link to="/teacher/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-all text-sm font-bold text-amber-400">
+                      <User className="w-4 h-4" /> Teacher Dashboard
+                    </Link>
+                  )}
+                  {user.role === 'Admin' && (
+                    <>
+                      <Link to="/admin/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-sm font-bold text-purple-400">
+                        <ShieldCheck className="w-4 h-4" /> Admin Dashboard
+                      </Link>
+                      <Link to="/admin/admissions" onClick={() => setIsOpen(false)} className="flex items-center gap-3 px-6 py-3 mb-4 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all text-sm font-bold text-purple-400">
+                        <ClipboardList className="w-4 h-4" /> Admission Applications
+                      </Link>
+                    </>
                   )}
 
                   <button onClick={() => { logout(); window.location.href = '/'; }} className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-all text-xs tracking-widest uppercase">
