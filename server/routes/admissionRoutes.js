@@ -50,7 +50,7 @@ const generateApplicationId = (admissions) => {
 router.post('/apply', async (req, res) => {
   try {
     const {
-      fullName, fatherName, motherName, dob, gender, mobile, email,
+      fullName, fatherName, motherName, dob, gender, mobile, email, password,
       state, district, city, address,
       marks10, marks12, prevQualification, course,
       documents,
@@ -65,6 +65,7 @@ router.post('/apply', async (req, res) => {
     if (!gender) missingFields.push('gender');
     if (!mobile || !isValidMobile(mobile)) missingFields.push('mobile');
     if (!email || !isValidGmail(email)) missingFields.push('email');
+    if (!password) missingFields.push('password');
     if (!state?.trim()) missingFields.push('state');
     if (!district?.trim()) missingFields.push('district');
     if (!city?.trim()) missingFields.push('city');
@@ -120,9 +121,39 @@ router.post('/apply', async (req, res) => {
     if (mongoose.connection.readyState === 1) {
       try {
         const application = await AdmissionApplication.create(applicationData);
+        let studentId = '';
+        
+        // Auto-create pending Student account
+        try {
+          const studentExists = await Student.findOne({ email });
+          if (!studentExists) {
+            const student = await Student.create({
+              fullName: fullName.trim(),
+              fatherName: fatherName.trim(),
+              motherName: motherName.trim(),
+              dob,
+              gender,
+              email: email.trim(),
+              phoneNumber: mobile,
+              address: address.trim(),
+              course,
+              semester: '1st',
+              rollNumber: application.applicationId, // Temp roll number
+              password,
+              status: 'pending'
+            });
+            studentId = student.studentId;
+          } else {
+            studentId = studentExists.studentId;
+          }
+        } catch (studentErr) {
+          console.error('Failed to create student account automatically:', studentErr.message);
+        }
+
         return res.status(201).json({
           message: 'Application submitted successfully!',
           applicationId: application.applicationId,
+          studentId,
           application,
           savedTo: 'MongoDB',
         });
@@ -142,6 +173,7 @@ router.post('/apply', async (req, res) => {
     res.status(201).json({
       message: 'Application submitted successfully!',
       applicationId,
+      studentId: `STU${new Date().getFullYear().toString().slice(-2)}0000`, // mock ID for local
       application: applicationWithId,
       savedTo: 'Local Storage (JSON)',
     });

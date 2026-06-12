@@ -24,7 +24,7 @@ const COURSES = [
 const STATES = ['Punjab', 'Haryana', 'Himachal Pradesh', 'Delhi', 'Rajasthan', 'Uttar Pradesh', 'Uttarakhand', 'Other'];
 
 const initialForm = {
-  fullName: '', fatherName: '', motherName: '', dob: '', gender: '', mobile: '', email: '',
+  fullName: '', fatherName: '', motherName: '', dob: '', gender: '', mobile: '', email: '', password: '',
   state: '', district: '', city: '', address: '',
   marks10: '', marks12: '', prevQualification: '', course: '',
   documents: { passportPhoto: '', aadhaarCard: '', certificate10th: '', certificate12th: '' },
@@ -290,6 +290,7 @@ const AdmissionForm = () => {
     else if (!isValidMobile(form.mobile)) errs.mobile = 'Mobile number must be exactly 10 digits.';
     if (!form.email) errs.email = 'Email is required.';
     else if (!isValidGmail(form.email)) errs.email = 'Only Gmail addresses are allowed (e.g. name@gmail.com).';
+    if (!form.password) errs.password = 'Password is required.';
     setFieldErrors(prev => ({ ...prev, ...errs }));
     return Object.keys(errs).length === 0;
   };
@@ -338,10 +339,10 @@ const AdmissionForm = () => {
 
   // ── Check if submit is allowed ────────────────────────────────────────
   const isFormComplete = () => {
-    const { fullName, fatherName, motherName, dob, gender, mobile, email, state, district, city, address, marks10, marks12, prevQualification, course, documents } = form;
+    const { fullName, fatherName, motherName, dob, gender, mobile, email, password, state, district, city, address, marks10, marks12, prevQualification, course, documents } = form;
     return (
       fullName && fatherName && motherName && dob && gender &&
-      isValidMobile(mobile) && isValidGmail(email) &&
+      isValidMobile(mobile) && isValidGmail(email) && password &&
       state && district && city && address &&
       marks10 && marks12 && prevQualification && course &&
       documents.passportPhoto && documents.aadhaarCard && documents.certificate10th && documents.certificate12th &&
@@ -360,7 +361,11 @@ const AdmissionForm = () => {
     setError('');
     try {
       const res = await axios.post(`${API_BASE_URL}/api/admissions/apply`, form);
-      setSubmitted({ applicationId: res.data.applicationId });
+      setSubmitted({ 
+        applicationId: res.data.applicationId,
+        studentId: res.data.studentId,
+        password: form.password
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Submission failed. Please try again.');
     } finally {
@@ -381,15 +386,33 @@ const AdmissionForm = () => {
           </div>
           <h1 className="text-4xl font-black text-white mb-3 uppercase tracking-tight">Application Submitted!</h1>
           <p className="text-slate-400 mb-8 text-sm leading-relaxed">Your admission application has been received successfully. The admin team will review and update you shortly.</p>
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-8 mb-6">
-            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em] mb-2">Application Number</p>
-            <p className="text-4xl font-black text-accent tracking-widest">{submitted.applicationId}</p>
-          </div>
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-sm text-amber-300 font-medium mb-6">
-            📋 Please save your Application Number for future reference. You can use it to check your application status.
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 mb-6 text-left">
+            <div className="mb-4 pb-4 border-b border-white/5">
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Application Number</p>
+              <p className="text-2xl font-mono text-accent font-black tracking-wider">{submitted.applicationId}</p>
+            </div>
+            
+            {submitted.studentId && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5 mb-2">
+                <h3 className="text-sm font-black text-green-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                  <Lock className="w-4 h-4" /> Your Login Credentials
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-green-500/70 uppercase tracking-widest mb-1">Student ID</p>
+                    <p className="text-lg font-mono text-white font-black tracking-wider bg-black/20 px-3 py-1.5 rounded-lg inline-block border border-green-500/20">{submitted.studentId}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-green-500/70 uppercase tracking-widest mb-1">Password</p>
+                    <p className="text-lg font-mono text-white tracking-wider bg-black/20 px-3 py-1.5 rounded-lg inline-block border border-green-500/20">{submitted.password}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            <p className="text-[10px] text-slate-400 mt-3 text-center uppercase tracking-widest">Please note down these details for future logins.</p>
           </div>
           <button
-            onClick={() => window.location.href = '/admissions'}
+            onClick={() => window.location.href = '/'}
             className="w-full py-4 rounded-2xl bg-accent text-dark font-black uppercase tracking-[0.2em] text-xs hover:bg-accent/90 transition-all"
           >
             Back to Admissions
@@ -413,6 +436,9 @@ const AdmissionForm = () => {
           <SelectField label="Gender" value={form.gender} onChange={e => set('gender', e.target.value)} options={['Male', 'Female', 'Other']} error={fieldErrors.gender} />
           <InputField label="Mobile Number" icon={Phone} type="tel" value={form.mobile} onChange={handleMobileChange} placeholder="Enter 10-digit mobile" maxLength={10} error={fieldErrors.mobile} />
           <InputField label="Email Address" icon={Mail} type="email" value={form.email} onChange={handleEmailChange} placeholder="Enter Gmail address" error={fieldErrors.email} />
+          <div className="sm:col-span-2">
+            <InputField label="Create Password" icon={Lock} type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Create a strong password" error={fieldErrors.password} />
+          </div>
         </div>
       );
       case 1: return (
