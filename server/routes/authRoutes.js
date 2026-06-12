@@ -26,12 +26,12 @@ router.post('/register', async (req, res) => {
     }
 
     if (role === 'Student') {
-      const { fullName, fatherName, phoneNumber, course, semester, rollNumber } = req.body;
+      const { fullName, fatherName, motherName, phoneNumber, course, semester, rollNumber } = req.body;
       const studentExists = await Student.findOne({ $or: [{ email }, { rollNumber }] });
       if (studentExists) return res.status(400).json({ message: 'Student with this email or roll number already exists' });
 
       const student = await Student.create({
-        fullName, fatherName: fatherName || 'N/A', email, phoneNumber: phoneNumber || 'N/A', 
+        fullName, fatherName: fatherName || 'N/A', motherName: motherName || '', email, phoneNumber: phoneNumber || 'N/A', 
         course: course || 'N/A', semester: semester || 'N/A', rollNumber, password, status: 'approved'
       });
 

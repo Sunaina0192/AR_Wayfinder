@@ -10,6 +10,9 @@ const FrontPage = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
   
+  const [showRegPopup, setShowRegPopup] = useState(false);
+  const [regCredentials, setRegCredentials] = useState(null);
+  
   // Login State
   const [loginRole, setLoginRole] = useState(null);
   const [visitorName, setVisitorName] = useState('');
@@ -22,7 +25,7 @@ const FrontPage = () => {
   // Registration State
   const [regRole, setRegRole] = useState(null);
   const [regData, setRegData] = useState({
-    fullName: '', email: '', course: '', semester: '', rollNumber: '', password: '', // Student
+    fullName: '', email: '', course: '', semester: '', rollNumber: '', password: '', phoneNumber: '', fatherName: '', motherName: '', // Student
     name: '', department: '', mobile: '', // Teacher & Admin
   });
   const [regSuccess, setRegSuccess] = useState('');
@@ -32,13 +35,13 @@ const FrontPage = () => {
   const { user, login, register } = useAuth();
 
   React.useEffect(() => {
-    if (user) {
+    if (user && !showRegPopup) {
       if (user.role === 'Student') navigate('/student/dashboard');
       else if (user.role === 'Teacher') navigate('/teacher/dashboard');
       else if (user.role === 'Admin') navigate('/admin/dashboard');
       else navigate('/home');
     }
-  }, [user, navigate]);
+  }, [user, navigate, showRegPopup]);
 
   const handleCloseLogin = () => {
     setShowLogin(false);
@@ -49,10 +52,12 @@ const FrontPage = () => {
     setVisitorPurpose('');
     setUserId('');
     setPasskey('');
+    setShowRegPopup(false);
+    setRegCredentials(null);
     setErrors({});
     setRegSuccess('');
     setRegData({
-      fullName: '', email: '', course: '', semester: '', rollNumber: '', password: '',
+      fullName: '', email: '', course: '', semester: '', rollNumber: '', password: '', phoneNumber: '', fatherName: '', motherName: '',
       name: '', department: '', mobile: ''
     });
   };
@@ -104,7 +109,7 @@ const FrontPage = () => {
     // Prepare data based on role
     let submitData = { role: regRole, password: regData.password, email: regData.email };
     if (regRole === 'Student') {
-      submitData = { ...submitData, fullName: regData.fullName, course: regData.course, semester: regData.semester, rollNumber: regData.rollNumber };
+      submitData = { ...submitData, fullName: regData.fullName, course: regData.course, semester: regData.semester, rollNumber: regData.rollNumber, phoneNumber: regData.phoneNumber, fatherName: regData.fatherName, motherName: regData.motherName };
     } else if (regRole === 'Teacher') {
       submitData = { ...submitData, name: regData.name, department: regData.department, mobile: regData.mobile };
     } else if (regRole === 'Admin') {
@@ -112,15 +117,21 @@ const FrontPage = () => {
     }
 
     try {
-      await register(submitData);
+      const res = await register(submitData);
       setIsRegistering(false);
-      setRegSuccess('Registration successful! Redirecting...');
-      setTimeout(() => {
-        if (regRole === 'Student') navigate('/student/dashboard');
-        else if (regRole === 'Teacher') navigate('/teacher/dashboard');
-        else if (regRole === 'Admin') navigate('/admin/dashboard');
-        else navigate('/home');
-      }, 1500);
+      setRegSuccess('Registration successful!');
+      
+      let generatedId = '';
+      if (regRole === 'Admin') generatedId = submitData.email;
+      else generatedId = res.user?.id || '';
+
+      setRegCredentials({
+        role: regRole,
+        id: generatedId,
+        password: submitData.password
+      });
+      setShowRegPopup(true);
+      
     } catch (error) {
       console.error('Registration error', error);
       setIsRegistering(false);
@@ -278,9 +289,12 @@ const FrontPage = () => {
                       {regRole === 'Student' && (
                         <>
                           <input type="text" required value={regData.fullName} onChange={(e) => setRegData({...regData, fullName: e.target.value})} placeholder="Full Name" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                          <input type="text" required value={regData.rollNumber} onChange={(e) => setRegData({...regData, rollNumber: e.target.value})} placeholder="Roll Number" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                           <input type="text" required value={regData.course} onChange={(e) => setRegData({...regData, course: e.target.value})} placeholder="Course (e.g. B.Tech CSE)" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                           <input type="text" required value={regData.semester} onChange={(e) => setRegData({...regData, semester: e.target.value})} placeholder="Semester (e.g. 1st)" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
-                          <input type="text" required value={regData.rollNumber} onChange={(e) => setRegData({...regData, rollNumber: e.target.value})} placeholder="Roll Number" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                          <input type="text" required value={regData.phoneNumber} onChange={(e) => setRegData({...regData, phoneNumber: e.target.value})} placeholder="Phone Number" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                          <input type="text" required value={regData.fatherName} onChange={(e) => setRegData({...regData, fatherName: e.target.value})} placeholder="Father's Name" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                          <input type="text" required value={regData.motherName} onChange={(e) => setRegData({...regData, motherName: e.target.value})} placeholder="Mother's Name" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                         </>
                       )}
 
@@ -310,6 +324,34 @@ const FrontPage = () => {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+
+      {showRegPopup && regCredentials && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 animate-[fade-in_0.3s_ease-out]">
+          <div className="absolute inset-0 bg-dark/90 backdrop-blur-xl"></div>
+          <div className="relative w-full max-w-md p-8 sm:p-10 rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden text-center">
+            <div className="w-16 h-16 mx-auto bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mb-6">
+              <ShieldCheck className="w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Registration Successful!</h2>
+            <p className="text-sm text-slate-300 mb-8">Please save your login credentials for future access.</p>
+            
+            <div className="bg-black/30 border border-white/5 rounded-2xl p-6 text-left space-y-4 mb-8">
+              <div>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Your Login ID</p>
+                <p className="text-lg font-mono text-accent font-black tracking-wider bg-white/5 px-4 py-2 rounded-xl">{regCredentials.id}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">Your Password</p>
+                <p className="text-lg font-mono text-white tracking-wider bg-white/5 px-4 py-2 rounded-xl">{regCredentials.password}</p>
+              </div>
+            </div>
+
+            <button onClick={() => setShowRegPopup(false)} className="w-full py-4 rounded-xl bg-accent text-dark font-black uppercase tracking-widest text-sm hover:bg-accent/90 transition-all">
+              Proceed to Dashboard
+            </button>
           </div>
         </div>
       )}

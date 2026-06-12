@@ -48,6 +48,8 @@ export const AuthProvider = ({ children }) => {
         token
       });
 
+      return response.data;
+
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
