@@ -7,6 +7,7 @@ import FloatingContact from './components/FloatingContact'
 import { AuthProvider } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 import AdminLayout from './components/AdminLayout';
+import { Toaster } from 'react-hot-toast';
 
 // Lazy load pages
 const Home = lazy(() => import('./pages/Home'))
@@ -82,6 +83,28 @@ const App = () => {
   return (
     <AuthProvider>
       <NotificationProvider>
+        <Toaster position="top-right" toastOptions={{
+          style: {
+            background: '#1e293b',
+            color: '#fff',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            fontSize: '14px',
+            fontWeight: 'bold',
+          },
+          success: {
+            iconTheme: {
+              primary: '#22c55e',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }} />
         <Router>
           <Routes>
             {/* Admin Routes with Dedicated Layout */}

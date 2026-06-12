@@ -36,7 +36,7 @@ const FrontPage = () => {
 
   React.useEffect(() => {
     if (user && !showRegPopup) {
-      if (user.role === 'Student') navigate('/student/dashboard');
+      if (user.role === 'Student') navigate('/home');
       else if (user.role === 'Teacher') navigate('/teacher/dashboard');
       else if (user.role === 'Admin') navigate('/admin/dashboard');
       else navigate('/home');
@@ -89,7 +89,7 @@ const FrontPage = () => {
     try {
       await login(loginRole, extraData);
       setIsLoggingIn(false);
-      if (loginRole === 'Student') navigate('/student/dashboard');
+      if (loginRole === 'Student') navigate('/home');
       else if (loginRole === 'Teacher') navigate('/teacher/dashboard');
       else if (loginRole === 'Admin') navigate('/admin/dashboard');
       else navigate('/home');
