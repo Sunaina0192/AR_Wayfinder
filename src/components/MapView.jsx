@@ -3,8 +3,7 @@ import { campusLocations, pathGraph, getLocationById } from '../data/locations';
 
 const MapView = ({ selectedLocation, activePath = [], onLocationSelect }) => {
   // SVG ViewBox settings
-  const width = 400;
-  const height = 300;
+  const viewBoxStr = "-60 -20 460 320";
 
   // Render paths between locations
   const renderPathEdges = () => {
@@ -76,9 +75,9 @@ const MapView = ({ selectedLocation, activePath = [], onLocationSelect }) => {
         </div>
       </div>
 
-      <div className="relative aspect-[4/3] bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 shadow-inner overflow-hidden">
+      <div className="relative w-full h-[400px] sm:h-[500px] lg:h-[600px] bg-linear-to-br from-gray-50 to-white rounded-2xl border border-gray-200 shadow-inner overflow-hidden">
         <svg 
-          viewBox={`0 0 ${width} ${height}`} 
+          viewBox={viewBoxStr} 
           className="w-full h-full"
         >
           {/* Background Grid */}

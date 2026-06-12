@@ -51,14 +51,14 @@ const AdminDashboard = () => {
   const recentNotifications = data?.recentNotifications || [];
 
   const statCards = [
-    { label: 'Total Students', value: stats.totalStudents || 0, icon: Users, color: 'blue', link: '/admin/students' },
-    { label: 'Total Teachers', value: stats.totalTeachers || 0, icon: Briefcase, color: 'purple', link: '/admin/teachers' },
-    { label: 'Total Courses', value: stats.totalCourses || 0, icon: BookOpen, color: 'cyan', link: '/admin/academics' },
-    { label: 'Fee Collection', value: `₹${(stats.totalFeeCollection || 0).toLocaleString()}`, icon: IndianRupee, color: 'emerald', link: '/admin/fees' },
-    { label: 'Pending Fees', value: `₹${(stats.pendingFeeAmount || 0).toLocaleString()}`, icon: AlertTriangle, color: 'amber', link: '/admin/fees' },
-    { label: 'Admissions', value: stats.totalAdmissions || 0, icon: Hash, color: 'indigo', link: '/admin/admissions' },
-    { label: 'Attendance', value: stats.attendanceRecords || 0, icon: CheckCircle, color: 'green', link: '/admin/attendance' },
-    { label: 'Notifications', value: stats.notificationsSent || 0, icon: Bell, color: 'rose', link: '/admin/notifications' },
+    { label: 'Total Students', value: stats?.totalStudents || 0, icon: Users, color: 'blue', link: '/admin/students' },
+    { label: 'Total Teachers', value: stats?.totalTeachers || 0, icon: Briefcase, color: 'purple', link: '/admin/teachers' },
+    { label: 'Total Courses', value: stats?.totalCourses || 0, icon: BookOpen, color: 'cyan', link: '/admin/academics' },
+    { label: 'Fee Collection', value: `₹${(stats?.totalFeeCollection || 0).toLocaleString()}`, icon: IndianRupee, color: 'emerald', link: '/admin/fees' },
+    { label: 'Pending Fees', value: `₹${(stats?.pendingFeeAmount || 0).toLocaleString()}`, icon: AlertTriangle, color: 'amber', link: '/admin/fees' },
+    { label: 'Admissions', value: stats?.totalAdmissions || 0, icon: Hash, color: 'indigo', link: '/admin/admissions' },
+    { label: 'Attendance', value: stats?.attendanceRecords || 0, icon: CheckCircle, color: 'green', link: '/admin/attendance' },
+    { label: 'Notifications', value: stats?.notificationsSent || 0, icon: Bell, color: 'rose', link: '/admin/notifications' },
   ];
 
   // Dummy chart data for demonstration, normally would come from API
@@ -165,8 +165,8 @@ const AdminDashboard = () => {
                     <User className="w-5 h-5 text-indigo-400" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-white truncate">{app.fullName}</p>
-                    <p className="text-[10px] text-slate-400 truncate">{app.course}</p>
+                    <p className="text-sm font-bold text-white truncate">{app?.fullName || 'Unknown'}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{app?.course || 'N/A'}</p>
                   </div>
                   <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-full ${app.status === 'Approved' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
                     {app.status}
@@ -189,12 +189,12 @@ const AdminDashboard = () => {
                     <IndianRupee className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-white truncate">STU-{pay.studentId.slice(-4)}</p>
-                    <p className="text-[10px] text-slate-400 truncate">Sem: {pay.semester}</p>
+                    <p className="text-sm font-bold text-white truncate">STU-{pay?.studentId?.toString()?.slice(-4) || 'UKWN'}</p>
+                    <p className="text-[10px] text-slate-400 truncate">Sem: {pay?.semester || 'N/A'}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-emerald-400">+₹{pay.paidAmount}</p>
-                    <p className="text-[10px] text-slate-500">{new Date(pay.updatedAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-black text-emerald-400">+₹{pay?.paidAmount || 0}</p>
+                    <p className="text-[10px] text-slate-500">{pay?.updatedAt ? new Date(pay.updatedAt).toLocaleDateString() : 'Unknown'}</p>
                   </div>
                 </div>
               ))}
@@ -214,10 +214,10 @@ const AdminDashboard = () => {
                     <Bell className="w-4 h-4 text-blue-400" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-white leading-tight mb-1">{notif.title}</p>
-                    <p className="text-[10px] text-slate-400">To: {notif.target}</p>
+                    <p className="text-xs font-bold text-white leading-tight mb-1">{notif?.title || 'No Title'}</p>
+                    <p className="text-[10px] text-slate-400">To: {notif?.target || 'All'}</p>
                   </div>
-                  <p className="text-[9px] text-slate-500 whitespace-nowrap">{new Date(notif.createdAt).toLocaleDateString()}</p>
+                  <p className="text-[9px] text-slate-500 whitespace-nowrap">{notif?.createdAt ? new Date(notif.createdAt).toLocaleDateString() : 'Unknown'}</p>
                 </div>
               ))}
             </div>
