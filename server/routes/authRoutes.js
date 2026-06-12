@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 import Student from '../models/Student.js';
 import Admin from '../models/Admin.js';
 import Teacher from '../models/Teacher.js';
@@ -18,13 +19,39 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-const sendMockEmail = (email, subject, message) => {
-  // In a real app, you would use nodemailer here.
-  console.log('\n=============================================');
-  console.log(`📧 MOCK EMAIL SENT TO: ${email}`);
-  console.log(`SUBJECT: ${subject}`);
-  console.log(`MESSAGE:\n${message}`);
-  console.log('=============================================\n');
+const sendEmail = async (email, subject, message) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log('\n=============================================');
+    console.log('⚠️ REAL EMAIL SKIPPED: EMAIL_USER or EMAIL_PASS not set in .env');
+    console.log(`📧 MOCK EMAIL SENT TO: ${email}`);
+    console.log(`SUBJECT: ${subject}`);
+    console.log(`MESSAGE:\n${message}`);
+    console.log('=============================================\n');
+    return;
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // You can change this based on your provider
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: subject,
+      text: message,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent successfully to ${email}`);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw new Error('Failed to send email. Please try again.');
+  }
 };
 
 // @desc    Register a new user (Student, Teacher)
@@ -61,7 +88,7 @@ router.post('/register', async (req, res) => {
         password, status: 'pending_verification', otp, otpExpires
       });
 
-      sendMockEmail(email, 'Your Verification OTP', `Your OTP to verify your Student account is: ${otp}\nThis OTP is valid for 10 minutes.`);
+      await sendEmail(email, 'Your Verification OTP', `Your OTP to verify your Student account is: ${otp}\nThis OTP is valid for 10 minutes.`);
       return res.status(201).json({ message: 'Registration initiated. Please verify your email via OTP.' });
     }
 
@@ -73,7 +100,7 @@ router.post('/register', async (req, res) => {
         qualification: 'N/A', experience: 'N/A', otp, otpExpires
       });
 
-      sendMockEmail(email, 'Your Verification OTP', `Your OTP to verify your Faculty account is: ${otp}\nThis OTP is valid for 10 minutes.`);
+      await sendEmail(email, 'Your Verification OTP', `Your OTP to verify your Faculty account is: ${otp}\nThis OTP is valid for 10 minutes.`);
       return res.status(201).json({ message: 'Registration initiated. Please verify your email via OTP.' });
     }
 
@@ -153,7 +180,7 @@ router.post('/forgot-password', async (req, res) => {
     user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    sendMockEmail(email, 'Password Reset OTP', `Your OTP for password reset is: ${otp}\nThis OTP is valid for 10 minutes.`);
+    await sendEmail(email, 'Password Reset OTP', `Your OTP for password reset is: ${otp}\nThis OTP is valid for 10 minutes.`);
     res.json({ message: 'Password reset OTP sent to your email.' });
   } catch (error) {
     console.error('Forgot Password Error:', error);
