@@ -171,6 +171,15 @@ export const campusLocations = [
     category: 'Sports',
     explorerCategory: 'Sports',
   },
+  {
+    id: 'room-112',
+    name: 'Room 112',
+    description: 'Classroom 112 for academic sessions.',
+    coordinates: { x: 100, y: 195 },
+    icon: '🚪',
+    category: 'Academic',
+    explorerCategory: 'Academic',
+  },
 ];
 
 const connect = (name, neighbors) => ({
@@ -186,7 +195,8 @@ export const pathGraph = {
   'entry-gate': connect('Main Entry Gate', ['admission-cell', 'school-admin', 'main-parking']),
   'admission-cell': connect('Admission Cell', ['entry-gate', 'school-admin', 'school']),
   'school-admin': connect('School Admin', ['entry-gate', 'admission-cell', 'school', 'block3']),
-  school: connect('School', ['admission-cell', 'school-admin', 'block5-uiet', 'library', 'main-parking']),
+  school: connect('School', ['admission-cell', 'school-admin', 'block5-uiet', 'library', 'main-parking', 'room-112']),
+  'room-112': connect('Room 112', ['school']),
   'main-parking': connect('Main Parking', ['entry-gate', 'school', 'block5-uiet']),
   'block5-uiet': connect('Block 5 Engineering', ['school', 'main-parking', 'block3', 'main-ground', 'girls-canteen']),
   block3: connect('Block 3 Physical Education & Fashion', ['school-admin', 'block5-uiet', 'library', 'dispensary']),

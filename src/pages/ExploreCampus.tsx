@@ -40,6 +40,7 @@ const locations: CampusLocation[] = [
   { name: "Main Ground", pos: [0, 0, -15], color: "#00ff00" },
   { name: "Football Ground", pos: [8, 0, -15], color: "#00ff00" },
   { name: "Stadium", pos: [18, 0, -18], color: "#00ff00" },
+  { name: "Room 112", pos: [-8, 0, 10], color: "#00ffcc" },
 ];
 
 const LocationMarker = ({ location, isSelected, isHovered, onHover, onClick }: { 

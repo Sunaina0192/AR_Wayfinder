@@ -31,6 +31,7 @@ const campusBuildings = [
   { id: 'law-block', num: 17, pos: [10, 1.9, 7], size: [4.2, 3.8, 3.4], color: 0xc084fc, type: 'academic' },
   { id: 'gurudwara', num: 18, pos: [18, 1.7, 4], size: [3.8, 3.4, 3.8], color: 0xffffff, type: 'spiritual' },
   { id: 'main-ground', num: 19, pos: [-0.5, 0.08, -3.7], size: [8, 0.16, 5.2], color: 0x16a34a, type: 'field' },
+  { id: 'room-112', num: 20, pos: [-10, 1.9, 8], size: [2, 2, 2], color: 0x38bdf8, type: 'academic' },
 ].map((building) => ({
   ...building,
   ...campusLocations.find((location) => location.id === building.id),
