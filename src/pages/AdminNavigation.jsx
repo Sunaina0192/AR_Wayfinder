@@ -4,8 +4,42 @@ import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import {
-  MapPin, Plus, Trash2, X, CheckCircle, XCircle, Navigation, AlertTriangle, RefreshCw, UploadCloud, Map
+  MapPin, Plus, Trash2, X, CheckCircle, XCircle, Navigation, AlertTriangle, RefreshCw, UploadCloud, Map, LocateFixed, Maximize, Minimize
 } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap, LayersControl } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const { BaseLayer } = LayersControl;
+
+const markerIcon = new L.Icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const LocationMapPicker = ({ position, setPosition }) => {
+  useMapEvents({
+    click(e) {
+      setPosition([e.latlng.lat, e.latlng.lng]);
+    },
+  });
+  return position ? <Marker position={position} icon={markerIcon} /> : null;
+};
+
+const ResizeMap = ({ isFullScreen }) => {
+  const map = useMap();
+  useEffect(() => {
+    // Wait for DOM layout to settle, then invalidate map size
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [isFullScreen, map]);
+  return null;
+};
 
 const AddLocationModal = ({ onClose, onSave, saving }) => {
   const [form, setForm] = useState({
@@ -18,9 +52,42 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
     y: 0
   });
   const [error, setError] = useState('');
+  const [mapPosition, setMapPosition] = useState(null);
+  const [isMapFullScreen, setIsMapFullScreen] = useState(false);
+
+  useEffect(() => {
+    if (mapPosition) {
+      setForm(prev => ({ ...prev, x: parseFloat(mapPosition[0].toFixed(6)), y: parseFloat(mapPosition[1].toFixed(6)) }));
+    }
+  }, [mapPosition]);
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setMapPosition([latitude, longitude]);
+        setError('');
+      },
+      (err) => {
+        setError('Unable to retrieve your location. Please check permissions.');
+      }
+    );
+  };
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
+    if (field === 'x' || field === 'y') {
+      const val = parseFloat(value);
+      if (!isNaN(val)) {
+        const newX = field === 'x' ? val : form.x;
+        const newY = field === 'y' ? val : form.y;
+        setMapPosition([newX, newY]);
+      }
+    }
     setError('');
   };
 
@@ -64,9 +131,77 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
             <option value="Hostels" className="bg-dark">Hostels</option>
           </select>
           
-          <div className="grid grid-cols-2 gap-4">
-            <input className={inputClass} type="number" value={form.x} onChange={e => handleChange('x', e.target.value)} placeholder="X Coord" />
-            <input className={inputClass} type="number" value={form.y} onChange={e => handleChange('y', e.target.value)} placeholder="Y Coord" />
+          <div className="space-y-3 pt-2 border-t border-white/5">
+            <div className="flex justify-between items-center">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Coordinates (Lat / Lng)</label>
+              <button 
+                type="button"
+                onClick={handleGetLocation} 
+                className="text-[10px] font-black text-accent bg-accent/10 px-3 py-1.5 rounded-lg hover:bg-accent/20 transition-colors flex items-center gap-1.5 uppercase tracking-wider"
+              >
+                <LocateFixed className="w-3 h-3" /> Live Location
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <input className={inputClass} type="number" step="any" value={form.x} onChange={e => handleChange('x', e.target.value)} placeholder="Latitude (X)" />
+              <input className={inputClass} type="number" step="any" value={form.y} onChange={e => handleChange('y', e.target.value)} placeholder="Longitude (Y)" />
+            </div>
+
+            <div className={isMapFullScreen ? "fixed inset-0 z-[100] bg-black/90 p-4 sm:p-8 flex flex-col" : "h-[240px] rounded-2xl overflow-hidden border border-white/10 relative z-0"}>
+              {isMapFullScreen && (
+                <div className="flex justify-between items-center mb-4 z-[400]">
+                  <div>
+                    <h3 className="text-xl font-black text-white">Select Location</h3>
+                    <p className="text-sm text-slate-400">Click on the map to pin the coordinates.</p>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsMapFullScreen(false)}
+                    className="p-3 bg-white/10 rounded-xl hover:bg-white/20 border border-white/20 text-white transition-all flex items-center gap-2"
+                  >
+                    <Minimize className="w-5 h-5" /> <span className="font-bold hidden sm:block">Exit Map</span>
+                  </button>
+                </div>
+              )}
+              
+              <div className={`relative ${isMapFullScreen ? 'flex-1 rounded-3xl overflow-hidden border border-white/20 shadow-2xl' : 'w-full h-full'}`}>
+                {!isMapFullScreen && (
+                  <button 
+                    type="button" 
+                    onClick={() => setIsMapFullScreen(true)}
+                    className="absolute top-2 right-2 z-[400] p-2 bg-black/50 backdrop-blur-md rounded-lg hover:bg-black/70 border border-white/10 text-white shadow-xl transition-all"
+                    title="Expand Map"
+                  >
+                    <Maximize className="w-4 h-4" />
+                  </button>
+                )}
+                <MapContainer 
+                  center={mapPosition || [31.3364, 75.6888]} 
+                  zoom={16} 
+                  style={{ height: '100%', width: '100%', zIndex: 0 }}
+                  scrollWheelZoom={true}
+                >
+                <LayersControl position="topright">
+                  <BaseLayer checked name="Standard Map">
+                    <TileLayer
+                      url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+                      attribution='&copy; Google Maps'
+                    />
+                  </BaseLayer>
+                  <BaseLayer name="Satellite (with labels)">
+                    <TileLayer
+                      url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+                      attribution='&copy; Google Maps'
+                    />
+                  </BaseLayer>
+                </LayersControl>
+                  <LocationMapPicker position={mapPosition} setPosition={setMapPosition} />
+                  <ResizeMap isFullScreen={isMapFullScreen} />
+                </MapContainer>
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-500 text-center">Click anywhere on the map to pin a location manually.</p>
           </div>
 
           {error && (
@@ -202,31 +337,8 @@ const AdminNavigation = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Map Upload Section */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 lg:col-span-1">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
-              <Map className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-black text-white mb-2">3D Campus Map</h3>
-            <p className="text-sm text-slate-400 mb-6">Upload the latest compiled GLB/GLTF model of the campus.</p>
-            
-            <div className="relative border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:bg-white/5 transition-all">
-              <input 
-                type="file" 
-                accept=".glb,.gltf" 
-                onChange={handleMapUpload}
-                disabled={mapUploading}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed" 
-              />
-              <UploadCloud className="w-8 h-8 text-slate-500 mx-auto mb-3" />
-              <p className="text-sm font-bold text-slate-300">
-                {mapUploading ? 'Uploading...' : 'Click or drag 3D file here'}
-              </p>
-            </div>
-          </div>
-
           {/* Locations Table */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl lg:col-span-2 flex flex-col">
+          <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl lg:col-span-3 flex flex-col">
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <h3 className="text-xl font-black text-white">Campus Locations</h3>
               <button onClick={fetchLocations} className="text-slate-400 hover:text-white"><RefreshCw className="w-4 h-4" /></button>

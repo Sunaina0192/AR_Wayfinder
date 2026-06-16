@@ -18,6 +18,8 @@ import studentRoutes from './server/routes/studentRoutes.js'
 import uploadRoutes from './server/routes/uploadRoutes.js'
 import resultRoutes from './server/routes/resultRoutes.js'
 import contactRoutes from './server/routes/contactRoutes.js'
+import Location from './server/models/Location.js'
+import { protect } from './server/middleware/auth.js'
 
 dotenv.config()
 
@@ -343,6 +345,17 @@ app.post('/api/profile', async (req, res) => {
     res.status(500).json({
       message: 'Failed to save user profile.',
     })
+  }
+})
+
+// Public locations endpoint for AR Navigator (any authenticated user can read)
+app.get('/api/locations', protect, async (req, res) => {
+  try {
+    const locations = await Location.find().sort({ name: 1 })
+    res.json(locations)
+  } catch (error) {
+    console.error('Failed to load locations:', error)
+    res.status(500).json({ message: 'Server Error' })
   }
 })
 

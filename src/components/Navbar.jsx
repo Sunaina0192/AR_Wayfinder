@@ -17,6 +17,7 @@ const Navbar = () => {
     { path: '/about', label: 'ABOUT US' },
     { path: '/academics', label: 'ACADEMICS' },
     { path: '/admissions', label: 'ADMISSIONS & FEE' },
+    { path: '/explore-campus', label: 'CAMPUS MAP' },
     { path: '/navigator', label: 'NAVIGATOR' },
     { path: '/history', label: 'HISTORY' },
     { path: '/gallery', label: 'GALLERY' },

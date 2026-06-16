@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import { campusLocations, findShortestPath, generateDirections } from '../data/locations';
 /* eslint-disable react-hooks/set-state-in-effect */
 import { MapPin, ArrowRight, Navigation, AlertCircle, Star, History, Moon, Sun, Filter } from 'lucide-react';
@@ -24,6 +26,7 @@ const Navigator = () => {
   const [favorites, setFavorites] = useState([]);
   const [historyError, setHistoryError] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [allLocations, setAllLocations] = useState(campusLocations);
   const routerLocation = useLocation();
 
   const categories = ['All', 'Academic', 'Administrative', 'Library', 'Hostels', 'Sports', 'Facilities', 'Cafeteria', 'Parking'];
@@ -48,12 +51,38 @@ const Navigator = () => {
     const savedDarkMode = localStorage.getItem('navigator_dark_mode') === 'true';
     setIsDarkMode(savedDarkMode);
 
+    const loadLocations = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/locations`, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        const backendLocs = res.data.map(loc => ({
+          id: loc.locationId,
+          name: loc.name,
+          description: loc.description,
+          coordinates: { x: loc.coordinates.x, y: loc.coordinates.y },
+          category: loc.category || 'Facilities',
+          icon: loc.icon || '📍',
+          fromBackend: true, // flag so we know it has real GPS
+        }));
+
+        // Backend locations OVERRIDE static ones when the ID matches
+        // This lets admin-added GPS coords replace old SVG pixel coords
+        const backendIds = new Set(backendLocs.map(l => l.id));
+        const staticOnly = campusLocations.filter(l => !backendIds.has(l.id));
+        setAllLocations([...staticOnly, ...backendLocs]);
+      } catch (error) {
+        console.error('Unable to load backend locations', error);
+      }
+    };
+
     loadHistory();
+    loadLocations();
   }, [user]);
 
   const saveHistory = useCallback(async (id) => {
     if (!user) return;
-    const destination = campusLocations.find((loc) => loc.id === id);
+    const destination = allLocations.find((loc) => loc.id === id);
     if (!destination) return;
 
     try {
@@ -71,7 +100,7 @@ const Navigator = () => {
   }, [user]);
 
   const handleLocationSelect = useCallback((id, autoAR = false) => {
-    const normalizedId = campusLocations.find((loc) => loc.id === id)?.id || id;
+    const normalizedId = allLocations.find((loc) => loc.id === id)?.id || id;
     const path = findShortestPath('entry-gate', normalizedId);
     setSelectedLocation(normalizedId);
     setActivePath(path || []);
@@ -112,20 +141,28 @@ const Navigator = () => {
     localStorage.setItem('navigator_dark_mode', newMode.toString());
   };
 
-  const filteredLocations = campusLocations.filter(
+  const filteredLocations = useMemo(() => allLocations.filter(
     (loc) => {
       const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         loc.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || loc.category === selectedCategory;
       return matchesSearch && matchesCategory;
     }
-  );
+  ), [allLocations, searchQuery, selectedCategory]);
 
   const directions = generateDirections(activePath);
   const distance = activePath.length > 1 ? Math.round((activePath.length - 1) * 50) : 0;
 
+  const handleClearAll = () => {
+    setSearchQuery('');
+    setSelectedCategory('All');
+    setSelectedLocation(null);
+    setActivePath([]);
+  };
+
   if (showAR && selectedLocation) {
-    return <ARNavigator destination={selectedLocation} onExit={() => setShowAR(false)} />;
+    const destObj = allLocations.find(l => l.id === selectedLocation);
+    return <ARNavigator destination={selectedLocation} locationData={destObj} onExit={() => setShowAR(false)} />;
   }
 
   return (
@@ -148,12 +185,20 @@ const Navigator = () => {
             </h1>
             <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-600'} text-lg`}>Intelligent AR Campus Wayfinding</p>
           </div>
-          <button
-            onClick={toggleDarkMode}
-            className={`p-4 rounded-2xl transition-all duration-300 ${isDarkMode ? 'bg-white/10 text-yellow-400 hover:bg-white/20' : 'bg-slate-900/5 text-slate-600 hover:bg-slate-900/10'}`}
-          >
-            {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleClearAll}
+              className={`px-6 py-3 rounded-2xl font-bold uppercase tracking-wider text-sm transition-all duration-300 ${isDarkMode ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20' : 'bg-white text-red-600 hover:bg-red-50 shadow-sm border border-red-100'}`}
+            >
+              Clear All
+            </button>
+            <button
+              onClick={toggleDarkMode}
+              className={`p-4 rounded-2xl transition-all duration-300 ${isDarkMode ? 'bg-white/10 text-yellow-400 hover:bg-white/20' : 'bg-slate-900/5 text-slate-600 hover:bg-slate-900/10'}`}
+            >
+              {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Category Filter Strip */}

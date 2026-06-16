@@ -1,33 +1,58 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { getLocationById, findShortestPath, generateDirections } from '../data/locations';
-/* eslint-disable react-hooks/set-state-in-effect */
-import { MapPin, Navigation, ChevronLeft, ChevronRight, Volume2, VolumeX, X, Compass, Radio, AlertTriangle, Play, Pause, Camera, Maximize, Minimize, RotateCcw, Zap, ArrowUp } from 'lucide-react';
-import MapView from './MapView';
+import { MapPin, Navigation, X, Compass, AlertTriangle, Play, Zap, ArrowUp, ArrowRight, ArrowLeft, ArrowDown, Map, Camera as CameraIcon } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { calculateDistance, calculateBearing } from '../utils/geo';
 
-const ARNavigator = ({ destination, onExit }) => {
+const userIcon = new L.Icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+const destIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+const RecenterMap = ({ lat, lng }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (lat && lng) map.setView([lat, lng]);
+  }, [lat, lng, map]);
+  return null;
+};
+
+const ARNavigator = ({ destination, locationData, onExit }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
-  const [path, setPath] = useState(null);
-  const [directions, setDirections] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
   const [showAR, setShowAR] = useState(false);
   const [cameraStarted, setCameraStarted] = useState(false);
   const [userHeading, setUserHeading] = useState(0);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(true);
   const [error, setError] = useState(null);
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [facingMode, setFacingMode] = useState('environment');
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [viewMode, setViewMode] = useState('camera'); // 'camera' or 'map'
+  const [userLocation, setUserLocation] = useState(null);
+  const [distance, setDistance] = useState(0);
+  const [bearing, setBearing] = useState(0);
+  
   const streamRef = useRef(null);
   const animationRef = useRef(null);
   const watchIdRef = useRef(null);
-  const simIntervalRef = useRef(null);
-  const userLocationRef = useRef(null);
-
-  const destLocation = useMemo(() => getLocationById(destination), [destination]);
+  
+  // Check if coordinates are real GPS (lat is between -90 and 90, lng between -180 and 180)
+  // Static campusLocations use SVG pixel coords (x: 0-400, y: 0-300) so they won't pass GPS validation
+  const rawX = locationData?.coordinates?.x || 0;
+  const rawY = locationData?.coordinates?.y || 0;
+  const hasRealGPS = locationData?.fromBackend === true ||
+    (rawX >= -90 && rawX <= 90 && rawY >= -180 && rawY <= 180 && rawX !== 0);
+  const destLat = hasRealGPS ? rawX : null;
+  const destLng = hasRealGPS ? rawY : null;
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -38,81 +63,66 @@ const ARNavigator = ({ destination, onExit }) => {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
-    if (simIntervalRef.current) {
-      clearInterval(simIntervalRef.current);
-      simIntervalRef.current = null;
-    }
-    setIsSimulating(false);
     setCameraStarted(false);
     setShowAR(false);
   }, []);
 
-  const drawSmoothArrow = useCallback((ctx, x, y, scaleMult = 1, opacity = 1) => {
-    const time = Date.now() * 0.004;
-    const bounce = Math.sin(time) * 5 * scaleMult;
-    const scale = (1 + Math.sin(time * 0.5) * 0.05) * scaleMult;
+  const getArrowInstruction = () => {
+    // Relative bearing
+    let diff = bearing - userHeading;
+    if (diff < -180) diff += 360;
+    if (diff > 180) diff -= 360;
 
-    ctx.save();
-    ctx.translate(x, y + bounce);
-    ctx.scale(scale, scale);
-    ctx.globalAlpha = opacity;
+    if (Math.abs(diff) < 30) return { text: 'Go Straight', Icon: ArrowUp, color: 'text-blue-400' };
+    if (diff >= 30 && diff < 150) return { text: 'Turn Right', Icon: ArrowRight, color: 'text-emerald-400' };
+    if (diff <= -30 && diff > -150) return { text: 'Turn Left', Icon: ArrowLeft, color: 'text-emerald-400' };
+    return { text: 'Turn Around', Icon: ArrowDown, color: 'text-red-400' };
+  };
 
-    if (facingMode === 'user') {
-      ctx.scale(-1, 1);
-    }
-
-    ctx.shadowBlur = 15 * scaleMult;
-    ctx.shadowColor = 'rgba(59, 130, 246, 0.8)';
-
-    const gradient = ctx.createLinearGradient(0, -30, 0, 30);
-    gradient.addColorStop(0, '#60A5FA');
-    gradient.addColorStop(1, '#0284C7');
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.moveTo(0, -30);
-    ctx.lineTo(40, 30);
-    ctx.lineTo(20, 30);
-    ctx.lineTo(0, 0);
-    ctx.lineTo(-20, 30);
-    ctx.lineTo(-40, 30);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.restore();
-  }, [facingMode]);
-
-  const drawAROverlay = useCallback(() => {
-    if (!canvasRef.current || !videoRef.current) return;
+  const drawArrows = useCallback(() => {
+    if (!canvasRef.current || !videoRef.current || viewMode !== 'camera') return;
     const ctx = canvasRef.current.getContext('2d');
 
     const animate = () => {
-      if (!canvasRef.current) return;
+      if (!canvasRef.current || viewMode !== 'camera') return;
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-      if (currentStep < directions.length) {
+      if (userLocation) {
         const centerX = canvasRef.current.width / 2;
-        const centerY = canvasRef.current.height / 2 + 150;
-        const headingOffset = (userHeading % 360) / 10;
+        const centerY = canvasRef.current.height / 2 + 100;
         
-        const timeOffset = (Date.now() % 2000) / 2000; 
-        for (let i = 5; i >= 0; i--) {
-          const progress = (i + timeOffset) / 5; 
+        let diff = bearing - userHeading;
+        if (diff < -180) diff += 360;
+        if (diff > 180) diff -= 360;
+
+        // Draw animated chevron
+        const timeOffset = (Date.now() % 2000) / 2000;
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        
+        // Rotate arrow based on relative bearing (simplified 2D)
+        ctx.rotate((diff * Math.PI) / 180);
+
+        for (let i = 4; i >= 0; i--) {
+          const progress = (i + timeOffset) / 4;
           if (progress > 1) continue;
+          const yOffset = progress * 200;
+          const opacity = 1 - progress;
           
-          const scaleMult = 1 - (progress * 0.7); 
-          const yOffset = progress * 300; 
-          const opacity = 1 - progress; 
-          
-          drawSmoothArrow(ctx, centerX - headingOffset, centerY - yOffset, scaleMult, opacity);
+          ctx.globalAlpha = opacity;
+          ctx.beginPath();
+          ctx.moveTo(0, -yOffset - 30);
+          ctx.lineTo(30, -yOffset + 10);
+          ctx.lineTo(0, -yOffset);
+          ctx.lineTo(-30, -yOffset + 10);
+          ctx.closePath();
+          ctx.fillStyle = Math.abs(diff) < 30 ? '#60A5FA' : '#34D399';
+          ctx.fill();
         }
+        ctx.restore();
       }
 
-      if (showAR) {
+      if (showAR && viewMode === 'camera') {
         animationRef.current = requestAnimationFrame(animate);
       }
     };
@@ -120,103 +130,53 @@ const ARNavigator = ({ destination, onExit }) => {
     if (!animationRef.current) {
       animate();
     }
-  }, [currentStep, directions.length, userHeading, showAR, drawSmoothArrow]);
-
-  const speakDirection = useCallback(() => {
-    if (currentStep < directions.length && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(directions[currentStep].instruction);
-      utterance.rate = 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
-  }, [currentStep, directions]);
-
-  const resetARView = () => {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-    drawAROverlay();
-    speakDirection();
-  };
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    if (destination) {
-      const newPath = findShortestPath('entry-gate', destination);
-      if (newPath) {
-        setPath(newPath);
-        setDirections(generateDirections(newPath));
-        setCurrentStep(0);
-      }
-    }
-  }, [destination]);
+  }, [userHeading, bearing, showAR, userLocation, viewMode]);
 
   useEffect(() => {
     const handleOrientation = (e) => {
-      if (e.alpha !== null) {
-        setUserHeading(e.alpha);
-      }
+      // For iOS Safari, webkitCompassHeading is absolute. For android, alpha is relative.
+      let h = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+      if (h !== null) setUserHeading(h);
     };
+    window.addEventListener('deviceorientation', handleOrientation, true);
 
-    window.addEventListener('deviceorientation', handleOrientation);
-    
     if ("geolocation" in navigator) {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          userLocationRef.current = { lat: latitude, lng: longitude };
+          setUserLocation({ lat: latitude, lng: longitude });
+          if (destLat && destLng) {
+            setDistance(Math.round(calculateDistance(latitude, longitude, destLat, destLng)));
+            setBearing(calculateBearing(latitude, longitude, destLat, destLng));
+          }
         },
         (err) => console.warn('Geolocation error:', err),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, maximumAge: 0 }
       );
     }
-
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     return () => {
       stopCamera();
       window.removeEventListener('deviceorientation', handleOrientation);
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
       if (watchIdRef.current) navigator.geolocation.clearWatch(watchIdRef.current);
-      if (simIntervalRef.current) clearInterval(simIntervalRef.current);
     };
-  }, [stopCamera]);
+  }, [destLat, destLng, stopCamera]);
 
-  useEffect(() => {
-    if (isVoiceEnabled && directions.length > 0 && currentStep < directions.length) {
-      speakDirection();
-    }
-  }, [currentStep, directions, isVoiceEnabled, speakDirection]);
-
-  const startCamera = async (mode = facingMode) => {
+  const startCamera = async () => {
     setError(null);
     setIsTransitioning(true);
     
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setIsTransitioning(false);
-      setError('Secure connection (HTTPS) or Localhost is required for camera access. Please check your browser address bar.');
+      setError('Secure connection (HTTPS) required for camera access.');
       return;
     }
 
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
-
     try {
-      const constraints = {
-        video: { 
-          facingMode: mode,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        },
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
         audio: false,
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      });
       streamRef.current = stream;
 
       if (videoRef.current) {
@@ -224,222 +184,173 @@ const ARNavigator = ({ destination, onExit }) => {
         await videoRef.current.play();
         setCameraStarted(true);
         setShowAR(true);
-        setFacingMode(mode);
-        
         setTimeout(() => setIsTransitioning(false), 300);
       }
     } catch (err) {
       setIsTransitioning(false);
-      setError('Camera access denied. Please ensure you have granted permission and are using HTTPS.');
-      console.error('Camera error:', err);
-    }
-  };
-
-  const toggleCamera = () => {
-    const newMode = facingMode === 'environment' ? 'user' : 'environment';
-    startCamera(newMode);
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(err => {
-        console.error(`Fullscreen error: ${err.message}`);
-      });
-    } else {
-      document.exitFullscreen();
+      setError('Camera access denied.');
     }
   };
 
   useEffect(() => {
-    if (showAR && cameraStarted) {
-      drawAROverlay();
+    if (showAR && cameraStarted && viewMode === 'camera') {
+      drawArrows();
+    } else if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
     }
-  }, [showAR, cameraStarted, drawAROverlay]);
-
-  const calculateETA = () => {
-    const remainingSteps = directions.length - currentStep;
-    const totalSeconds = remainingSteps * 25;
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
-  };
-
-  const nextStep = () => {
-    if (currentStep < directions.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-    }
-  };
-
-  const previousStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
+  }, [showAR, cameraStarted, drawArrows, viewMode]);
 
   const finishNavigation = () => {
-    if (document.fullscreenElement) document.exitFullscreen();
     stopCamera();
     if (onExit) onExit();
   };
 
   if (!destination) return null;
+  const displayName = locationData?.name || destination;
+
+  const instr = getArrowInstruction();
+  const MapElement = (
+    <div className="w-full h-full relative">
+      {(userLocation && destLat && destLng) ? (
+        <MapContainer center={[userLocation.lat, userLocation.lng]} zoom={18} className="w-full h-full" zoomControl={false}>
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <RecenterMap lat={userLocation.lat} lng={userLocation.lng} />
+          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon} />
+          <Marker position={[destLat, destLng]} icon={destIcon} />
+          <Polyline positions={[[userLocation.lat, userLocation.lng], [destLat, destLng]]} color="blue" weight={5} opacity={0.6} dashArray="10, 10" />
+        </MapContainer>
+      ) : !hasRealGPS ? (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-center p-8">
+          <div className="text-5xl mb-4">📍</div>
+          <h3 className="text-white font-black text-xl mb-2">GPS Map Not Available</h3>
+          <p className="text-slate-400 text-sm max-w-xs">This location uses the campus map. To enable GPS routing on the map view, ask your admin to re-add <span className="text-blue-400 font-bold">{displayName}</span> with real GPS coordinates.</p>
+        </div>
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400 font-bold">Acquiring GPS signal...</div>
+      )}
+    </div>
+  );
 
   return createPortal(
-    <div ref={containerRef} className="fixed inset-0 z-[9999] bg-black flex flex-col font-sans overflow-hidden select-none">
+    <div className="fixed inset-0 z-[9999] bg-black flex flex-col font-sans overflow-hidden select-none">
       <div className="flex-1 relative">
-        {/* Always render video and canvas so refs are available, but hide them initially */}
+        {/* The Camera Feed */}
         <video 
           ref={videoRef} 
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${cameraStarted && !isTransitioning ? 'opacity-100' : 'opacity-0'} ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`} 
+          className={`absolute inset-0 object-cover transition-all duration-700 ${
+            cameraStarted ? 'opacity-100' : 'opacity-0'
+          } ${viewMode === 'camera' ? 'w-full h-full' : 'w-32 h-48 rounded-2xl shadow-2xl border-2 border-white/20 top-6 left-6 z-[60]'}`} 
           playsInline 
+          onClick={() => viewMode === 'map' && setViewMode('camera')}
         />
-        <canvas
-          ref={canvasRef}
-          width={window.innerWidth}
-          height={window.innerHeight}
-          className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 ${cameraStarted ? 'opacity-100' : 'opacity-0'}`}
-        />
+        
+        {/* The Map Background for Map Mode */}
+        {viewMode === 'map' && (
+          <div className="absolute inset-0 z-0">
+            {MapElement}
+          </div>
+        )}
+
+        {/* The Canvas Overlay for AR Arrows (Camera Mode Only) */}
+        {viewMode === 'camera' && (
+          <canvas
+            ref={canvasRef}
+            width={window.innerWidth}
+            height={window.innerHeight}
+            className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-700 ${cameraStarted ? 'opacity-100' : 'opacity-0'} z-10`}
+          />
+        )}
 
         {cameraStarted ? (
           <>
-            {/* Top-Left: Direction Box */}
-            {directions.length > 0 && currentStep < directions.length && (
-              <div className="absolute top-8 left-6 z-20 flex items-center gap-4 bg-[#1a1a1a] rounded-3xl p-4 pr-6 shadow-2xl border border-white/5">
-                <div className="w-12 h-12 flex items-center justify-center bg-transparent">
-                  <ArrowUp className="w-10 h-10 text-white font-bold" />
-                </div>
-                <div>
-                  <h3 className="text-white text-lg font-bold leading-tight">{directions[currentStep].instruction}</h3>
-                  <p className="text-white/70 text-sm font-medium mt-1">{directions[currentStep].distance}</p>
-                </div>
+            {/* Top-Right: PiP Map (Camera Mode Only) */}
+            {viewMode === 'camera' && (
+              <div 
+                className="absolute top-8 right-6 z-20 w-40 h-40 rounded-[2rem] border-4 border-white/20 shadow-2xl overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => setViewMode('map')}
+              >
+                {MapElement}
               </div>
             )}
 
-            {/* Top-Right: MapView */}
-            <div className="absolute top-8 right-6 z-20 flex flex-col items-end gap-4">
+            {/* Top-Right: Close Button in Map Mode */}
+            {viewMode === 'map' && (
               <button 
                 onClick={finishNavigation}
-                className="p-3 bg-red-500/90 hover:bg-red-500 text-white rounded-full shadow-2xl transition-all"
+                className="absolute top-8 right-6 z-50 p-4 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-2xl transition-all"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
-              
-              <div className="w-40 h-40 bg-[#ebe5df] rounded-[2rem] border-4 border-[#1a1a1a] shadow-2xl overflow-hidden relative">
-                <div className="absolute inset-0 w-[400px] h-[300px] scale-[0.4] origin-top-left -translate-x-10 -translate-y-6 pointer-events-none">
-                  <MapView selectedLocation={destination} activePath={path} />
-                </div>
-                {/* Overlay pointer on map */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg animate-pulse" />
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom-Left: Tools */}
-            <div className="absolute bottom-8 left-6 z-20 flex gap-4">
-              <div className="w-14 h-14 bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-2xl border border-white/5">
-                 <Compass className="w-7 h-7 text-white" style={{ transform: `rotate(${userHeading}deg)` }} />
-              </div>
-              <button onClick={() => setIsVoiceEnabled(!isVoiceEnabled)} className="w-14 h-14 bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-2xl border border-white/5 transition-all active:scale-90">
-                 {isVoiceEnabled ? <Volume2 className="w-7 h-7 text-white" /> : <VolumeX className="w-7 h-7 text-white" />}
-              </button>
-              <button onClick={() => {
-                if (isSimulating) {
-                  setIsSimulating(false);
-                  if (simIntervalRef.current) { clearInterval(simIntervalRef.current); simIntervalRef.current = null; }
-                } else {
-                  setIsSimulating(true);
-                  simIntervalRef.current = setInterval(() => {
-                    setCurrentStep(s => {
-                      if (s < directions.length - 1) return s + 1;
-                      if (simIntervalRef.current) { clearInterval(simIntervalRef.current); simIntervalRef.current = null; }
-                      setIsSimulating(false);
-                      return s;
-                    });
-                  }, 4000);
-                }
-              }} className="w-14 h-14 bg-[#1a1a1a] rounded-full flex items-center justify-center shadow-2xl border border-white/5 transition-all active:scale-90">
-                 {isSimulating ? <Pause className="w-7 h-7 text-emerald-400" /> : <Play className="w-7 h-7 text-white" />}
-              </button>
-            </div>
-
-            {/* Bottom-Right: Distance & Time */}
-            {directions.length > 0 && currentStep < directions.length && (
-              <div className="absolute bottom-8 right-6 z-20 bg-[#1a1a1a] rounded-3xl p-5 px-7 shadow-2xl border border-white/5 flex flex-col gap-1">
-                <p className="text-white text-sm font-bold tracking-wide">Distance : <span className="font-normal text-white/80">{directions[currentStep].distance}</span></p>
-                <p className="text-white text-sm font-bold tracking-wide">Time : <span className="font-normal text-white/80">{calculateETA()}</span></p>
-              </div>
             )}
 
-            {/* Hidden Controls for progression so we don't lose functionality */}
-            <div className="absolute inset-y-0 left-0 w-24 z-10 flex items-center justify-start" onClick={previousStep}>
-               <div className="w-full h-full opacity-0 hover:opacity-10 bg-linear-to-r from-white/20 to-transparent transition-opacity cursor-pointer" />
-            </div>
-            <div className="absolute inset-y-0 right-0 w-24 z-10 flex items-center justify-end" onClick={nextStep}>
-               <div className="w-full h-full opacity-0 hover:opacity-10 bg-linear-to-l from-white/20 to-transparent transition-opacity cursor-pointer" />
+            {/* Center-Top: Current Instruction */}
+            <div className={`absolute top-8 ${viewMode === 'camera' ? 'left-6' : 'left-1/2 -translate-x-1/2'} z-20 flex items-center gap-4 bg-black/60 backdrop-blur-xl rounded-3xl p-4 pr-6 shadow-2xl border border-white/10`}>
+              <div className="w-12 h-12 flex items-center justify-center bg-white/10 rounded-2xl">
+                <instr.Icon className={`w-8 h-8 ${instr.color}`} />
+              </div>
+              <div>
+                <h3 className="text-white text-xl font-black">{instr.text}</h3>
+                <p className="text-white/70 text-sm font-bold">{distance} meters away</p>
+              </div>
             </div>
 
-            {currentStep >= directions.length && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/90 backdrop-blur-2xl z-[60] p-6">
-                <div className="bg-white rounded-[4rem] w-full max-w-sm p-12 text-center shadow-2xl border-8 border-blue-500/10">
-                  <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8 text-5xl">🏁</div>
-                  <h2 className="text-4xl font-black text-slate-900 mb-4">You Made It!</h2>
-                  <p className="text-slate-500 text-lg mb-10">Arrived at <span className="font-bold text-blue-600">{destLocation?.name}</span></p>
-                  <button
-                    onClick={finishNavigation}
-                    className="w-full py-6 bg-blue-600 text-white text-xl font-black rounded-3xl shadow-2xl shadow-blue-500/30 hover:scale-105 transition active:scale-95"
-                  >
-                    Finish Journey
-                  </button>
+            {/* Bottom-Center: Mode Toggle */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex bg-black/50 backdrop-blur-xl p-2 rounded-full border border-white/10 shadow-2xl">
+              <button
+                onClick={() => setViewMode('camera')}
+                className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${viewMode === 'camera' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              >
+                <CameraIcon className="w-5 h-5" /> AR
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${viewMode === 'map' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:text-white'}`}
+              >
+                <Map className="w-5 h-5" /> Map
+              </button>
+            </div>
+
+            {/* Close Button in Camera Mode */}
+            {viewMode === 'camera' && (
+              <button 
+                onClick={finishNavigation}
+                className="absolute bottom-8 right-6 z-20 p-4 bg-red-500/80 hover:bg-red-500 text-white rounded-full shadow-2xl"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Destination Reached Modal */}
+            {distance < 5 && distance > 0 && userLocation && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md z-[100] p-6">
+                <div className="bg-white rounded-[3rem] w-full max-w-sm p-10 text-center shadow-2xl">
+                  <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">🏁</div>
+                  <h2 className="text-3xl font-black text-slate-900 mb-2">You Arrived!</h2>
+                  <p className="text-slate-500 mb-8 font-medium">Welcome to {displayName}</p>
+                  <button onClick={finishNavigation} className="w-full py-4 bg-blue-600 text-white font-black rounded-2xl">Finish Route</button>
                 </div>
               </div>
             )}
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-br from-slate-900 via-slate-800 to-black text-white p-8 text-center relative z-10">
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] animate-pulse"></div>
-              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-1000"></div>
-            </div>
-
-            <div className="relative z-10">
-              <div className="w-32 h-32 bg-white/5 backdrop-blur-3xl rounded-[3.5rem] flex items-center justify-center mx-auto mb-10 border border-white/10 shadow-2xl">
-                <Zap className="w-16 h-16 text-blue-400 fill-blue-400/20" />
+            <h1 className="text-5xl font-black mb-4">AR Wayfinder</h1>
+            <p className="text-slate-400 mb-10 max-w-sm">Use your camera to find your way to <span className="text-blue-400 font-bold">{displayName}</span>.</p>
+            {error && (
+              <div className="mb-8 p-4 bg-red-500/20 text-red-400 rounded-2xl flex items-center gap-3">
+                <AlertTriangle className="w-6 h-6" /> {error}
               </div>
-              
-              <h1 className="text-6xl font-black mb-6 tracking-tighter leading-none">Activate AR</h1>
-              <p className="text-slate-400 text-xl mb-12 max-w-md font-medium leading-relaxed">
-                Step into the future of campus navigation. Using your camera to guide you to <span className="text-blue-400 font-bold">{destLocation?.name}</span>.
-              </p>
-
-              {error && (
-                <div className="mb-10 p-6 bg-red-500/10 border border-red-500/20 rounded-3xl flex items-center gap-4 text-left max-w-sm mx-auto">
-                  <AlertTriangle className="w-8 h-8 text-red-500 shrink-0" />
-                  <p className="text-red-400 text-sm font-bold leading-snug">{error}</p>
-                </div>
-              )}
-
-              <div className="flex flex-col w-full max-w-xs gap-5 mx-auto">
-                <button
-                  onClick={() => startCamera('environment')}
-                  disabled={isTransitioning}
-                  className="w-full py-6 bg-blue-600 text-white font-black rounded-[2.2rem] text-2xl shadow-2xl shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isTransitioning ? (
-                    <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Play className="w-7 h-7 fill-current" />
-                  )}
-                  {isTransitioning ? 'Initializing...' : 'Launch AR'}
-                </button>
-                <button
-                  onClick={onExit}
-                  className="py-4 text-white/30 font-bold hover:text-white transition-colors"
-                >
-                  Back to Campus Overview
-                </button>
-              </div>
-            </div>
+            )}
+            <button
+              onClick={startCamera}
+              disabled={isTransitioning}
+              className="py-5 px-10 bg-blue-600 font-black rounded-full text-xl shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3"
+            >
+              {isTransitioning ? 'Starting...' : 'Launch Navigator'}
+              <Play className="w-6 h-6 fill-current" />
+            </button>
+            <button onClick={onExit} className="mt-6 text-slate-500 hover:text-white font-bold transition-colors">Cancel</button>
           </div>
         )}
       </div>
