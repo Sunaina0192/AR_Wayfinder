@@ -18,6 +18,7 @@ const Navigator = () => {
   const { user } = useAuth();
 
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedLocationData, setSelectedLocationData] = useState(null);
   const [activePath, setActivePath] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -26,7 +27,7 @@ const Navigator = () => {
   const [favorites, setFavorites] = useState([]);
   const [historyError, setHistoryError] = useState(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [allLocations, setAllLocations] = useState(campusLocations);
+  const [allLocations, setAllLocations] = useState([]);
   const routerLocation = useLocation();
 
   const categories = ['All', 'Academic', 'Administrative', 'Library', 'Hostels', 'Sports', 'Facilities', 'Cafeteria', 'Parking'];
@@ -66,11 +67,7 @@ const Navigator = () => {
           fromBackend: true, // flag so we know it has real GPS
         }));
 
-        // Backend locations OVERRIDE static ones when the ID matches
-        // This lets admin-added GPS coords replace old SVG pixel coords
-        const backendIds = new Set(backendLocs.map(l => l.id));
-        const staticOnly = campusLocations.filter(l => !backendIds.has(l.id));
-        setAllLocations([...staticOnly, ...backendLocs]);
+        setAllLocations(backendLocs);
       } catch (error) {
         console.error('Unable to load backend locations', error);
       }
@@ -97,18 +94,20 @@ const Navigator = () => {
       console.error('Unable to save history item', error);
       setHistoryError('Could not save route. Backend may be offline.');
     }
-  }, [user]);
+  }, [user, allLocations]);
 
   const handleLocationSelect = useCallback((id, autoAR = false) => {
-    const normalizedId = allLocations.find((loc) => loc.id === id)?.id || id;
+    const locObj = allLocations.find((loc) => loc.id === id);
+    const normalizedId = locObj?.id || id;
     const path = findShortestPath('entry-gate', normalizedId);
     setSelectedLocation(normalizedId);
+    setSelectedLocationData(locObj || null);
     setActivePath(path || []);
     saveHistory(normalizedId);
     if (autoAR) {
       setShowAR(true);
     }
-  }, [saveHistory]);
+  }, [allLocations, saveHistory]);
 
   useEffect(() => {
     if (routerLocation.state?.destination) {
@@ -157,12 +156,12 @@ const Navigator = () => {
     setSearchQuery('');
     setSelectedCategory('All');
     setSelectedLocation(null);
+    setSelectedLocationData(null);
     setActivePath([]);
   };
 
   if (showAR && selectedLocation) {
-    const destObj = allLocations.find(l => l.id === selectedLocation);
-    return <ARNavigator destination={selectedLocation} locationData={destObj} onExit={() => setShowAR(false)} />;
+    return <ARNavigator destination={selectedLocation} locationData={selectedLocationData} onExit={() => setShowAR(false)} />;
   }
 
   return (
@@ -186,12 +185,6 @@ const Navigator = () => {
             <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-600'} text-lg`}>Intelligent AR Campus Wayfinding</p>
           </div>
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleClearAll}
-              className={`px-6 py-3 rounded-2xl font-bold uppercase tracking-wider text-sm transition-all duration-300 ${isDarkMode ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20' : 'bg-white text-red-600 hover:bg-red-50 shadow-sm border border-red-100'}`}
-            >
-              Clear All
-            </button>
             <button
               onClick={toggleDarkMode}
               className={`p-4 rounded-2xl transition-all duration-300 ${isDarkMode ? 'bg-white/10 text-yellow-400 hover:bg-white/20' : 'bg-slate-900/5 text-slate-600 hover:bg-slate-900/10'}`}
@@ -227,6 +220,7 @@ const Navigator = () => {
               results={filteredLocations}
               onSelect={(id) => handleLocationSelect(id, true)}
               isDarkMode={isDarkMode}
+              allLocations={allLocations}
             />
             <div className={`rounded-3xl overflow-hidden shadow-2xl border ${isDarkMode ? 'border-white/10' : 'border-white'}`}>
               <MapView
@@ -255,7 +249,7 @@ const Navigator = () => {
               <div className="space-y-3">
                 {favorites.length > 0 ? (
                   favorites.map(id => {
-                    const loc = campusLocations.find(l => l.id === id);
+                    const loc = allLocations.find(l => l.id === id);
                     return loc ? (
                       <button
                         key={id}

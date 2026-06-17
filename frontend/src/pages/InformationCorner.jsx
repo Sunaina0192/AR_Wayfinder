@@ -110,7 +110,7 @@ const InformationCorner = () => {
         <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-blue-600/5 rounded-full blur-[120px]"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+      <div className="w-full px-4 sm:px-6 lg:px-12 relative z-10">
         {/* Session view status */}
         <div className="flex justify-end mb-12 md:mb-16">
           <div className="px-6 py-3 rounded-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl flex items-center gap-2 shadow-2xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">

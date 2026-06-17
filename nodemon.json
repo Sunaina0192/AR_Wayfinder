@@ -1,0 +1,12 @@
+{
+  "ignore": [
+    "console_logs.txt",
+    "locations_debug.json",
+    "history_db.json",
+    "profiles_db.json",
+    "login_db.json",
+    "frontend/*",
+    "dist/*",
+    "uploads/*"
+  ]
+}

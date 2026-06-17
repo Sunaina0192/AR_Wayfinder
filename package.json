@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "node server.js",
-    "dev:server": "nodemon server.js",
-    "dev:full": "concurrently \"npm run server\" \"npm run dev\"",
-    "start": "node server.js"
+    "dev": "vite --config frontend/vite.config.js",
+    "build": "vite build --config frontend/vite.config.js",
+    "lint": "eslint frontend/src",
+    "preview": "vite preview --config frontend/vite.config.js",
+    "server": "node backend/server.js",
+    "dev:server": "nodemon backend/server.js",
+    "dev:full": "concurrently \"npm run dev:server\" \"npm run dev\"",
+    "start": "node backend/server.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

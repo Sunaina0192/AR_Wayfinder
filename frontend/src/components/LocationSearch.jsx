@@ -4,11 +4,11 @@ import { campusLocations } from '../data/locations'
 
 const popularDestinationIds = ['library', 'admission-cell', 'workshop-center', 'stadium']
 
-const popularDestinations = campusLocations.filter((location) => 
-  popularDestinationIds.includes(location.id)
-)
+const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode, allLocations = [] }) => {
+  const popularDestinations = allLocations.filter((location) => 
+    popularDestinationIds.includes(location.id)
+  )
 
-const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode }) => {
   return (
     <div className={`rounded-[2.5rem] transition-all duration-500 p-8 border ${
       isDarkMode 
@@ -72,7 +72,7 @@ const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode }) => {
               <MapPin className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all text-blue-500 -translate-x-2 group-hover:translate-x-0" />
             </button>
           ))
-        ) : (
+        ) : popularDestinations.length > 0 ? (
           <div className="py-4">
             <p className={`text-xs font-black uppercase tracking-widest mb-4 ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
               Recommended for you
@@ -95,7 +95,7 @@ const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode }) => {
               ))}
             </div>
           </div>
-        )}
+        ) : null}
       </div>
 
       <div className={`mt-8 rounded-2xl p-5 border flex items-center gap-4 ${

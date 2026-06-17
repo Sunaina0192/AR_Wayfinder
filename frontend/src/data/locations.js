@@ -273,7 +273,7 @@ export const findShortestPath = (startId, endId) => {
 
   const path = [];
   let current = endId;
-  while (current !== null) {
+  while (current) {
     path.unshift(current);
     current = previous[current];
   }
