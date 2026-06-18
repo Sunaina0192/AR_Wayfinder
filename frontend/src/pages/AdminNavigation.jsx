@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import {
-  MapPin, Plus, Trash2, X, CheckCircle, XCircle, Navigation, AlertTriangle, RefreshCw, UploadCloud, Map, LocateFixed, Maximize, Minimize
+  MapPin, Plus, Trash2, X, CheckCircle, XCircle, Navigation, AlertTriangle, RefreshCw, UploadCloud, Map, LocateFixed, Maximize, Minimize, Search, Edit
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, LayersControl } from 'react-leaflet';
 import L from 'leaflet';
@@ -41,19 +41,83 @@ const ResizeMap = ({ isFullScreen }) => {
   return null;
 };
 
-const AddLocationModal = ({ onClose, onSave, saving }) => {
-  const [form, setForm] = useState({
+const MapFlyTo = ({ position }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (position) {
+      map.flyTo(position, map.getZoom() < 18 ? 18 : map.getZoom());
+    }
+  }, [position, map]);
+  return null;
+};
+
+const MapStateSaver = () => {
+  useMapEvents({
+    moveend: (e) => {
+      const map = e.target;
+      const center = map.getCenter();
+      localStorage.setItem('lastAdminMapCenter', JSON.stringify([center.lat, center.lng]));
+    }
+  });
+  return null;
+};
+
+const LocationModal = ({ onClose, onSave, saving, initialData }) => {
+  const [form, setForm] = useState(initialData ? {
+    locationId: initialData.locationId || '',
+    name: initialData.name || '',
+    description: initialData.description || '',
+    category: initialData.category || 'Facilities',
+    icon: initialData.icon || '📍',
+    x: initialData.coordinates?.x || 0,
+    y: initialData.coordinates?.y || 0
+  } : {
     locationId: '',
     name: '',
     description: '',
     category: 'Facilities',
-    icon: '01',
+    icon: '📍',
     x: 0,
     y: 0
   });
   const [error, setError] = useState('');
-  const [mapPosition, setMapPosition] = useState(null);
+  const [mapPosition, setMapPosition] = useState(initialData?.coordinates ? [initialData.coordinates.x, initialData.coordinates.y] : null);
   const [isMapFullScreen, setIsMapFullScreen] = useState(false);
+  const [mapType, setMapType] = useState('street');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+
+  const tileUrl = mapType === 'street' 
+    ? "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+    : "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}";
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    setIsSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setMapPosition([parseFloat(lat), parseFloat(lon)]);
+      } else {
+        alert("Location not found");
+      }
+    } catch (err) {
+      console.error("Search error", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const defaultCenter = (() => {
+    try {
+      const saved = localStorage.getItem('lastAdminMapCenter');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [31.3364, 75.6888];
+  })();
 
   useEffect(() => {
     if (mapPosition) {
@@ -79,7 +143,23 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
   };
 
   const handleChange = (field, value) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm(prev => {
+      const updatedForm = { ...prev, [field]: value };
+      if (field === 'category') {
+        switch (value) {
+          case 'Academic': updatedForm.icon = '🏫'; break;
+          case 'Administrative': updatedForm.icon = '🏢'; break;
+          case 'Library': updatedForm.icon = '📚'; break;
+          case 'Hostels': updatedForm.icon = '🏨'; break;
+          case 'Sports': updatedForm.icon = '⚽'; break;
+          case 'Cafeteria': updatedForm.icon = '🍽️'; break;
+          case 'Parking': updatedForm.icon = '🅿️'; break;
+          case 'Facilities': 
+          default: updatedForm.icon = '📍'; break;
+        }
+      }
+      return updatedForm;
+    });
     if (field === 'x' || field === 'y') {
       const val = parseFloat(value);
       if (!isNaN(val)) {
@@ -110,8 +190,8 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
       >
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div>
-            <p className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">Add Location</p>
-            <h3 className="text-lg font-black text-white mt-1">New Campus Point</h3>
+            <p className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">{initialData ? 'Edit Location' : 'Add Location'}</p>
+            <h3 className="text-lg font-black text-white mt-1">{initialData ? 'Update Campus Point' : 'New Campus Point'}</h3>
           </div>
           <button onClick={onClose} className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
             <X className="w-4 h-4 text-slate-400" />
@@ -148,24 +228,47 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
               <input className={inputClass} type="number" step="any" value={form.y} onChange={e => handleChange('y', e.target.value)} placeholder="Longitude (Y)" />
             </div>
 
-            <div className={isMapFullScreen ? "fixed inset-0 z-[100] bg-black/90 p-4 sm:p-8 flex flex-col" : "h-[240px] rounded-2xl overflow-hidden border border-white/10 relative z-0"}>
+            <div className={isMapFullScreen ? "fixed top-16 lg:top-0 inset-x-0 bottom-0 z-[100] bg-black/95 p-4 sm:p-8 flex flex-col" : "h-[240px] rounded-2xl overflow-hidden border border-white/10 relative z-0"}>
               {isMapFullScreen && (
                 <div className="flex justify-between items-center mb-4 z-[400]">
                   <div>
-                    <h3 className="text-xl font-black text-white">Select Location</h3>
+                    <h3 className="text-xl font-black text-white">Set Map</h3>
                     <p className="text-sm text-slate-400">Click on the map to pin the coordinates.</p>
                   </div>
                   <button 
                     type="button" 
                     onClick={() => setIsMapFullScreen(false)}
-                    className="p-3 bg-white/10 rounded-xl hover:bg-white/20 border border-white/20 text-white transition-all flex items-center gap-2"
+                    className="p-3 bg-accent text-dark rounded-xl hover:bg-accent/90 font-black transition-all flex items-center gap-2 shadow-lg shadow-accent/20"
                   >
-                    <Minimize className="w-5 h-5" /> <span className="font-bold hidden sm:block">Exit Map</span>
+                    <Minimize className="w-5 h-5" /> <span className="hidden sm:block">Set Map</span>
                   </button>
                 </div>
               )}
               
               <div className={`relative ${isMapFullScreen ? 'flex-1 rounded-3xl overflow-hidden border border-white/20 shadow-2xl' : 'w-full h-full'}`}>
+                {/* Search Bar */}
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[400] w-[55%] sm:w-[50%] max-w-sm">
+                  <form onSubmit={handleSearch} className="flex items-center bg-black/80 backdrop-blur-md rounded-xl border border-white/20 p-1 shadow-2xl">
+                    <input 
+                      type="text" 
+                      value={searchQuery} 
+                      onChange={(e) => setSearchQuery(e.target.value)} 
+                      placeholder="Search location..." 
+                      className="bg-transparent border-none text-white text-xs sm:text-sm px-3 py-1.5 w-full focus:outline-none placeholder:text-slate-400"
+                    />
+                    <button type="submit" disabled={isSearching} className="p-1.5 text-white hover:text-accent disabled:opacity-50">
+                      <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                  </form>
+                </div>
+                
+                <button 
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setMapType(prev => prev === 'street' ? 'satellite' : 'street'); }}
+                  className={`absolute right-2 z-[400] bg-white text-black px-3 py-1.5 rounded-lg shadow-xl font-bold text-xs hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 ${isMapFullScreen ? 'top-2' : 'top-14'}`}
+                >
+                  {mapType === 'street' ? <><Map className="w-3.5 h-3.5"/> Satellite</> : <><MapPin className="w-3.5 h-3.5"/> Street</>}
+                </button>
                 {!isMapFullScreen && (
                   <button 
                     type="button" 
@@ -177,27 +280,16 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
                   </button>
                 )}
                 <MapContainer 
-                  center={mapPosition || [31.3364, 75.6888]} 
-                  zoom={16} 
+                  center={mapPosition || defaultCenter} 
+                  zoom={18} 
                   style={{ height: '100%', width: '100%', zIndex: 0 }}
                   scrollWheelZoom={true}
                 >
-                <LayersControl position="topright">
-                  <BaseLayer checked name="Standard Map">
-                    <TileLayer
-                      url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-                      attribution='&copy; Google Maps'
-                    />
-                  </BaseLayer>
-                  <BaseLayer name="Satellite (with labels)">
-                    <TileLayer
-                      url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
-                      attribution='&copy; Google Maps'
-                    />
-                  </BaseLayer>
-                </LayersControl>
+                  <TileLayer url={tileUrl} attribution='&copy; Google Maps' />
                   <LocationMapPicker position={mapPosition} setPosition={setMapPosition} />
                   <ResizeMap isFullScreen={isMapFullScreen} />
+                  <MapFlyTo position={mapPosition} />
+                  <MapStateSaver />
                 </MapContainer>
               </div>
             </div>
@@ -220,7 +312,7 @@ const AddLocationModal = ({ onClose, onSave, saving }) => {
             disabled={saving}
             className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-accent to-cyan-500 text-dark font-black uppercase tracking-[0.15em] text-xs hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Add Location'}
+            {saving ? 'Saving...' : (initialData ? 'Update Location' : 'Add Location')}
           </button>
         </div>
       </div>
@@ -233,6 +325,7 @@ const AdminNavigation = () => {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const [mapUploading, setMapUploading] = useState(false);
@@ -260,17 +353,26 @@ const AdminNavigation = () => {
 
   useEffect(() => { fetchLocations(); }, []);
 
-  const handleAdd = async (formData) => {
+  const handleSaveLocation = async (formData) => {
     setSaving(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/admin/locations`, formData, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
-      setLocations(prev => [...prev, res.data.location]);
-      setShowAddModal(false);
-      showToast('Location added successfully!');
+      if (editingLocation) {
+        const res = await axios.put(`${API_BASE_URL}/api/admin/locations/${editingLocation._id}`, formData, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        setLocations(prev => prev.map(l => l._id === editingLocation._id ? res.data.location : l));
+        setEditingLocation(null);
+        showToast('Location updated successfully!');
+      } else {
+        const res = await axios.post(`${API_BASE_URL}/api/admin/locations`, formData, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        setLocations(prev => [...prev, res.data.location]);
+        setShowAddModal(false);
+        showToast('Location added successfully!');
+      }
     } catch (err) {
-      showToast(err.response?.data?.message || 'Failed to add location', 'error');
+      showToast(err.response?.data?.message || 'Failed to save location', 'error');
     } finally {
       setSaving(false);
     }
@@ -367,7 +469,10 @@ const AdminNavigation = () => {
                         </td>
                         <td className="px-5 py-4 text-slate-300">{loc.category}</td>
                         <td className="px-5 py-4 text-slate-400 text-xs">({loc.coordinates?.x || 0}, {loc.coordinates?.y || 0})</td>
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-5 py-4 text-right flex justify-end gap-2">
+                          <button onClick={() => setEditingLocation(loc)} className="p-2 rounded-xl bg-blue-500/10 text-blue-400 hover:bg-blue-500/20">
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
                           <button onClick={() => handleDelete(loc._id)} className="p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -382,7 +487,7 @@ const AdminNavigation = () => {
         </div>
 
       </div>
-      {showAddModal && <AddLocationModal onClose={() => setShowAddModal(false)} onSave={handleAdd} saving={saving} />}
+      {(showAddModal || editingLocation) && <LocationModal onClose={() => {setShowAddModal(false); setEditingLocation(null);}} onSave={handleSaveLocation} saving={saving} initialData={editingLocation} />}
     </div>
   );
 };

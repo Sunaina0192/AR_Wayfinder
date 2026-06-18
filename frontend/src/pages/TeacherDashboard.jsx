@@ -5,11 +5,11 @@ import axios from '../api/axiosConfig';
 import { 
   LayoutDashboard, BookOpen, UploadCloud, CheckSquare, 
   Award, Megaphone, Users, Calendar, User, DownloadCloud, 
-  Trash2, Check, X, Search, Lock, BookMarked, Activity, FileText
+  Trash2, Check, X, Search, Lock, BookMarked, Activity, FileText, LogOut
 } from 'lucide-react';
 
 const TeacherDashboard = () => {
-  const { user, token } = useAuth();
+  const { user, token, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('Overview');
   const [loading, setLoading] = useState(false);
 
@@ -547,6 +547,13 @@ const TeacherDashboard = () => {
                 </button>
               );
             })}
+            <button
+              onClick={() => { logout(); window.location.href = '/'; }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-red-400 hover:bg-red-500/10 hover:text-red-300 mt-4"
+            >
+              <LogOut className="w-5 h-5" />
+              Log Out
+            </button>
           </nav>
         </aside>
         <main className="flex-1 min-w-0">

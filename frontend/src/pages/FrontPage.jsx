@@ -161,11 +161,11 @@ const FrontPage = () => {
           <span className="text-[10px] font-black tracking-[0.3em] uppercase text-accent">Welcome to the Future</span>
         </div>
         
-        <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 tracking-tighter uppercase leading-none drop-shadow-2xl">
+        <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white mb-4 sm:mb-6 tracking-tighter uppercase leading-none drop-shadow-2xl">
           Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-500">SBBSU</span>
         </h1>
         
-        <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed mb-12 drop-shadow-lg">
+        <p className="text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-medium leading-relaxed mb-8 sm:mb-12 drop-shadow-lg px-2">
           Experience world-class education, cutting-edge research, and an immersive AR-guided campus environment. Your journey begins here.
         </p>
       </div>
@@ -174,20 +174,20 @@ const FrontPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-[fade-in_0.3s_ease-out]">
           <div className="absolute inset-0 bg-dark/80 backdrop-blur-xl" onClick={handleCloseLogin}></div>
           
-          <div className="relative w-full max-w-md p-8 sm:p-10 rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden group">
+          <div className="relative w-full max-w-md p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden group max-h-[90vh] flex flex-col">
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-accent/20 rounded-full blur-3xl group-hover:bg-accent/30 transition-colors duration-500 pointer-events-none"></div>
             
-            <button onClick={handleCloseLogin} className="absolute top-6 right-6 p-2 rounded-full bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all z-10">
+            <button onClick={handleCloseLogin} className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-white/5 text-slate-400 hover:text-white hover:bg-white/10 transition-all z-10">
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex mb-6 border-b border-white/10 relative">
+            <div className="flex mb-6 border-b border-white/10 relative shrink-0">
               <div className={`absolute bottom-0 left-0 h-0.5 bg-accent transition-all duration-300 w-1/2 ${activeTab === 'register' ? 'translate-x-full' : 'translate-x-0'}`}></div>
-              <button onClick={() => { setActiveTab('login'); setLoginRole(null); setRegRole(null); setErrors({}); }} className={`flex-1 pb-4 font-black uppercase tracking-widest text-sm transition-colors ${activeTab === 'login' ? 'text-accent' : 'text-slate-500 hover:text-slate-300'}`}>Login</button>
-              <button onClick={() => { setActiveTab('register'); setLoginRole(null); setRegRole(null); setErrors({}); }} className={`flex-1 pb-4 font-black uppercase tracking-widest text-sm transition-colors ${activeTab === 'register' ? 'text-accent' : 'text-slate-500 hover:text-slate-300'}`}>Register</button>
+              <button onClick={() => { setActiveTab('login'); setLoginRole(null); setRegRole(null); setErrors({}); }} className={`flex-1 pb-4 font-black uppercase tracking-widest text-xs sm:text-sm transition-colors ${activeTab === 'login' ? 'text-accent' : 'text-slate-500 hover:text-slate-300'}`}>Login</button>
+              <button onClick={() => { setActiveTab('register'); setLoginRole(null); setRegRole(null); setErrors({}); }} className={`flex-1 pb-4 font-black uppercase tracking-widest text-xs sm:text-sm transition-colors ${activeTab === 'register' ? 'text-accent' : 'text-slate-500 hover:text-slate-300'}`}>Register</button>
             </div>
 
-            <div className="relative overflow-hidden" style={{ minHeight: '380px' }}>
+            <div className="relative overflow-hidden flex-1 overflow-y-auto custom-scrollbar" style={{ minHeight: '350px' }}>
               
               {/* === LOGIN TAB === */}
               <div className={`absolute w-full transition-transform duration-500 ease-in-out ${activeTab === 'login' ? 'translate-x-0' : '-translate-x-full'}`}>
@@ -331,8 +331,8 @@ const FrontPage = () => {
       {showRegPopup && regCredentials && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 animate-[fade-in_0.3s_ease-out]">
           <div className="absolute inset-0 bg-dark/90 backdrop-blur-xl"></div>
-          <div className="relative w-full max-w-md p-8 sm:p-10 rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden text-center">
-            <div className="w-16 h-16 mx-auto bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mb-6">
+          <div className="relative w-full max-w-md p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] glass border-white/10 shadow-2xl animate-[slide-up_0.4s_ease-out] overflow-hidden text-center max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mb-4 sm:mb-6">
               <ShieldCheck className="w-8 h-8" />
             </div>
             <h2 className="text-2xl font-black text-white uppercase tracking-tight mb-2">Registration Successful!</h2>

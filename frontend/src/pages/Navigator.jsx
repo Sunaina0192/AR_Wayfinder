@@ -3,7 +3,10 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { campusLocations, findShortestPath, generateDirections } from '../data/locations';
 /* eslint-disable react-hooks/set-state-in-effect */
-import { MapPin, ArrowRight, Navigation, AlertCircle, Star, History, Moon, Sun, Filter } from 'lucide-react';
+import { 
+  MapPin, ArrowRight, Navigation, AlertCircle, Star, History, Moon, Sun, Filter,
+  BookOpen, Building, Library as LibraryIcon, Home, Activity, Coffee, Car
+} from 'lucide-react';
 import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchHistory, saveHistoryItem } from '../api/historyApi';
@@ -14,6 +17,20 @@ import RouteSummary from '../components/RouteSummary';
 import NavigationHistory from '../components/NavigationHistory';
 import FeatureHighlights from '../components/FeatureHighlights';
 import PathDisplay from '../components/PathDisplay';
+
+const getCategoryIcon = (category, className = "w-6 h-6") => {
+  switch (category) {
+    case 'Academic': return <BookOpen className={className} />;
+    case 'Administrative': return <Building className={className} />;
+    case 'Library': return <LibraryIcon className={className} />;
+    case 'Hostels': return <Home className={className} />;
+    case 'Sports': return <Activity className={className} />;
+    case 'Cafeteria': return <Coffee className={className} />;
+    case 'Parking': return <Car className={className} />;
+    case 'Facilities': default: return <MapPin className={className} />;
+  }
+};
+
 const Navigator = () => {
   const { user } = useAuth();
 
@@ -57,15 +74,16 @@ const Navigator = () => {
         const res = await axios.get(`${API_BASE_URL}/api/locations`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
-        const backendLocs = res.data.map(loc => ({
-          id: loc.locationId,
-          name: loc.name,
-          description: loc.description,
-          coordinates: { x: loc.coordinates.x, y: loc.coordinates.y },
-          category: loc.category || 'Facilities',
-          icon: loc.icon || '📍',
-          fromBackend: true, // flag so we know it has real GPS
-        }));
+        const backendLocs = res.data.map(loc => {
+          return {
+            id: loc.locationId,
+            name: loc.name,
+            description: loc.description,
+            coordinates: { x: loc.coordinates.x, y: loc.coordinates.y },
+            category: loc.category || 'Facilities',
+            fromBackend: true, // flag so we know it has real GPS
+          };
+        });
 
         setAllLocations(backendLocs);
       } catch (error) {
@@ -179,8 +197,8 @@ const Navigator = () => {
       <div className="max-w-6xl w-full mx-auto px-4 py-12">
         <div className="flex justify-between items-center mb-12">
           <div className="text-left">
-            <h1 className={`text-5xl font-black mb-2 tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-              🗺️ Navigator
+            <h1 className={`text-5xl font-black mb-2 tracking-tight flex items-center gap-4 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              <MapPin className="w-12 h-12 text-blue-500" /> Navigator
             </h1>
             <p className={`${isDarkMode ? 'text-slate-400' : 'text-slate-600'} text-lg`}>Intelligent AR Campus Wayfinding</p>
           </div>
@@ -257,7 +275,7 @@ const Navigator = () => {
                         className={`w-full p-4 rounded-2xl flex items-center justify-between group transition-all ${isDarkMode ? 'hover:bg-white/5' : 'hover:bg-blue-50'}`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{loc.icon}</span>
+                          <span className="text-blue-500">{getCategoryIcon(loc.category, "w-6 h-6")}</span>
                           <span className="font-bold">{loc.name}</span>
                         </div>
                         <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
@@ -299,8 +317,8 @@ const Navigator = () => {
                 </button>
 
                 <div className="p-8 pb-10">
-                  <div className="w-20 h-20 rounded-3xl bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-4xl shadow-xl shadow-blue-500/20 mb-6 group-hover:scale-110 transition-transform duration-500">
-                    {location.icon}
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 mb-6 group-hover:scale-110 group-hover:shadow-blue-500/40 transition-all duration-500">
+                    {getCategoryIcon(location.category, "w-10 h-10")}
                   </div>
                   <div className="mb-6">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500 mb-2 block">
@@ -320,7 +338,9 @@ const Navigator = () => {
             ))
           ) : (
             <div className="col-span-full text-center py-24 bg-white/5 rounded-[3rem] border border-dashed border-white/10">
-              <div className="text-6xl mb-6">🔍</div>
+              <div className="flex justify-center mb-6">
+                <Filter className="w-16 h-16 text-slate-600 opacity-50" />
+              </div>
               <p className="text-xl text-slate-500 font-bold">No matches for "{searchQuery}" in {selectedCategory}</p>
             </div>
           )}

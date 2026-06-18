@@ -105,10 +105,10 @@ const History = () => {
                     <button
                       key={`${record.id}-${record.createdAt}`}
                       onClick={() => navigate('/navigator', { state: { destination: record.destinationId } })}
-                      className="w-full text-left rounded-[2rem] border border-white/5 p-6 bg-white/5 hover:bg-accent/5 hover:border-accent/30 hover:scale-[1.01] transition-all duration-300 relative group flex items-center justify-between gap-6"
+                      className="w-full text-left rounded-[1.5rem] md:rounded-[2rem] border border-white/5 p-5 md:p-6 bg-white/5 hover:bg-accent/5 hover:border-accent/30 hover:scale-[1.01] transition-all duration-300 relative group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 md:gap-6"
                     >
-                      <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-dark transition-all duration-300">
+                      <div className="flex items-center gap-4 md:gap-5 w-full">
+                        <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-accent group-hover:bg-accent group-hover:text-dark transition-all duration-300">
                           <Compass className="w-6 h-6" />
                         </div>
                         <div>
@@ -119,7 +119,7 @@ const History = () => {
                           </div>
                         </div>
                       </div>
-                      <span className="shrink-0 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:bg-accent group-hover:text-dark group-hover:border-accent group-hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300">
+                      <span className="w-full sm:w-auto text-center shrink-0 px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:bg-accent group-hover:text-dark group-hover:border-accent group-hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-300">
                         Open Route
                       </span>
                     </button>

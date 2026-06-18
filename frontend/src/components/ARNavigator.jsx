@@ -376,11 +376,11 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
 
       {/* ── LAUNCH SCREEN ── */}
       {phase === 'launch' && (
-        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white p-8 text-center">
-          <div className="text-7xl mb-6">🧭</div>
-          <h1 className="text-4xl font-black mb-3">AR Wayfinder</h1>
-          <p className="text-slate-400 mb-2 max-w-sm">Navigate to</p>
-          <p className="text-blue-400 font-black text-2xl mb-10">{displayName}</p>
+        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white p-6 md:p-8 text-center">
+          <div className="text-5xl md:text-7xl mb-4 md:mb-6">🧭</div>
+          <h1 className="text-3xl md:text-4xl font-black mb-2 md:mb-3">AR Wayfinder</h1>
+          <p className="text-slate-400 mb-1 md:mb-2 max-w-sm text-sm md:text-base">Navigate to</p>
+          <p className="text-blue-400 font-black text-xl md:text-2xl mb-8 md:mb-10">{displayName}</p>
 
           {error && (
             <div className="mb-8 p-4 bg-red-500/20 text-red-400 rounded-2xl flex items-center gap-3 max-w-sm">
@@ -392,10 +392,10 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           <button
             onClick={startCamera}
             disabled={starting}
-            className="py-5 px-12 bg-blue-600 hover:bg-blue-700 font-black rounded-full text-xl shadow-2xl shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mb-4 disabled:opacity-60"
+            className="py-4 px-8 md:py-5 md:px-12 bg-blue-600 hover:bg-blue-700 font-black rounded-full text-lg md:text-xl shadow-2xl shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mb-4 disabled:opacity-60 w-full max-w-xs justify-center"
           >
-            {starting ? 'Starting...' : 'Launch AR Camera'}
-            <Play className="w-6 h-6 fill-current" />
+            {starting ? 'Starting...' : 'Launch AR'}
+            <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
           </button>
 
           <button onClick={handleExit} className="text-slate-500 hover:text-white font-bold transition-colors py-3">
@@ -415,7 +415,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
             playsInline
             muted
             className={`absolute inset-0 object-cover transition-all duration-500 ${
-              viewMode === 'camera' ? 'w-full h-full z-0' : 'w-36 h-52 top-6 left-6 z-50 rounded-2xl border-2 border-white/20 shadow-2xl cursor-pointer'
+              viewMode === 'camera' ? 'w-full h-full z-0' : 'w-24 h-36 md:w-36 md:h-52 top-4 left-4 md:top-6 md:left-6 z-50 rounded-2xl border-2 border-white/20 shadow-2xl cursor-pointer'
             }`}
             onClick={() => viewMode === 'map' && setViewMode('camera')}
           />
@@ -444,51 +444,51 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           {/* PiP map (camera mode) */}
           {viewMode === 'camera' && (
             <div
-              className="absolute top-8 right-6 z-20 w-40 h-40 rounded-[1.5rem] border-4 border-white/20 shadow-2xl overflow-hidden cursor-pointer hover:scale-105 transition-transform"
+              className="absolute top-4 right-4 md:top-8 md:right-6 z-20 w-28 h-28 md:w-40 md:h-40 rounded-[1rem] md:rounded-[1.5rem] border-2 md:border-4 border-white/20 shadow-2xl overflow-hidden cursor-pointer hover:scale-105 transition-transform"
               onClick={() => setViewMode('map')}
             >
               {LeafletMap ? (
                 <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} />
               ) : (
-                <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-xs font-bold">MAP</div>
+                <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px] md:text-xs font-bold">MAP</div>
               )}
             </div>
           )}
 
           {/* Top instruction bar */}
-          <div className={`absolute top-8 ${viewMode === 'camera' ? 'left-6' : 'left-1/2 -translate-x-1/2'} z-30 flex items-center gap-3 bg-black/70 backdrop-blur-xl rounded-3xl px-5 py-4 shadow-2xl border border-white/10`}>
-            <span className={`text-3xl font-black ${instr.color}`}>{instr.arrow}</span>
-            <div>
-              <p className={`font-black text-lg ${instr.color}`}>{instr.text}</p>
-              <p className="text-white/60 text-sm">{formatDist(distance)}</p>
+          <div className={`absolute top-4 md:top-8 ${viewMode === 'camera' ? 'left-4 md:left-6 max-w-[calc(100vw-9rem)]' : 'left-1/2 -translate-x-1/2'} z-30 flex items-center gap-2 md:gap-3 bg-black/70 backdrop-blur-xl rounded-2xl md:rounded-3xl px-4 py-3 md:px-5 md:py-4 shadow-2xl border border-white/10`}>
+            <span className={`text-2xl md:text-3xl font-black ${instr.color}`}>{instr.arrow}</span>
+            <div className="truncate">
+              <p className={`font-black text-sm md:text-lg truncate ${instr.color}`}>{instr.text}</p>
+              <p className="text-white/60 text-xs md:text-sm truncate">{formatDist(distance)}</p>
             </div>
           </div>
 
           {/* Close button */}
           <button
             onClick={handleExit}
-            className="absolute top-8 right-6 z-50 p-3 bg-red-500/90 hover:bg-red-500 text-white rounded-full shadow-2xl transition-all"
+            className="absolute top-4 right-4 md:top-8 md:right-6 z-50 p-2 md:p-3 bg-red-500/90 hover:bg-red-500 text-white rounded-full shadow-2xl transition-all"
             style={{ display: viewMode === 'camera' ? 'none' : 'flex' }}
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
           {viewMode === 'camera' && (
-            <button onClick={handleExit} className="absolute bottom-8 right-6 z-20 p-4 bg-red-500/80 hover:bg-red-500 text-white rounded-full shadow-2xl">
-              <X className="w-6 h-6" />
+            <button onClick={handleExit} className="absolute bottom-24 right-4 md:bottom-8 md:right-6 z-20 p-3 md:p-4 bg-red-500/80 hover:bg-red-500 text-white rounded-full shadow-2xl">
+              <X className="w-5 h-5 md:w-6 md:h-6" />
             </button>
           )}
 
           {/* Mode toggle */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex bg-black/60 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-2xl gap-1">
+          <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex bg-black/60 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-2xl gap-1 w-max">
             <button
               onClick={() => setViewMode('camera')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all ${viewMode === 'camera' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-300 hover:text-white'}`}
+              className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-xs md:text-sm transition-all ${viewMode === 'camera' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-300 hover:text-white'}`}
             >
               <CameraIcon className="w-4 h-4" /> AR
             </button>
             <button
               onClick={() => setViewMode('map')}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all ${viewMode === 'map' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-300 hover:text-white'}`}
+              className={`flex items-center gap-1.5 md:gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full font-bold text-xs md:text-sm transition-all ${viewMode === 'map' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-300 hover:text-white'}`}
             >
               <Map className="w-4 h-4" /> Map
             </button>
@@ -496,11 +496,11 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
 
           {/* Arrived modal */}
           {distance !== null && distance < 10 && distance > 0 && (
-            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
-              <div className="bg-white rounded-[3rem] w-full max-w-sm p-10 text-center shadow-2xl flex flex-col items-center">
-                <div className="text-6xl mb-4">🏁</div>
-                <h2 className="text-3xl font-black text-slate-900 mb-2">You Arrived!</h2>
-                <p className="text-slate-500 mb-4">Welcome to <strong>{displayName}</strong></p>
+            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-6">
+              <div className="bg-white rounded-[2rem] md:rounded-[3rem] w-full max-w-sm p-6 md:p-10 text-center shadow-2xl flex flex-col items-center">
+                <div className="text-5xl md:text-6xl mb-3 md:mb-4">🏁</div>
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-1 md:mb-2">You Arrived!</h2>
+                <p className="text-slate-500 mb-4 text-sm md:text-base">Welcome to <strong>{displayName}</strong></p>
                 
                 {showDescription && (
                   <div className="w-full bg-slate-50 p-4 rounded-2xl mb-6 text-sm text-slate-600 text-left border border-slate-100 max-h-40 overflow-y-auto">
