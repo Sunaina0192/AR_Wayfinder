@@ -22,27 +22,29 @@ const NavigationHistory = ({ history, onSelect, isDarkMode }) => {
 
       {history.length > 0 ? (
         <div className="space-y-3">
-          {history.map((record) => (
+          {history.slice(0, 5).map((record) => (
             <button
               type="button"
               key={`${record.id}-${record.createdAt}`}
               onClick={() => onSelect(record.destinationId || record.id)}
-              className={`w-full rounded-2xl p-4 text-left transition-all duration-300 flex items-center justify-between group border ${
+              className={`w-full rounded-2xl px-5 py-4 text-left transition-all duration-300 flex items-center justify-between group border shadow-sm hover:shadow-md ${
                 isDarkMode 
-                  ? 'bg-white/5 border-white/5 hover:bg-white/10' 
-                  : 'bg-slate-50 border-slate-100 hover:bg-blue-50 hover:border-blue-100'
+                  ? 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10' 
+                  : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200'
               }`}
             >
               <div>
-                <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{record.name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <Clock3 className="w-3 h-3 text-slate-500" />
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                <p className={`text-[15px] font-medium tracking-tight transition-colors duration-300 ${isDarkMode ? 'text-slate-200 group-hover:text-white' : 'text-slate-700 group-hover:text-slate-900'}`}>{record.name}</p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <Clock3 className={`w-3.5 h-3.5 transition-colors duration-300 ${isDarkMode ? 'text-slate-500 group-hover:text-slate-400' : 'text-slate-400 group-hover:text-slate-600'}`} />
+                  <p className={`text-[11px] font-medium tracking-wide transition-colors duration-300 ${isDarkMode ? 'text-slate-500 group-hover:text-slate-400' : 'text-slate-500 group-hover:text-slate-700'}`}>
                     {new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-blue-500 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+              <div className={`p-2 rounded-xl transition-all duration-300 transform translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 ${isDarkMode ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <ArrowRight className="w-4 h-4" />
+              </div>
             </button>
           ))}
         </div>

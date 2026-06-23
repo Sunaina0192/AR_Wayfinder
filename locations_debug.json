@@ -609,6 +609,22 @@
   },
   {
     "coordinates": {
+      "x": 31.421971,
+      "y": 75.808893
+    },
+    "_id": "6a37c5409f32a824398153a1",
+    "locationId": "Library ",
+    "name": "Library",
+    "description": "",
+    "category": "Facilities",
+    "explorerCategory": "Facilities",
+    "icon": "📍",
+    "createdAt": "2026-06-21T11:04:32.481Z",
+    "updatedAt": "2026-06-21T11:04:32.481Z",
+    "__v": 0
+  },
+  {
+    "coordinates": {
       "x": 31.420579,
       "y": 75.808899
     },
@@ -957,6 +973,22 @@
     "icon": "01",
     "createdAt": "2026-06-18T10:46:40.570Z",
     "updatedAt": "2026-06-18T10:46:40.570Z",
+    "__v": 0
+  },
+  {
+    "coordinates": {
+      "x": 30.677873,
+      "y": 76.723172
+    },
+    "_id": "6a35151712a0f25b2528ec9b",
+    "locationId": "mall",
+    "name": "mall",
+    "description": "mall",
+    "category": "Facilities",
+    "explorerCategory": "Facilities",
+    "icon": "📍",
+    "createdAt": "2026-06-19T10:08:23.196Z",
+    "updatedAt": "2026-06-19T10:08:23.196Z",
     "__v": 0
   },
   {

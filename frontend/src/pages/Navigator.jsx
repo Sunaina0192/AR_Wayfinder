@@ -11,9 +11,7 @@ import { useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchHistory, saveHistoryItem } from '../api/historyApi';
 import ARNavigator from '../components/ARNavigator';
-import MapView from '../components/MapView';
 import LocationSearch from '../components/LocationSearch';
-import RouteSummary from '../components/RouteSummary';
 import NavigationHistory from '../components/NavigationHistory';
 import FeatureHighlights from '../components/FeatureHighlights';
 import PathDisplay from '../components/PathDisplay';
@@ -85,9 +83,21 @@ const Navigator = () => {
           };
         });
 
-        setAllLocations(backendLocs);
+        // Merge backend locations with local campusLocations
+        const mergedLocations = [...campusLocations];
+        backendLocs.forEach(bLoc => {
+          const idx = mergedLocations.findIndex(cLoc => cLoc.id === bLoc.id);
+          if (idx >= 0) {
+            mergedLocations[idx] = { ...mergedLocations[idx], ...bLoc };
+          } else {
+            mergedLocations.push(bLoc);
+          }
+        });
+
+        setAllLocations(mergedLocations);
       } catch (error) {
         console.error('Unable to load backend locations', error);
+        setAllLocations(campusLocations); // Fallback to local hardcoded locations
       }
     };
 
@@ -230,34 +240,19 @@ const Navigator = () => {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3 mb-12">
-          <div className="lg:col-span-2 space-y-8">
-            <LocationSearch
-              query={searchQuery}
-              onChange={setSearchQuery}
-              results={filteredLocations}
-              onSelect={(id) => handleLocationSelect(id, true)}
-              isDarkMode={isDarkMode}
-              allLocations={allLocations}
-            />
-            <div className={`rounded-3xl overflow-hidden shadow-2xl border ${isDarkMode ? 'border-white/10' : 'border-white'}`}>
-              <MapView
-                selectedLocation={selectedLocation}
-                activePath={activePath}
-                onLocationSelect={(id) => handleLocationSelect(id)}
-              />
-            </div>
-            <PathDisplay directions={directions} isDarkMode={isDarkMode} />
-          </div>
+        <div className="space-y-8 mb-12">
+          <LocationSearch
+            query={searchQuery}
+            onChange={setSearchQuery}
+            results={filteredLocations}
+            onSelect={(id) => handleLocationSelect(id, true)}
+            isDarkMode={isDarkMode}
+            allLocations={allLocations}
+            selectedCategory={selectedCategory}
+          />
+          <PathDisplay directions={directions} isDarkMode={isDarkMode} />
 
-          <div className="space-y-8">
-            <RouteSummary
-              selectedLocation={selectedLocation}
-              distance={distance}
-              stepCount={directions.length}
-              isDarkMode={isDarkMode}
-            />
-
+          <div className="grid md:grid-cols-2 gap-8">
             {/* Quick Access Section */}
             <div className={`p-8 rounded-[2.5rem] ${isDarkMode ? 'bg-white/5 border border-white/10' : 'bg-white border border-white/50 shadow-xl'}`}>
               <div className="flex items-center gap-3 mb-6">
@@ -272,7 +267,7 @@ const Navigator = () => {
                       <button
                         key={id}
                         onClick={() => handleLocationSelect(id, true)}
-                        className={`w-full p-4 rounded-2xl flex items-center justify-between group transition-all ${isDarkMode ? 'hover:bg-white/5' : 'hover:bg-blue-50'}`}
+                        className={`w-full p-4 rounded-2xl flex items-center justify-between group transition-all ${isDarkMode ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-blue-500">{getCategoryIcon(loc.category, "w-6 h-6")}</span>

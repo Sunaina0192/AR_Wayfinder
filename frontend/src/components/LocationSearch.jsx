@@ -4,9 +4,40 @@ import { campusLocations } from '../data/locations'
 
 const popularDestinationIds = ['library', 'admission-cell', 'workshop-center', 'stadium']
 
-const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode, allLocations = [] }) => {
+const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode, allLocations = [], selectedCategory = 'All' }) => {
   const popularDestinations = allLocations.filter((location) => 
     popularDestinationIds.includes(location.id)
+  )
+
+  const renderLocationButton = (location, showIconBox = true) => (
+    <button
+      key={location.id}
+      onClick={() => onSelect(location.id)}
+      className={`text-left rounded-2xl px-5 py-4 transition-all duration-300 flex items-center justify-between group ${
+        isDarkMode 
+          ? 'bg-white/5 hover:bg-white/10 border border-white/5 text-slate-400 hover:text-white' 
+          : 'bg-slate-50/50 hover:bg-blue-50 border border-slate-100 hover:border-blue-100 text-slate-600 hover:text-blue-600 shadow-sm'
+      }`}
+    >
+      <div className="flex items-center gap-4">
+        {showIconBox ? (
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110 ${
+            isDarkMode ? 'bg-white/5' : 'bg-white shadow-sm'
+          }`}>
+            {location.icon || <MapPin className="w-5 h-5" />}
+          </div>
+        ) : (
+          <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-slate-600' : 'text-blue-500'}`} />
+        )}
+        <div>
+          <p className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{location.name}</p>
+          {location.description && showIconBox && (
+            <p className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-500'}`}>{location.description}</p>
+          )}
+        </div>
+      </div>
+      <MapPin className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all text-blue-500 -translate-x-2 group-hover:translate-x-0" />
+    </button>
   )
 
   return (
@@ -35,7 +66,7 @@ const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode, allLoc
           value={query}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Where would you like to go?"
-          className={`w-full rounded-2xl px-6 py-5 pr-14 text-lg transition-all duration-300 focus:outline-none focus:ring-4 ${
+          className={`w-full rounded-2xl px-6 py-5 pr-14 text-lg transition-all duration-300 focus:outline-none focus:ring-4 cursor-default ${
             isDarkMode 
               ? 'bg-white/5 border-white/10 text-white placeholder:text-slate-600 focus:ring-blue-500/20 focus:bg-white/10' 
               : 'bg-slate-50 border-slate-100 text-slate-900 placeholder:text-slate-400 focus:ring-blue-500/10 focus:bg-white focus:border-blue-200'
@@ -47,52 +78,34 @@ const LocationSearch = ({ query, onChange, results, onSelect, isDarkMode, allLoc
       </div>
 
       <div className="grid gap-3">
-        {results.length > 0 ? (
-          results.slice(0, 5).map((location) => (
-            <button
-              key={location.id}
-              onClick={() => onSelect(location.id)}
-              className={`text-left rounded-2xl px-5 py-4 transition-all duration-300 flex items-center justify-between group ${
-                isDarkMode 
-                  ? 'bg-white/5 hover:bg-white/10 border border-white/5' 
-                  : 'bg-slate-50/50 hover:bg-blue-50 border border-slate-100 hover:border-blue-100'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110 ${
-                  isDarkMode ? 'bg-white/5' : 'bg-white shadow-sm'
-                }`}>
-                  {location.icon}
-                </div>
-                <div>
-                  <p className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{location.name}</p>
-                  <p className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-500'}`}>{location.description}</p>
-                </div>
-              </div>
-              <MapPin className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-all text-blue-500 -translate-x-2 group-hover:translate-x-0" />
-            </button>
-          ))
+        {query ? (
+          results.length > 0 ? (
+            results.slice(0, 5).map((location) => renderLocationButton(location, true))
+          ) : (
+            <div className="py-4 text-center">
+              <p className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>No locations found.</p>
+            </div>
+          )
+        ) : selectedCategory !== 'All' ? (
+          <div className="py-4">
+            <p className={`text-xs font-black uppercase tracking-widest mb-4 ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
+              {selectedCategory} Places
+            </p>
+            <div className="grid gap-3">
+              {results.length > 0 ? (
+                results.map((location) => renderLocationButton(location, false))
+              ) : (
+                <p className={`text-sm ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>No places found in this category.</p>
+              )}
+            </div>
+          </div>
         ) : popularDestinations.length > 0 ? (
           <div className="py-4">
             <p className={`text-xs font-black uppercase tracking-widest mb-4 ${isDarkMode ? 'text-slate-600' : 'text-slate-400'}`}>
               Recommended for you
             </p>
             <div className="grid gap-3">
-              {popularDestinations.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => onSelect(item.id)}
-                  className={`flex items-center gap-4 rounded-2xl px-5 py-4 transition-all duration-300 border ${
-                    isDarkMode 
-                      ? 'bg-white/5 border-white/5 hover:bg-white/10 text-slate-400 hover:text-white' 
-                      : 'bg-white border-slate-100 hover:bg-blue-50 hover:border-blue-100 text-slate-600 hover:text-blue-600 shadow-sm'
-                  }`}
-                >
-                  <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-slate-600' : 'text-blue-500'}`} />
-                  <span className="text-sm font-bold">{item.name}</span>
-                </button>
-              ))}
+              {popularDestinations.map((item) => renderLocationButton(item, false))}
             </div>
           </div>
         ) : null}

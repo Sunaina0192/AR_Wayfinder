@@ -3,11 +3,7 @@ import { MapPin, ArrowRight } from 'lucide-react'
 
 const PathDisplay = ({ directions, isDarkMode }) => {
   if (!directions || directions.length === 0) {
-    return (
-      <div className={`rounded-[2.5rem] p-8 border ${isDarkMode ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-white border-white shadow-xl text-slate-600'}`}>
-        <p className="font-medium">Path calculation results will appear here after destination selection.</p>
-      </div>
-    )
+    return null;
   }
 
   return (
