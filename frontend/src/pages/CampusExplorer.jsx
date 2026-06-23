@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Navigation, Star, Info, ChevronRight, Zap, Users, BookOpen, Trophy, Utensils, Dumbbell, Building2, Clock, ArrowRight } from 'lucide-react';
+import { MapPin, Navigation, Star, Info, ChevronRight, Zap, Users, BookOpen, Trophy, Utensils, Dumbbell, Building2, Clock, ArrowRight, Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { campusLocations } from '../data/locations';
 import CampusRealisticMap from '../components/CampusRealisticMap';
@@ -131,6 +131,30 @@ const CampusExplorer = () => {
               <CampusRealisticMap onBuildingSelect={handleBuildingSelect} />
             </div>
 
+            {/* Campus Video Tour */}
+            <div className="space-y-4">
+              <div>
+                <h2 className="text-2xl font-black text-white mb-2 flex items-center gap-3">
+                  <span className="w-10 h-10 bg-accent/20 border border-accent/50 rounded-lg flex items-center justify-center">
+                    <Play className="w-5 h-5 text-accent" fill="currentColor" />
+                  </span>
+                  Campus Video Tour
+                </h2>
+                <p className="text-slate-400 text-sm">Experience the vibrant life and world-class facilities at SBBSU</p>
+              </div>
+              <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/10 bg-dark shadow-2xl hover:border-accent/50 transition-all duration-300">
+                <iframe 
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/titdVU-mljQ?si=_h0W1uHFSJTRyk-b&loop=1&playlist=titdVU-mljQ&autoplay=1&mute=1" 
+                  title="YouTube video player" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  referrerPolicy="strict-origin-when-cross-origin" 
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
@@ -154,9 +178,9 @@ const CampusExplorer = () => {
                 return (
                   <div
                     key={i}
-                    className={`relative overflow-hidden rounded-2xl border border-white/10 p-8 bg-gradient-to-br ${highlight.color} opacity-10 hover:opacity-20 transition-all group cursor-pointer`}
+                    className="relative overflow-hidden rounded-2xl border border-white/10 p-8 bg-white/5 group cursor-pointer hover:border-white/20 transition-all duration-300"
                   >
-                    <div className="absolute inset-0 bg-dark/40 z-0"></div>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${highlight.color} opacity-10 group-hover:opacity-20 transition-opacity duration-300 z-0`}></div>
                     <div className="relative z-10">
                       <IconComponent className="w-12 h-12 text-white mb-4 group-hover:scale-110 transition-transform" />
                       <h3 className="text-xl font-black text-white mb-2 group-hover:text-accent transition-colors">{highlight.title}</h3>
