@@ -1,10 +1,10 @@
 import React, { Suspense, lazy } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import HomeFooter from './components/HomeFooter'
 import FrontPage from './pages/FrontPage'
 import FloatingContact from './components/FloatingContact'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 import AdminLayout from './components/AdminLayout';
 import { Toaster } from 'react-hot-toast';
@@ -55,7 +55,12 @@ const Loading = () => (
 
 const AppLayout = ({ children }) => {
   const location = useLocation();
+  const { user } = useAuth();
   const isFrontPage = location.pathname === '/';
+
+  if (!isFrontPage && !user && !sessionStorage.getItem('guest_access')) {
+    return <Navigate to="/" replace />;
+  }
 
   if (isFrontPage) {
     return <>{children}</>;

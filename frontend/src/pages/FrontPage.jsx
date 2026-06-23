@@ -206,7 +206,7 @@ const FrontPage = () => {
                       <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0"><ShieldCheck className="w-5 h-5" /></div>
                       <div><h3 className="text-white font-bold tracking-wider text-sm">Admin Login</h3><p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Staff and faculty portal</p></div>
                     </button>
-                    <button onClick={() => navigate('/explore-campus')} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                    <button onClick={() => { sessionStorage.setItem('guest_access', 'true'); navigate('/explore-campus'); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
                       <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0"><Users className="w-5 h-5" /></div>
                       <div><h3 className="text-white font-bold tracking-wider text-sm">New User / Visitor</h3><p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Explore campus directly</p></div>
                     </button>
