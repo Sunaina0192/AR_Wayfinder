@@ -308,22 +308,13 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
     }
   }, [phase, cameraReady, viewMode, drawArrows]);
 
-  // Lazy load Leaflet map component only when switching to map view
+  // Lazy load Leaflet map component when in AR navigation mode
   useEffect(() => {
-    if (viewMode !== 'map' || LeafletMap) return;
+    if (phase !== 'ar' || LeafletMap) return;
     import('react-leaflet').then(({ MapContainer, TileLayer, Marker, Polyline, useMap }) => {
       import('leaflet').then((L) => {
         import('leaflet/dist/leaflet.css');
 
-        const userIcon = L.default.divIcon({
-          className: 'bg-transparent',
-          html: `<div class="relative flex h-6 w-6 items-center justify-center">
-                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                   <span class="relative inline-flex rounded-full h-5 w-5 bg-blue-500 border-[3px] border-white shadow-lg"></span>
-                 </div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12],
-        });
         const destIcon = new L.default.Icon({
           iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
           shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -336,9 +327,8 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           return null;
         };
 
-        const MapComp = ({ userLoc, dLat, dLng, rData, heading, routeError }) => {
+        const MapComp = ({ userLoc, dLat, dLng, rData, heading, routeError, isMiniMap }) => {
           const [mapType, setMapType] = useState('street');
-          const [isCompassMode, setIsCompassMode] = useState(true);
           const tileUrl = mapType === 'street' 
             ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
@@ -356,43 +346,56 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
             </div>
           );
 
-          const currentRotation = isCompassMode ? (heading || 0) : 0;
+          const defaultZoom = isMiniMap ? 15 : 16;
+
+          // Dynamic user icon with a rotating direction beam/cone (Google Maps style)
+          const userIcon = L.default.divIcon({
+            className: 'bg-transparent',
+            html: `<div class="relative flex h-16 w-16 items-center justify-center">
+                     <!-- Dynamic rotating heading cone/beam -->
+                     <svg class="absolute w-16 h-16 pointer-events-none" viewBox="0 0 100 100" style="transform: rotate(${heading || 0}deg); transform-origin: 50% 50%; z-index: 1;">
+                       <defs>
+                         <radialGradient id="beamGrad" cx="50%" cy="50%" r="50%">
+                           <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.85"/>
+                           <stop offset="30%" stop-color="#3B82F6" stop-opacity="0.45"/>
+                           <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+                         </radialGradient>
+                       </defs>
+                       <path d="M 50 50 L 32 12 A 40 40 0 0 1 68 12 Z" fill="url(#beamGrad)"/>
+                     </svg>
+                     <!-- Pulsing outer ring -->
+                     <span class="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-blue-400 opacity-75 z-10"></span>
+                     <!-- Core blue location dot -->
+                     <span class="relative inline-flex rounded-full h-5 w-5 bg-blue-500 border-[3px] border-white shadow-lg z-20"></span>
+                   </div>`,
+            iconSize: [64, 64],
+            iconAnchor: [32, 32],
+          });
 
           return (
             <div className="relative w-full h-full overflow-hidden bg-slate-950">
-              <div 
-                className="absolute w-[160%] h-[160%] top-[-30%] left-[-30%] transition-transform duration-300 ease-out"
-                style={{ transform: `rotate(${-currentRotation}deg)` }}
-              >
-                <MapContainer center={[userLoc.lat, userLoc.lng]} zoom={18} className="w-full h-full" zoomControl={false}>
-                  <TileLayer url={tileUrl} />
-                  <Recenter lat={userLoc.lat} lng={userLoc.lng} />
-                  <Marker position={[userLoc.lat, userLoc.lng]} icon={userIcon} />
-                  <Marker position={[dLat, dLng]} icon={destIcon} />
-                  {rData && !routeError ? (
-                    <Polyline positions={rData} color={mapType === 'satellite' ? "#60A5FA" : "#3B82F6"} weight={6} opacity={0.8} />
-                  ) : (
-                    <Polyline positions={[[userLoc.lat, userLoc.lng], [dLat, dLng]]} color="#EF4444" weight={5} opacity={0.8} dashArray="12, 8" />
-                  )}
-                </MapContainer>
-              </div>
+              <MapContainer center={[userLoc.lat, userLoc.lng]} zoom={defaultZoom} className="w-full h-full" zoomControl={false}>
+                <TileLayer url={tileUrl} />
+                <Recenter lat={userLoc.lat} lng={userLoc.lng} />
+                <Marker position={[userLoc.lat, userLoc.lng]} icon={userIcon} />
+                <Marker position={[dLat, dLng]} icon={destIcon} />
+                {rData && !routeError ? (
+                  <Polyline positions={rData} color={mapType === 'satellite' ? "#60A5FA" : "#3B82F6"} weight={6} opacity={0.8} />
+                ) : (
+                  <Polyline positions={[[userLoc.lat, userLoc.lng], [dLat, dLng]]} color="#EF4444" weight={5} opacity={0.8} dashArray="12, 8" />
+                )}
+              </MapContainer>
               
-              <div className="absolute top-4 right-4 z-[999] flex flex-col gap-2">
-                <button 
-                  onClick={(e) => { e.stopPropagation(); setMapType(prev => prev === 'street' ? 'satellite' : 'street'); }}
-                  className="bg-white text-black px-4 py-2 rounded-xl shadow-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all text-center"
-                >
-                  {mapType === 'street' ? '🌳 Green Map' : '🗺️ Street Map'}
-                </button>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); setIsCompassMode(prev => !prev); }}
-                  className={`px-4 py-2 rounded-xl shadow-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all text-center ${
-                    isCompassMode ? 'bg-blue-600 text-white' : 'bg-white text-black'
-                  }`}
-                >
-                  🧭 {isCompassMode ? 'Heading Up' : 'North Up'}
-                </button>
-              </div>
+              {!isMiniMap && (
+                <div className="absolute top-4 right-4 z-[999] flex flex-col gap-2">
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setMapType(prev => prev === 'street' ? 'satellite' : 'street'); }}
+                    className="bg-white text-black px-4 py-2 rounded-xl shadow-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all text-center"
+                  >
+                    {mapType === 'street' ? '🌳 Green Map' : '🗺️ Street Map'}
+                  </button>
+                </div>
+              )}
             </div>
           );
         };
@@ -400,7 +403,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
         setLeafletMap(() => MapComp);
       });
     });
-  }, [viewMode, LeafletMap]);
+  }, [phase, LeafletMap]);
 
   // Cleanup on unmount
   useEffect(() => () => stopAll(), [stopAll]);
@@ -570,7 +573,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           {viewMode === 'map' && (
             <div className="absolute inset-0 z-0">
               {LeafletMap ? (
-                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} heading={userHeading} routeError={hasRouteError} />
+                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} heading={userHeading} routeError={hasRouteError} isMiniMap={false} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400">Loading map...</div>
               )}
@@ -584,7 +587,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
               onClick={() => setViewMode('map')}
             >
               {LeafletMap ? (
-                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} heading={userHeading} routeError={hasRouteError} />
+                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} heading={userHeading} routeError={hasRouteError} isMiniMap={true} />
               ) : (
                 <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px] md:text-xs font-bold">MAP</div>
               )}
