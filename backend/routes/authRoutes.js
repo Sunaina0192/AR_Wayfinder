@@ -94,20 +94,22 @@ router.post('/login', async (req, res) => {
     // Visitor Login (No Auth Required)
     if (role === 'Visitor') {
       const finalName = name || 'Guest Visitor';
+      const finalPhone = req.body.mobile || req.body.phoneNumber || 'N/A';
       const finalUserId = 'VISITOR_' + finalName.trim().replace(/\s+/g, '_').toUpperCase();
       
       const visitorData = {
         role,
         name: finalName,
         id: finalUserId,
-        email: `${finalName.toLowerCase().replace(/\s+/g, '.')}@visitor.com`
+        email: `${finalName.toLowerCase().replace(/\s+/g, '.')}@visitor.com`,
+        phoneNumber: finalPhone
       };
 
       await LoginRecord.create({
         userId: finalUserId,
         name: finalName,
         role,
-        purpose: purpose || 'Visit',
+        purpose: `Phone: ${finalPhone}`,
         loginTime: new Date()
       });
 

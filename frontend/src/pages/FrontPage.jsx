@@ -16,7 +16,7 @@ const FrontPage = () => {
   // Login State
   const [loginRole, setLoginRole] = useState(null);
   const [visitorName, setVisitorName] = useState('');
-  const [visitorPurpose, setVisitorPurpose] = useState('');
+  const [visitorPhone, setVisitorPhone] = useState('');
   const [userId, setUserId] = useState('');
   const [passkey, setPasskey] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -49,7 +49,7 @@ const FrontPage = () => {
     setLoginRole(null);
     setRegRole(null);
     setVisitorName('');
-    setVisitorPurpose('');
+    setVisitorPhone('');
     setUserId('');
     setPasskey('');
     setShowRegPopup(false);
@@ -72,6 +72,10 @@ const FrontPage = () => {
       if (!lettersOnlyRegex.test(visitorName)) {
         newErrors.visitorName = "Name must contain only letters.";
       }
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(visitorPhone)) {
+        newErrors.visitorPhone = "Phone number must be a 10-digit number.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -83,7 +87,7 @@ const FrontPage = () => {
     setIsLoggingIn(true);
     
     const extraData = loginRole === 'Visitor' 
-      ? { name: visitorName || 'Guest Visitor', purpose: visitorPurpose } 
+      ? { name: visitorName || 'Guest Visitor', mobile: visitorPhone } 
       : { userId, password: passkey };
       
     try {
@@ -206,7 +210,7 @@ const FrontPage = () => {
                       <div className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0"><ShieldCheck className="w-5 h-5" /></div>
                       <div><h3 className="text-white font-bold tracking-wider text-sm">Admin Login</h3><p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Staff and faculty portal</p></div>
                     </button>
-                    <button onClick={() => { sessionStorage.setItem('guest_access', 'true'); navigate('/explore-campus'); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
+                    <button onClick={() => { setLoginRole('Visitor'); setErrors({}); }} className="w-full group relative px-5 py-4 rounded-2xl bg-white/5 border border-white/10 hover:border-emerald-500/50 hover:bg-white/10 transition-all flex items-center gap-4 text-left">
                       <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0"><Users className="w-5 h-5" /></div>
                       <div><h3 className="text-white font-bold tracking-wider text-sm">New User / Visitor</h3><p className="text-[9px] text-slate-400 mt-0.5 uppercase tracking-wider">Explore campus directly</p></div>
                     </button>
@@ -226,13 +230,15 @@ const FrontPage = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                       {errors.submit && <div className="p-3 bg-red-500/20 border border-red-500/50 text-red-400 rounded-xl text-xs font-bold text-center">{errors.submit}</div>}
                       
-                      {loginRole === 'Visitor' ? (
+                       {loginRole === 'Visitor' ? (
                         <>
                           <div>
                             <input type="text" required value={visitorName} onChange={(e) => setVisitorName(e.target.value)} placeholder="Full Name" className="w-full glass border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                            {errors.visitorName && <p className="text-red-500 text-[10px] mt-1 ml-1 text-left">{errors.visitorName}</p>}
                           </div>
                           <div>
-                            <input type="text" required value={visitorPurpose} onChange={(e) => setVisitorPurpose(e.target.value)} placeholder="Purpose of Visit" className="w-full glass border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                            <input type="tel" required value={visitorPhone} onChange={(e) => setVisitorPhone(e.target.value)} placeholder="Phone Number" className="w-full glass border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                            {errors.visitorPhone && <p className="text-red-500 text-[10px] mt-1 ml-1 text-left">{errors.visitorPhone}</p>}
                           </div>
                         </>
                       ) : (
