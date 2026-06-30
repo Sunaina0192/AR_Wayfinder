@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X, AlertTriangle, Play, ArrowUp, ArrowRight, ArrowLeft, ArrowDown, Map, Camera as CameraIcon } from 'lucide-react';
+import { X, AlertTriangle, Play, ArrowUp, ArrowRight, ArrowLeft, ArrowDown, Map, Camera as CameraIcon, MapPin, Volume2, VolumeX, CheckCircle2 } from 'lucide-react';
 import { calculateDistance, calculateBearing } from '../utils/geo';
 const formatDist = (m) => {
   if (m === null) return 'Getting location...';
@@ -53,6 +53,52 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   const [cameraReady, setCameraReady] = useState(false);
   const [error, setError] = useState(null);
   const [starting, setStarting] = useState(false);
+
+  // Permissions and settings states
+  const [cameraPermission, setCameraPermission] = useState('idle'); // 'idle' | 'requesting' | 'granted' | 'denied'
+  const [locationPermission, setLocationPermission] = useState('idle'); // 'idle' | 'requesting' | 'granted' | 'denied'
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [countdown, setCountdown] = useState(0);
+
+  // Check permissions status on mount
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        if (navigator.permissions && navigator.permissions.query) {
+          const geoStatus = await navigator.permissions.query({ name: 'geolocation' });
+          if (geoStatus.state === 'granted') {
+            setLocationPermission('granted');
+          } else if (geoStatus.state === 'denied') {
+            setLocationPermission('denied');
+          }
+          geoStatus.onchange = () => {
+            if (geoStatus.state === 'granted') setLocationPermission('granted');
+            else if (geoStatus.state === 'denied') setLocationPermission('denied');
+            else setLocationPermission('idle');
+          };
+
+          try {
+            const camStatus = await navigator.permissions.query({ name: 'camera' });
+            if (camStatus.state === 'granted') {
+              setCameraPermission('granted');
+            } else if (camStatus.state === 'denied') {
+              setCameraPermission('denied');
+            }
+            camStatus.onchange = () => {
+              if (camStatus.state === 'granted') setCameraPermission('granted');
+              else if (camStatus.state === 'denied') setCameraPermission('denied');
+              else setCameraPermission('idle');
+            };
+          } catch (e) {
+            // Camera status query not supported on Firefox/Safari, ignore
+          }
+        }
+      } catch (err) {
+        console.warn('Permissions query error:', err);
+      }
+    };
+    checkPermissions();
+  }, []);
 
   const [userHeading, setUserHeading] = useState(0);
   const [userLocation, setUserLocation] = useState(null);
@@ -112,6 +158,12 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       navigator.geolocation?.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setCameraPermission('idle');
+    setLocationPermission('idle');
+    setCameraReady(false);
   }, []);
 
   // Exit handler
@@ -408,10 +460,10 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   // Cleanup on unmount
   useEffect(() => () => stopAll(), [stopAll]);
 
-  // Start camera
-  const startCamera = async () => {
+  // Request camera permission
+  const requestCamera = async () => {
+    setCameraPermission('requesting');
     setError(null);
-    setStarting(true);
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error('Camera requires HTTPS connection');
@@ -434,13 +486,131 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       });
       streamRef.current = stream;
       setCameraReady(true);
+      setCameraPermission('granted');
+      return true;
+    } catch (err) {
+      setError(err.message || 'Camera access denied.');
+      setCameraPermission('denied');
+      return false;
+    }
+  };
+
+  // Request location permission
+  const requestLocation = async () => {
+    setLocationPermission('requesting');
+    setError(null);
+    return new Promise((resolve) => {
+      if (!('geolocation' in navigator)) {
+        setError('Geolocation is not supported by your browser.');
+        setLocationPermission('denied');
+        resolve(false);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+          setLocationPermission('granted');
+          if (destLat && destLng) {
+            setDistance(Math.round(calculateDistance(position.coords.latitude, position.coords.longitude, destLat, destLng)));
+            setBearing(calculateBearing(position.coords.latitude, position.coords.longitude, destLat, destLng));
+          }
+          resolve(true);
+        },
+        (err) => {
+          setError('Location access denied: ' + err.message);
+          setLocationPermission('denied');
+          resolve(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  };
+
+  // Toggle voice instructions
+  const toggleSound = () => {
+    const newSoundState = !soundEnabled;
+    setSoundEnabled(newSoundState);
+    if (newSoundState && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance("Voice guide enabled");
+      const voices = window.speechSynthesis.getVoices();
+      const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('en'));
+      if (englishVoice) utterance.voice = englishVoice;
+      utterance.rate = 0.9;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // Transition to AR phase
+  const proceedToAR = useCallback(async () => {
+    setError(null);
+    setStarting(true);
+    try {
+      if (!streamRef.current) {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error('Camera requires HTTPS connection');
+        }
+
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+          try {
+            const permission = await DeviceOrientationEvent.requestPermission();
+            if (permission !== 'granted') {
+              throw new Error('Orientation/Motion sensor access was denied.');
+            }
+          } catch (perr) {
+            throw new Error('Sensor permission failed: ' + perr.message);
+          }
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' }, audio: false,
+        });
+        streamRef.current = stream;
+        setCameraReady(true);
+      }
       setPhase('ar');
     } catch (err) {
       setError(err.message || 'Camera access denied.');
+      setCameraPermission('denied');
     } finally {
       setStarting(false);
     }
+  }, []);
+
+  // Handle sequential permission request or proceed
+  const handleLaunchClick = async () => {
+    if (cameraPermission !== 'granted') {
+      const cameraSuccess = await requestCamera();
+      if (!cameraSuccess) return;
+    }
+    if (locationPermission !== 'granted') {
+      const locationSuccess = await requestLocation();
+      if (!locationSuccess) return;
+    }
+    if (cameraPermission === 'granted' && locationPermission === 'granted') {
+      proceedToAR();
+    }
   };
+
+  // Handle auto-proceed when both permissions are granted
+  useEffect(() => {
+    if (cameraPermission === 'granted' && locationPermission === 'granted' && phase === 'launch') {
+      setCountdown(2);
+      const interval = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            proceedToAR();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      setCountdown(0);
+    }
+  }, [cameraPermission, locationPermission, phase, proceedToAR]);
 
   // Attach video stream when video element mounts
   useEffect(() => {
@@ -494,7 +664,12 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   // Audio instruction
   const lastSpokenText = useRef('');
   useEffect(() => {
-    if (phase !== 'ar' || !window.speechSynthesis) return;
+    if (phase !== 'ar' || !window.speechSynthesis || !soundEnabled) {
+      if (!soundEnabled && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      return;
+    }
     if (instr.text && instr.text !== lastSpokenText.current && instr.text !== 'Locating you...') {
       lastSpokenText.current = instr.text;
       
@@ -508,38 +683,140 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     }
-  }, [instr.text, phase, distance]);
+  }, [instr.text, phase, distance, soundEnabled]);
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col overflow-hidden select-none">
 
       {/* ── LAUNCH SCREEN ── */}
       {phase === 'launch' && (
-        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white p-6 md:p-8 text-center">
-          <div className="text-5xl md:text-7xl mb-4 md:mb-6">🧭</div>
-          <h1 className="text-3xl md:text-4xl font-black mb-2 md:mb-3">AR Wayfinder</h1>
-          <p className="text-slate-400 mb-1 md:mb-2 max-w-sm text-sm md:text-base">Navigate to</p>
-          <p className="text-blue-400 font-black text-xl md:text-2xl mb-8 md:mb-10">{displayName}</p>
+        <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-6 md:p-8 text-center overflow-y-auto">
+          <div className="max-w-md w-full flex flex-col items-center">
+            <div className="text-5xl md:text-6xl mb-4 animate-bounce">🧭</div>
+            <h1 className="text-3xl md:text-4xl font-black mb-1 tracking-tight text-white bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-300">
+              AR Wayfinder
+            </h1>
+            <p className="text-slate-400 text-sm mb-4">
+              Navigate to <span className="text-blue-400 font-extrabold">{displayName}</span>
+            </p>
 
-          {error && (
-            <div className="mb-8 p-4 bg-red-500/20 text-red-400 rounded-2xl flex items-center gap-3 max-w-sm">
-              <AlertTriangle className="w-6 h-6 shrink-0" />
-              <span className="text-sm">{error}</span>
+            {error && (
+              <div className="w-full mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl flex items-center gap-3 text-left">
+                <AlertTriangle className="w-5 h-5 shrink-0" />
+                <span className="text-xs font-semibold leading-relaxed">{error}</span>
+              </div>
+            )}
+
+            {/* Permission Checklist Card */}
+            <div className="w-full glass rounded-3xl p-5 mb-6 text-left space-y-4 border border-white/10">
+              <h2 className="text-lg font-extrabold text-white/90 border-b border-white/5 pb-2 mb-2 flex items-center gap-2">
+                <span>🔧</span> Quick Setup & Permissions
+              </h2>
+
+              {/* Camera Card */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-xl ${cameraPermission === 'granted' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                    <CameraIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Camera View</h3>
+                    <p className="text-[11px] text-slate-400 leading-tight">Required to overlay directions in AR mode</p>
+                  </div>
+                </div>
+                <div>
+                  {cameraPermission === 'granted' ? (
+                    <span className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-xs font-black px-3 py-1.5 rounded-full border border-emerald-500/30">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Granted
+                    </span>
+                  ) : (
+                    <button
+                      onClick={requestCamera}
+                      disabled={cameraPermission === 'requesting'}
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white text-xs font-black rounded-full transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      {cameraPermission === 'requesting' ? 'Allowing...' : 'Allow'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Location Card */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-xl ${locationPermission === 'granted' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Location Services</h3>
+                    <p className="text-[11px] text-slate-400 leading-tight">Required to track your route on campus</p>
+                  </div>
+                </div>
+                <div>
+                  {locationPermission === 'granted' ? (
+                    <span className="flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-xs font-black px-3 py-1.5 rounded-full border border-emerald-500/30">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Granted
+                    </span>
+                  ) : (
+                    <button
+                      onClick={requestLocation}
+                      disabled={locationPermission === 'requesting'}
+                      className="px-4 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white text-xs font-black rounded-full transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      {locationPermission === 'requesting' ? 'Allowing...' : 'Allow'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Audio Card */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-xl ${soundEnabled ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-700/20 text-slate-400'}`}>
+                    {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Voice Guidance</h3>
+                    <p className="text-[11px] text-slate-400 leading-tight">Spoken directions for hands-free walks</p>
+                  </div>
+                </div>
+                <div>
+                  <button
+                    onClick={toggleSound}
+                    className={`w-14 h-7 rounded-full p-1 transition-all duration-300 cursor-pointer ${soundEnabled ? 'bg-blue-600' : 'bg-slate-700'}`}
+                  >
+                    <div className={`bg-white w-5 h-5 rounded-full shadow-md transition-all duration-300 ${soundEnabled ? 'translate-x-7' : 'translate-x-0'}`} />
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
 
-          <button
-            onClick={startCamera}
-            disabled={starting}
-            className="py-4 px-8 md:py-5 md:px-12 bg-blue-600 hover:bg-blue-700 font-black rounded-full text-lg md:text-xl shadow-2xl shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mb-4 disabled:opacity-60 w-full max-w-xs justify-center"
-          >
-            {starting ? 'Starting...' : 'Launch AR'}
-            <Play className="w-5 h-5 md:w-6 md:h-6 fill-current" />
-          </button>
+            {/* Launch Action Button */}
+            {countdown > 0 ? (
+              <div className="w-full py-4 bg-emerald-600/90 text-white font-black rounded-full text-lg shadow-2xl flex items-center justify-center gap-2 animate-pulse">
+                <span>🚀 Starting navigation in {countdown}s...</span>
+              </div>
+            ) : (
+              <button
+                onClick={handleLaunchClick}
+                disabled={starting}
+                className={`w-full py-4 px-8 font-black rounded-full text-lg shadow-2xl transition-all flex items-center justify-center gap-3 mb-2 cursor-pointer ${
+                  cameraPermission === 'granted' && locationPermission === 'granted'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-blue-500/30 hover:scale-105 active:scale-95'
+                    : 'bg-slate-800 text-slate-500 border border-slate-700 hover:bg-slate-750'
+                }`}
+              >
+                {cameraPermission === 'granted' && locationPermission === 'granted'
+                  ? 'Start AR Navigation'
+                  : 'Grant Permissions to Start'}
+                <Play className="w-5 h-5 fill-current" />
+              </button>
+            )}
 
-          <button onClick={handleExit} className="text-slate-500 hover:text-white font-bold transition-colors py-3">
-            Cancel
-          </button>
+            <button onClick={handleExit} className="text-slate-500 hover:text-white font-bold transition-colors py-3 text-sm cursor-pointer">
+              Cancel & Exit
+            </button>
+          </div>
         </div>
       )}
 
@@ -616,6 +893,18 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
               <X className="w-5 h-5 md:w-6 md:h-6" />
             </button>
           )}
+
+          {/* Sound toggle button */}
+          <button
+            onClick={toggleSound}
+            className={`absolute bottom-24 left-4 md:bottom-8 md:left-6 z-20 p-3 md:p-4 rounded-full shadow-2xl transition-all cursor-pointer ${
+              soundEnabled 
+                ? 'bg-blue-600/80 hover:bg-blue-600 text-white shadow-blue-500/20' 
+                : 'bg-slate-800/80 hover:bg-slate-700 text-slate-400 border border-slate-700'
+            }`}
+          >
+            {soundEnabled ? <Volume2 className="w-5 h-5 md:w-6 md:h-6" /> : <VolumeX className="w-5 h-5 md:w-6 md:h-6" />}
+          </button>
 
           {/* Mode toggle */}
           <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex bg-black/60 backdrop-blur-xl p-1.5 rounded-full border border-white/10 shadow-2xl gap-1 w-max">

@@ -785,6 +785,22 @@
   },
   {
     "coordinates": {
+      "x": 30.680285,
+      "y": 76.727551
+    },
+    "_id": "6a4383694dbbf31e494948c1",
+    "locationId": "Prerna Pg testing",
+    "name": "Prerna PG testing",
+    "description": "Prerna PG testing",
+    "category": "Facilities",
+    "explorerCategory": "Facilities",
+    "icon": "📍",
+    "createdAt": "2026-06-30T08:50:49.387Z",
+    "updatedAt": "2026-06-30T08:50:49.387Z",
+    "__v": 0
+  },
+  {
+    "coordinates": {
       "x": 30.923748,
       "y": 77.098634
     },
