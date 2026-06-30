@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, RotateCw, Maximize2, Navigation as NavIcon } from 'lucide-react';
 
@@ -9,6 +10,7 @@ const Campus3DMap = ({ onBuildingSelect }) => {
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
   const rendererRef = useRef(null);
+  const controlsRef = useRef(null);
   const minimapCameraRef = useRef(null);
   const minimapRendererRef = useRef(null);
   const buildingsRef = useRef([]);
@@ -48,13 +50,20 @@ const Campus3DMap = ({ onBuildingSelect }) => {
     camera.position.set(0, 12, 18);
     cameraRef.current = camera;
 
-    // Main Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight - 150);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowShadowMap;
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera from going below ground
+    controls.minDistance = 1; // Allows zooming in very close
+    controls.maxDistance = 150; // Allows zooming out further
+    controlsRef.current = controls;
 
     // Lights
     const ambientLight = new THREE.AmbientLight(0x4488ff, 0.8);
@@ -271,12 +280,9 @@ const Campus3DMap = ({ onBuildingSelect }) => {
     const animate = () => {
       animationId = requestAnimationFrame(animate);
 
-      if (autoRotate) {
-        camera.position.x = Math.sin(Date.now() * 0.0002) * 22;
-        camera.position.z = Math.cos(Date.now() * 0.0002) * 22;
-      }
-
-      camera.lookAt(scene.position);
+      controls.autoRotate = autoRotate;
+      controls.autoRotateSpeed = 1.5;
+      controls.update();
 
       renderer.render(scene, camera);
     };
@@ -294,8 +300,10 @@ const Campus3DMap = ({ onBuildingSelect }) => {
   }, [onBuildingSelect, autoRotate]);
 
   const handleResetView = () => {
-    if (cameraRef.current) {
+    if (cameraRef.current && controlsRef.current) {
       cameraRef.current.position.set(0, 12, 18);
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
       setAutoRotate(true);
     }
   };

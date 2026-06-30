@@ -3,6 +3,7 @@ import axios from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Search, Plus, Pencil, Trash2, X, CheckCircle, XCircle, Briefcase, GraduationCap, Phone, Mail } from 'lucide-react';
+import { PhoneInput, isValidMobile, detectCountry } from '../components/PhoneInput';
 
 const AdminTeachers = () => {
   const { user, token } = useAuth();
@@ -78,6 +79,11 @@ const AdminTeachers = () => {
   const handleAddSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    if (!isValidMobile(formData.mobile)) {
+      const country = detectCountry(formData.mobile);
+      setFormError(`Mobile number must be exactly ${country.length} digits.`);
+      return;
+    }
     try {
       const dataToSubmit = {
         ...formData,
@@ -98,6 +104,11 @@ const AdminTeachers = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
+    if (!isValidMobile(formData.mobile)) {
+      const country = detectCountry(formData.mobile);
+      setFormError(`Mobile number must be exactly ${country.length} digits.`);
+      return;
+    }
     try {
       const dataToSubmit = {
         ...formData,
@@ -289,10 +300,11 @@ const AdminTeachers = () => {
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Email *</label>
                     <input type="email" name="email" value={formData.email} onChange={handleInputChange} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Mobile *</label>
-                    <input type="text" name="mobile" value={formData.mobile} onChange={handleInputChange} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                  </div>
+                  <PhoneInput
+                    label="Mobile *"
+                    value={formData.mobile}
+                    onChange={val => setFormData(prev => ({ ...prev, mobile: val }))}
+                  />
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Qualification *</label>
                     <input type="text" name="qualification" value={formData.qualification} onChange={handleInputChange} required placeholder="e.g. Ph.D Computer Science" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />

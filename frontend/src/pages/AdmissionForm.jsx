@@ -6,6 +6,7 @@ import {
   Upload, CheckCircle, ChevronRight, ChevronLeft,
   GraduationCap, ClipboardList, Camera, AlertCircle, Lock
 } from 'lucide-react';
+import { PhoneInput, isValidMobile, detectCountry } from '../components/PhoneInput';
 
 const STEPS = ['Personal Details', 'Address', 'Academic Details', 'Documents', 'Review & Submit'];
 
@@ -33,7 +34,6 @@ const initialForm = {
 // ─── Validation helpers ────────────────────────────────────────────────────
 
 const isValidGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email);
-const isValidMobile = (mobile) => /^\d{10}$/.test(mobile);
 const isValidDocumentBase64 = (data) => typeof data === 'string' && data.startsWith('data:image/');
 const isAcceptedImageType = (file) => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type);
 
@@ -215,14 +215,12 @@ const AdmissionForm = () => {
   };
 
   // ── Mobile handler ─────────────────────────────────────────────────────
-  const handleMobileChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, ''); // strip non-digits
-    if (raw.length <= 10) {
-      set('mobile', raw);
-    }
+  const handleMobileChange = (val) => {
+    set('mobile', val);
     // Live validation
-    if (raw.length > 0 && raw.length !== 10) {
-      setFieldErrors(prev => ({ ...prev, mobile: 'Mobile number must be exactly 10 digits.' }));
+    if (val && !isValidMobile(val)) {
+      const country = detectCountry(val);
+      setFieldErrors(prev => ({ ...prev, mobile: `Mobile number must be exactly ${country.length} digits.` }));
     } else {
       setFieldErrors(prev => ({ ...prev, mobile: '' }));
     }
@@ -287,7 +285,10 @@ const AdmissionForm = () => {
     if (!form.dob) errs.dob = 'Date of birth is required.';
     if (!form.gender) errs.gender = 'Please select gender.';
     if (!form.mobile) errs.mobile = 'Mobile number is required.';
-    else if (!isValidMobile(form.mobile)) errs.mobile = 'Mobile number must be exactly 10 digits.';
+    else if (!isValidMobile(form.mobile)) {
+      const country = detectCountry(form.mobile);
+      errs.mobile = `Mobile number must be exactly ${country.length} digits.`;
+    }
     if (!form.email) errs.email = 'Email is required.';
     else if (!isValidGmail(form.email)) errs.email = 'Only Gmail addresses are allowed (e.g. name@gmail.com).';
     if (!form.password) errs.password = 'Password is required.';
@@ -434,7 +435,7 @@ const AdmissionForm = () => {
           <InputField label="Mother's Name" icon={User} value={form.motherName} onChange={e => set('motherName', e.target.value)} error={fieldErrors.motherName} />
           <InputField label="Date of Birth" type="date" value={form.dob} onChange={e => set('dob', e.target.value)} error={fieldErrors.dob} />
           <SelectField label="Gender" value={form.gender} onChange={e => set('gender', e.target.value)} options={['Male', 'Female', 'Other']} error={fieldErrors.gender} />
-          <InputField label="Mobile Number" icon={Phone} type="tel" value={form.mobile} onChange={handleMobileChange} placeholder="Enter 10-digit mobile" maxLength={10} error={fieldErrors.mobile} />
+          <PhoneInput label="Mobile Number" value={form.mobile} onChange={handleMobileChange} error={fieldErrors.mobile} />
           <InputField label="Email Address" icon={Mail} type="email" value={form.email} onChange={handleEmailChange} placeholder="Enter Gmail address" error={fieldErrors.email} />
           <div className="sm:col-span-2">
             <InputField label="Create Password" icon={Lock} type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Create a strong password" error={fieldErrors.password} />

@@ -5,6 +5,7 @@ import { ArrowRight, X, User, Lock, LogIn, GraduationCap, ShieldCheck, Users, Cl
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import { PhoneInput, isValidMobile, detectCountry } from '../components/PhoneInput';
 
 const FrontPage = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -72,9 +73,9 @@ const FrontPage = () => {
       if (!lettersOnlyRegex.test(visitorName)) {
         newErrors.visitorName = "Name must contain only letters.";
       }
-      const phoneRegex = /^[0-9]{10}$/;
-      if (!phoneRegex.test(visitorPhone)) {
-        newErrors.visitorPhone = "Phone number must be a 10-digit number.";
+      if (!isValidMobile(visitorPhone)) {
+        const country = detectCountry(visitorPhone);
+        newErrors.visitorPhone = `Phone number must be a ${country.length}-digit number.`;
       }
     }
 
@@ -109,6 +110,19 @@ const FrontPage = () => {
     setErrors({});
     setRegSuccess('');
     setIsRegistering(true);
+
+    if (regRole === 'Student' && !isValidMobile(regData.phoneNumber)) {
+      setIsRegistering(false);
+      const country = detectCountry(regData.phoneNumber);
+      setErrors({ submit: `Phone number must be exactly ${country.length} digits.` });
+      return;
+    }
+    if (regRole === 'Teacher' && !isValidMobile(regData.mobile)) {
+      setIsRegistering(false);
+      const country = detectCountry(regData.mobile);
+      setErrors({ submit: `Mobile number must be exactly ${country.length} digits.` });
+      return;
+    }
     
     // Prepare data based on role
     let submitData = { role: regRole, password: regData.password, email: regData.email };
@@ -236,9 +250,8 @@ const FrontPage = () => {
                             <input type="text" required value={visitorName} onChange={(e) => setVisitorName(e.target.value)} placeholder="Full Name" className="w-full glass border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                             {errors.visitorName && <p className="text-red-500 text-[10px] mt-1 ml-1 text-left">{errors.visitorName}</p>}
                           </div>
-                          <div>
-                            <input type="tel" required value={visitorPhone} onChange={(e) => setVisitorPhone(e.target.value)} placeholder="Phone Number" className="w-full glass border-white/10 rounded-xl px-5 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
-                            {errors.visitorPhone && <p className="text-red-500 text-[10px] mt-1 ml-1 text-left">{errors.visitorPhone}</p>}
+                          <div className="w-full">
+                            <PhoneInput label="" value={visitorPhone} onChange={setVisitorPhone} error={errors.visitorPhone} placeholder="Phone Number" />
                           </div>
                         </>
                       ) : (
@@ -298,7 +311,7 @@ const FrontPage = () => {
                           <input type="text" required value={regData.rollNumber} onChange={(e) => setRegData({...regData, rollNumber: e.target.value})} placeholder="Roll Number" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                           <input type="text" required value={regData.course} onChange={(e) => setRegData({...regData, course: e.target.value})} placeholder="Course (e.g. B.Tech CSE)" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                           <input type="text" required value={regData.semester} onChange={(e) => setRegData({...regData, semester: e.target.value})} placeholder="Semester (e.g. 1st)" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
-                          <input type="text" required value={regData.phoneNumber} onChange={(e) => setRegData({...regData, phoneNumber: e.target.value})} placeholder="Phone Number" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                          <PhoneInput label="" value={regData.phoneNumber} onChange={(val) => setRegData({...regData, phoneNumber: val})} placeholder="Phone Number" />
                           <input type="text" required value={regData.fatherName} onChange={(e) => setRegData({...regData, fatherName: e.target.value})} placeholder="Father's Name" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                           <input type="text" required value={regData.motherName} onChange={(e) => setRegData({...regData, motherName: e.target.value})} placeholder="Mother's Name" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                         </>
@@ -308,7 +321,7 @@ const FrontPage = () => {
                         <>
                           <input type="text" required value={regData.name} onChange={(e) => setRegData({...regData, name: e.target.value})} placeholder="Full Name" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
                           <input type="text" required value={regData.department} onChange={(e) => setRegData({...regData, department: e.target.value})} placeholder="Department (e.g. Computer Science)" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
-                          <input type="text" required value={regData.mobile} onChange={(e) => setRegData({...regData, mobile: e.target.value})} placeholder="Mobile Number" className="w-full glass border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-accent/50" />
+                          <PhoneInput label="" value={regData.mobile} onChange={(val) => setRegData({...regData, mobile: val})} placeholder="Mobile Number" />
                         </>
                       )}
 

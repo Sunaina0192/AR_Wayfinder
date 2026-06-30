@@ -9,7 +9,7 @@ const admissionApplicationSchema = new mongoose.Schema({
   motherName:  { type: String, required: true },
   dob:         { type: String, required: true },
   gender:      { type: String, required: true },
-  mobile:      { type: String, required: true, match: [/^\d{10}$/, 'Mobile number must contain exactly 10 digits.'] },
+  mobile:      { type: String, required: true, match: [/^\+\d{7,15}$/, 'Mobile number must be a valid E.164 phone number starting with + and country code.'] },
   email:       { type: String, required: true, match: [/^[a-zA-Z0-9._%+-]+@gmail\.com$/i, 'Only Gmail addresses are allowed.'] },
 
   // Address

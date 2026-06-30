@@ -229,7 +229,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           }
         },
         (err) => console.warn('GPS error:', err),
-        { enableHighAccuracy: true, maximumAge: 0 }
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
       );
     }
 
@@ -247,18 +247,22 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   useEffect(() => {
     if (!userLocation || !destLat || !destLng || phase !== 'ar') return;
     
+    const now = Date.now();
     let shouldFetch = false;
     if (!lastFetchLoc.current) {
       shouldFetch = true;
     } else {
       const distSinceLastFetch = calculateDistance(userLocation.lat, userLocation.lng, lastFetchLoc.current.lat, lastFetchLoc.current.lng);
-      if (distSinceLastFetch > 5) { // refetch every 5 meters for responsive updates
+      const timeSinceLastFetch = now - lastFetchLoc.current.timestamp;
+      // Refetch if moved more than 15 meters AND at least 10 seconds have passed, 
+      // or if moved a very large distance (e.g., 50 meters) to ensure it updates when driving fast
+      if ((distSinceLastFetch > 15 && timeSinceLastFetch > 10000) || distSinceLastFetch > 50) {
         shouldFetch = true;
       }
     }
 
     if (!shouldFetch) return;
-    lastFetchLoc.current = userLocation;
+    lastFetchLoc.current = { ...userLocation, timestamp: now };
 
     const fetchRoute = async () => {
       try {
@@ -319,27 +323,34 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
 
       const cx = w / 2;
       const cy = h / 2 + 80;
-      const timeOffset = (Date.now() % 2000) / 2000;
 
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate((diff * Math.PI) / 180);
 
-      for (let i = 4; i >= 0; i--) {
-        const progress = (i + timeOffset) / 4;
-        if (progress > 1) continue;
-        const y = progress * 200;
-        const opacity = 1 - progress;
-        ctx.globalAlpha = opacity;
-        ctx.beginPath();
-        ctx.moveTo(0, -y - 30);
-        ctx.lineTo(30, -y + 10);
-        ctx.lineTo(0, -y);
-        ctx.lineTo(-30, -y + 10);
-        ctx.closePath();
-        ctx.fillStyle = hasRouteError ? '#EF4444' : (Math.abs(diff) < 30 ? '#60A5FA' : '#34D399');
-        ctx.fill();
-      }
+      // Single prominent bouncing arrow
+      const bounce = Math.sin(Date.now() / 200) * 20;
+      const y = 120 + bounce;
+
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(0, -y - 60); // Tip
+      ctx.lineTo(40, -y + 20); // Right wing
+      ctx.lineTo(15, -y + 10); // Inner right
+      ctx.lineTo(15, -y + 80); // Bottom right
+      ctx.lineTo(-15, -y + 80); // Bottom left
+      ctx.lineTo(-15, -y + 10); // Inner left
+      ctx.lineTo(-40, -y + 20); // Left wing
+      ctx.closePath();
+      
+      ctx.fillStyle = hasRouteError ? '#EF4444' : (Math.abs(diff) < 30 ? '#60A5FA' : '#34D399');
+      ctx.fill();
+      
+      // Add a stroke for better visibility
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.stroke();
+
       ctx.restore();
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -545,6 +556,13 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   const proceedToAR = useCallback(async () => {
     setError(null);
     setStarting(true);
+
+    // Unlock audio context on user interaction (launch button click)
+    if (soundEnabled && window.speechSynthesis) {
+      const dummy = new SpeechSynthesisUtterance("");
+      window.speechSynthesis.speak(dummy);
+    }
+
     try {
       if (!streamRef.current) {
         if (!navigator.mediaDevices?.getUserMedia) {
@@ -627,21 +645,6 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
     if (hasRouteError) {
       return { text: 'No path ahead: follow straight line', color: 'text-red-500', arrow: '⚠' };
     }
-    
-    let instructionText = 'Go Straight';
-    if (nextStep && nextStep.maneuver) {
-      const { type, modifier } = nextStep.maneuver;
-      if (type === 'depart') instructionText = `Head ${modifier || 'forward'}`;
-      else if (type === 'arrive') instructionText = 'You will arrive soon';
-      else if (type === 'turn') instructionText = `Turn ${modifier}`;
-      else if (type === 'continue') instructionText = `Continue ${modifier || 'straight'}`;
-      else instructionText = `${type} ${modifier || ''}`.trim();
-      
-      if (nextStep.name && nextStep.name.trim() !== '') {
-        instructionText += ` onto ${nextStep.name}`;
-      }
-      instructionText = instructionText.charAt(0).toUpperCase() + instructionText.slice(1);
-    }
 
     let diff = targetBearing - userHeading;
     if (diff < -180) diff += 360;
@@ -649,10 +652,21 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
     
     let arrow = '↑';
     let color = 'text-blue-400';
-    if (Math.abs(diff) < 30) { arrow = '↑'; color = 'text-blue-400'; }
-    else if (diff >= 30 && diff < 150) { arrow = '→'; color = 'text-emerald-400'; }
-    else if (diff <= -30 && diff > -150) { arrow = '←'; color = 'text-emerald-400'; }
-    else { arrow = '↓'; color = 'text-red-400'; }
+    let instructionText = 'Go straight';
+    
+    if (Math.abs(diff) < 30) { 
+      arrow = '↑'; color = 'text-blue-400'; instructionText = 'Go straight'; 
+    } else if (diff >= 30 && diff < 150) { 
+      arrow = '→'; color = 'text-emerald-400'; instructionText = 'Turn right'; 
+    } else if (diff <= -30 && diff > -150) { 
+      arrow = '←'; color = 'text-emerald-400'; instructionText = 'Turn left'; 
+    } else { 
+      arrow = '↓'; color = 'text-red-400'; instructionText = 'Turn around'; 
+    }
+
+    if (distance < 15) {
+      instructionText = 'You are arriving at your destination';
+    }
 
     return { text: instructionText, color, arrow };
   };

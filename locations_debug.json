@@ -625,6 +625,22 @@
   },
   {
     "coordinates": {
+      "x": 30.70043,
+      "y": 76.720355
+    },
+    "_id": "6a43a20899cd5ce54047ea34",
+    "locationId": "MY Pg Testing",
+    "name": "MY Pg Testing",
+    "description": "MY Pg Testing",
+    "category": "Facilities",
+    "explorerCategory": "Facilities",
+    "icon": "📍",
+    "createdAt": "2026-06-30T11:01:28.335Z",
+    "updatedAt": "2026-06-30T11:01:28.335Z",
+    "__v": 0
+  },
+  {
+    "coordinates": {
       "x": 31.420579,
       "y": 75.808899
     },
@@ -781,22 +797,6 @@
     "icon": "🍽️",
     "createdAt": "2026-06-18T10:29:54.723Z",
     "updatedAt": "2026-06-30T07:28:40.019Z",
-    "__v": 0
-  },
-  {
-    "coordinates": {
-      "x": 30.680285,
-      "y": 76.727551
-    },
-    "_id": "6a4383694dbbf31e494948c1",
-    "locationId": "Prerna Pg testing",
-    "name": "Prerna PG testing",
-    "description": "Prerna PG testing",
-    "category": "Facilities",
-    "explorerCategory": "Facilities",
-    "icon": "📍",
-    "createdAt": "2026-06-30T08:50:49.387Z",
-    "updatedAt": "2026-06-30T08:50:49.387Z",
     "__v": 0
   },
   {

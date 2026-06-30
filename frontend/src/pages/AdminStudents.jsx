@@ -9,6 +9,7 @@ import {
   User, Mail, Phone, BookOpen, Hash, Calendar, Settings, Database, Briefcase
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PhoneInput, isValidMobile, detectCountry } from '../components/PhoneInput';
 
 const statusStyles = {
   pending:  { bg: 'bg-amber-400/10', border: 'border-amber-400/30', text: 'text-amber-400', icon: Clock },
@@ -54,6 +55,10 @@ const EditModal = ({ student, onClose, onSave, saving }) => {
     if (!form.fullName.trim()) return setError('Full name is required.');
     if (!form.email.trim()) return setError('Email is required.');
     if (!form.phoneNumber.trim()) return setError('Phone number is required.');
+    if (!isValidMobile(form.phoneNumber)) {
+      const country = detectCountry(form.phoneNumber);
+      return setError(`Phone number must be exactly ${country.length} digits.`);
+    }
     if (!form.course) return setError('Course is required.');
     if (!form.semester) return setError('Semester is required.');
     if (!form.rollNumber.trim()) return setError('Roll number is required.');
@@ -108,9 +113,11 @@ const EditModal = ({ student, onClose, onSave, saving }) => {
             <Field label="Email" icon={Mail}>
               <input className={inputClass} type="email" value={form.email} onChange={e => handleChange('email', e.target.value)} placeholder="Email address" />
             </Field>
-            <Field label="Phone Number" icon={Phone}>
-              <input className={inputClass} type="tel" value={form.phoneNumber} onChange={e => handleChange('phoneNumber', e.target.value)} placeholder="10-digit mobile" maxLength={10} />
-            </Field>
+            <PhoneInput
+              label="Phone Number"
+              value={form.phoneNumber}
+              onChange={val => handleChange('phoneNumber', val)}
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -13,7 +13,7 @@ const ADMISSIONS_FILE = path.join(__dirname, '../../admissions_db.json');
 const router = express.Router();
 
 const isValidGmail = (email) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email);
-const isValidMobile = (mobile) => /^\d{10}$/.test(mobile);
+const isValidMobile = (mobile) => /^\+\d{7,15}$/.test(mobile);
 const isValidDocumentBase64 = (doc) => typeof doc === 'string' && doc.startsWith('data:image/');
 
 // ─── JSON File Database Helpers ─────────────────────────────────────────────

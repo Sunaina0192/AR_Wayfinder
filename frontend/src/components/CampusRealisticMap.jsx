@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -139,6 +140,7 @@ const CampusRealisticMap = ({ onBuildingSelect }) => {
   const sceneRef = useRef(null);
   const cameraRef = useRef(null);
   const rendererRef = useRef(null);
+  const controlsRef = useRef(null);
   const interactablesRef = useRef([]);
   const selectedMeshRef = useRef(null);
   const raycasterRef = useRef(new THREE.Raycaster());
@@ -171,6 +173,14 @@ const CampusRealisticMap = ({ onBuildingSelect }) => {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera from going below ground
+    controls.minDistance = 1; // Allows zooming in very close
+    controls.maxDistance = 150; // Allows zooming out further
+    controlsRef.current = controls;
 
     const ambient = new THREE.AmbientLight(0x9cc9ff, 0.55);
     scene.add(ambient);
@@ -405,11 +415,9 @@ const CampusRealisticMap = ({ onBuildingSelect }) => {
       animationId = requestAnimationFrame(animate);
       const elapsed = clock.getElapsedTime();
 
-      if (autoRotate) {
-        camera.position.x = Math.sin(elapsed * 0.13) * 25;
-        camera.position.z = Math.cos(elapsed * 0.13) * 25;
-      }
-      camera.lookAt(0, 0, 0);
+      controls.autoRotate = autoRotate;
+      controls.autoRotateSpeed = 1.5;
+      controls.update();
 
       markers.forEach((marker, index) => {
         marker.quaternion.copy(camera.quaternion);
@@ -451,8 +459,10 @@ const CampusRealisticMap = ({ onBuildingSelect }) => {
   }, [autoRotate]);
 
   const handleResetView = () => {
-    if (cameraRef.current) {
+    if (cameraRef.current && controlsRef.current) {
       cameraRef.current.position.set(-7, 20, 29);
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
       setAutoRotate(true);
     }
   };
