@@ -8,11 +8,11 @@
     "locationId": "Administrative Parking Load",
     "name": "Administrative Parking Load",
     "description": "Administrative Parking Load",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🅿️",
     "createdAt": "2026-06-18T10:37:44.810Z",
-    "updatedAt": "2026-06-18T10:37:44.810Z",
+    "updatedAt": "2026-06-30T07:28:40.407Z",
     "__v": 0
   },
   {
@@ -42,9 +42,9 @@
     "description": "",
     "category": "Administrative",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏢",
     "createdAt": "2026-06-18T07:38:08.443Z",
-    "updatedAt": "2026-06-18T07:38:08.443Z",
+    "updatedAt": "2026-06-30T07:28:39.706Z",
     "__v": 0
   },
   {
@@ -58,9 +58,9 @@
     "description": "Agricultural Gardening",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T10:21:33.330Z",
-    "updatedAt": "2026-06-18T10:21:33.330Z",
+    "updatedAt": "2026-06-30T07:28:39.803Z",
     "__v": 0
   },
   {
@@ -74,9 +74,9 @@
     "description": "Agricultural Gardening 2",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T10:23:30.073Z",
-    "updatedAt": "2026-06-18T10:23:30.073Z",
+    "updatedAt": "2026-06-30T07:28:39.852Z",
     "__v": 0
   },
   {
@@ -104,11 +104,11 @@
     "locationId": "BalleyBall Court",
     "name": "BalleyBall Court",
     "description": "BalleyBall Court",
-    "category": "Facilities",
+    "category": "Sports",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "⚽",
     "createdAt": "2026-06-18T11:32:19.392Z",
-    "updatedAt": "2026-06-18T11:32:19.392Z",
+    "updatedAt": "2026-06-30T07:28:40.880Z",
     "__v": 0
   },
   {
@@ -120,11 +120,11 @@
     "locationId": "Basketball Court",
     "name": "Basketball Court",
     "description": "Basketball Court",
-    "category": "Facilities",
+    "category": "Sports",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "⚽",
     "createdAt": "2026-06-18T11:31:08.659Z",
-    "updatedAt": "2026-06-18T11:31:08.659Z",
+    "updatedAt": "2026-06-30T07:28:40.837Z",
     "__v": 0
   },
   {
@@ -138,9 +138,9 @@
     "description": "Bhagat Pura Gurudwara inside University",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-17T16:00:32.924Z",
-    "updatedAt": "2026-06-17T16:00:32.924Z",
+    "updatedAt": "2026-06-30T07:28:39.486Z",
     "__v": 0
   },
   {
@@ -170,9 +170,9 @@
     "description": "UIET Department",
     "category": "Academic",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏫",
     "createdAt": "2026-06-17T07:07:32.602Z",
-    "updatedAt": "2026-06-17T07:07:32.602Z",
+    "updatedAt": "2026-06-30T07:28:39.321Z",
     "__v": 0
   },
   {
@@ -186,9 +186,9 @@
     "description": "Block 7 Law",
     "category": "Academic",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏫",
     "createdAt": "2026-06-17T16:02:06.000Z",
-    "updatedAt": "2026-06-17T16:02:06.000Z",
+    "updatedAt": "2026-06-30T07:28:39.525Z",
     "__v": 0
   },
   {
@@ -200,11 +200,11 @@
     "locationId": "Block 7 Parking",
     "name": "Block 7 Parking",
     "description": "Block 7 Parking",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🅿️",
     "createdAt": "2026-06-18T10:28:04.706Z",
-    "updatedAt": "2026-06-18T10:28:04.706Z",
+    "updatedAt": "2026-06-30T07:28:39.978Z",
     "__v": 0
   },
   {
@@ -216,11 +216,11 @@
     "locationId": "Boys GYM",
     "name": "Boys GYM",
     "description": "allowed for boys only",
-    "category": "Facilities",
+    "category": "Sports",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "⚽",
     "createdAt": "2026-06-17T07:41:02.984Z",
-    "updatedAt": "2026-06-17T07:41:02.984Z",
+    "updatedAt": "2026-06-30T07:28:39.443Z",
     "__v": 0
   },
   {
@@ -232,11 +232,11 @@
     "locationId": "Boys Hostel 1",
     "name": "Boys Hostel 1",
     "description": "Boys Hostel 1",
-    "category": "Facilities",
+    "category": "Hostels",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏨",
     "createdAt": "2026-06-18T10:36:27.679Z",
-    "updatedAt": "2026-06-18T10:36:27.679Z",
+    "updatedAt": "2026-06-30T07:28:40.346Z",
     "__v": 0
   },
   {
@@ -248,11 +248,11 @@
     "locationId": "Boys Hostel 2",
     "name": "Boys Hostel 2",
     "description": "Boys Hostel 2",
-    "category": "Facilities",
+    "category": "Hostels",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏨",
     "createdAt": "2026-06-18T10:32:56.979Z",
-    "updatedAt": "2026-06-18T10:32:56.979Z",
+    "updatedAt": "2026-06-30T07:28:40.157Z",
     "__v": 0
   },
   {
@@ -264,11 +264,11 @@
     "locationId": "Boys Hostel Parking",
     "name": "Boys Hostel Parking",
     "description": "Boys Hostel Parking",
-    "category": "Facilities",
+    "category": "Hostels",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏨",
     "createdAt": "2026-06-18T10:31:57.216Z",
-    "updatedAt": "2026-06-18T10:31:57.216Z",
+    "updatedAt": "2026-06-30T07:28:40.109Z",
     "__v": 0
   },
   {
@@ -280,11 +280,11 @@
     "locationId": "Boys Washroom Outside",
     "name": "Boys Washroom Outside",
     "description": "Boys Washroom Outside",
-    "category": "Facilities",
+    "category": "Academic",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏫",
     "createdAt": "2026-06-18T10:34:18.248Z",
-    "updatedAt": "2026-06-18T10:34:18.248Z",
+    "updatedAt": "2026-06-30T07:28:40.238Z",
     "__v": 0
   },
   {
@@ -298,9 +298,9 @@
     "description": "Burgad Tree",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T10:19:03.416Z",
-    "updatedAt": "2026-06-18T10:19:03.416Z",
+    "updatedAt": "2026-06-30T07:28:39.755Z",
     "__v": 0
   },
   {
@@ -312,11 +312,11 @@
     "locationId": "Bus Captain Office",
     "name": "Bus Captain Office",
     "description": "Bus Captain Office",
-    "category": "Facilities",
+    "category": "Administrative",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🏢",
     "createdAt": "2026-06-18T11:36:35.001Z",
-    "updatedAt": "2026-06-18T11:36:35.001Z",
+    "updatedAt": "2026-06-30T07:28:41.029Z",
     "__v": 0
   },
   {
@@ -328,11 +328,11 @@
     "locationId": "Bus Card Office",
     "name": "Bus Card Office",
     "description": "Bus Card Office",
-    "category": "Facilities",
+    "category": "Administrative",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🏢",
     "createdAt": "2026-06-18T11:37:13.113Z",
-    "updatedAt": "2026-06-18T11:37:13.113Z",
+    "updatedAt": "2026-06-30T07:28:41.088Z",
     "__v": 0
   },
   {
@@ -360,11 +360,11 @@
     "locationId": "Bus Parking",
     "name": "Bus Parking",
     "description": "Bus Parking",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🅿️",
     "createdAt": "2026-06-18T11:40:21.048Z",
-    "updatedAt": "2026-06-18T11:40:21.048Z",
+    "updatedAt": "2026-06-30T07:28:41.172Z",
     "__v": 0
   },
   {
@@ -376,11 +376,11 @@
     "locationId": "Bus Shed",
     "name": "Bus Shed",
     "description": "Bus Shed",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🅿️",
     "createdAt": "2026-06-18T11:39:13.952Z",
-    "updatedAt": "2026-06-18T11:39:13.952Z",
+    "updatedAt": "2026-06-30T07:28:41.131Z",
     "__v": 0
   },
   {
@@ -408,11 +408,11 @@
     "locationId": "Entry Gate Office",
     "name": "Entry Gate Office",
     "description": "Entry Gate Office",
-    "category": "Facilities",
+    "category": "Administrative",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🏢",
     "createdAt": "2026-06-18T11:35:39.507Z",
-    "updatedAt": "2026-06-18T11:35:39.507Z",
+    "updatedAt": "2026-06-30T07:28:40.979Z",
     "__v": 0
   },
   {
@@ -440,11 +440,11 @@
     "locationId": "Exit Gate 3",
     "name": "Exit Gate 3",
     "description": "Exit Gate 3",
-    "category": "Academic",
+    "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T10:27:07.223Z",
-    "updatedAt": "2026-06-18T10:27:07.223Z",
+    "updatedAt": "2026-06-30T07:28:39.936Z",
     "__v": 0
   },
   {
@@ -456,11 +456,11 @@
     "locationId": "Fees Payment ",
     "name": "Fees Payment ",
     "description": "Fees Payment ",
-    "category": "Facilities",
+    "category": "Administrative",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏢",
     "createdAt": "2026-06-18T10:38:23.704Z",
-    "updatedAt": "2026-06-18T10:38:23.704Z",
+    "updatedAt": "2026-06-30T07:28:40.477Z",
     "__v": 0
   },
   {
@@ -472,11 +472,11 @@
     "locationId": "Football Ground",
     "name": "Football Ground",
     "description": "Football Ground",
-    "category": "Facilities",
+    "category": "Sports",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "⚽",
     "createdAt": "2026-06-18T11:22:20.533Z",
-    "updatedAt": "2026-06-18T11:22:20.533Z",
+    "updatedAt": "2026-06-30T07:28:40.792Z",
     "__v": 0
   },
   {
@@ -488,11 +488,11 @@
     "locationId": "Football Stadium",
     "name": "Football Stadium",
     "description": "Football Stadium",
-    "category": "Facilities",
+    "category": "Sports",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "⚽",
     "createdAt": "2026-06-18T11:19:42.035Z",
-    "updatedAt": "2026-06-18T11:19:42.035Z",
+    "updatedAt": "2026-06-30T07:28:40.708Z",
     "__v": 0
   },
   {
@@ -504,11 +504,11 @@
     "locationId": "Girls Canteen",
     "name": "Girls Canteen",
     "description": "Girls Canteen",
-    "category": "Facilities",
+    "category": "Cafeteria",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🍽️",
     "createdAt": "2026-06-18T11:19:05.257Z",
-    "updatedAt": "2026-06-18T11:19:05.257Z",
+    "updatedAt": "2026-06-30T07:28:40.660Z",
     "__v": 0
   },
   {
@@ -520,11 +520,11 @@
     "locationId": "Girls Hostel 1",
     "name": "Girls Hostel 1",
     "description": "Girls Hostel 1",
-    "category": "Facilities",
+    "category": "Hostels",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🏨",
     "createdAt": "2026-06-18T11:17:29.340Z",
-    "updatedAt": "2026-06-18T11:17:29.340Z",
+    "updatedAt": "2026-06-30T07:28:40.619Z",
     "__v": 0
   },
   {
@@ -552,11 +552,11 @@
     "locationId": "Girls Warden Office",
     "name": "Girls Warden Office",
     "description": "Girls Warden Office",
-    "category": "Facilities",
+    "category": "Hostels",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🏨",
     "createdAt": "2026-06-18T11:20:29.789Z",
-    "updatedAt": "2026-06-18T11:20:29.789Z",
+    "updatedAt": "2026-06-30T07:28:40.751Z",
     "__v": 0
   },
   {
@@ -570,9 +570,9 @@
     "description": "Green House",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T10:25:11.915Z",
-    "updatedAt": "2026-06-18T10:25:11.915Z",
+    "updatedAt": "2026-06-30T07:28:39.896Z",
     "__v": 0
   },
   {
@@ -586,9 +586,9 @@
     "description": "ACVW",
     "category": "Academic",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏫",
     "createdAt": "2026-06-16T10:22:24.081Z",
-    "updatedAt": "2026-06-16T10:22:24.081Z",
+    "updatedAt": "2026-06-30T07:28:39.209Z",
     "__v": 0
   },
   {
@@ -600,27 +600,27 @@
     "locationId": "Ladies Washroom Outside",
     "name": "Ladies Washroom Outside",
     "description": "Ladies Washroom Outside",
-    "category": "Facilities",
+    "category": "Academic",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🏫",
     "createdAt": "2026-06-18T10:33:40.005Z",
-    "updatedAt": "2026-06-18T10:33:40.005Z",
+    "updatedAt": "2026-06-30T07:28:40.198Z",
     "__v": 0
   },
   {
     "coordinates": {
-      "x": 31.421971,
-      "y": 75.808893
+      "x": 31.421928,
+      "y": 75.808894
     },
-    "_id": "6a37c5409f32a824398153a1",
-    "locationId": "Library ",
+    "_id": "6a436f8179db7e0a329248f1",
+    "locationId": "Library",
     "name": "Library",
-    "description": "",
-    "category": "Facilities",
+    "description": "Library",
+    "category": "Library",
     "explorerCategory": "Facilities",
-    "icon": "📍",
-    "createdAt": "2026-06-21T11:04:32.481Z",
-    "updatedAt": "2026-06-21T11:04:32.481Z",
+    "icon": "📚",
+    "createdAt": "2026-06-30T07:25:53.713Z",
+    "updatedAt": "2026-06-30T07:25:53.713Z",
     "__v": 0
   },
   {
@@ -648,11 +648,11 @@
     "locationId": "Main Canteen For ALL",
     "name": "Main Canteen For ALL",
     "description": "Main Canteen For ALL",
-    "category": "Facilities",
+    "category": "Cafeteria",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🍽️",
     "createdAt": "2026-06-18T10:30:44.477Z",
-    "updatedAt": "2026-06-18T10:30:44.477Z",
+    "updatedAt": "2026-06-30T07:28:40.062Z",
     "__v": 0
   },
   {
@@ -682,9 +682,9 @@
     "description": "",
     "category": "Sports",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "⚽",
     "createdAt": "2026-06-18T06:12:20.950Z",
-    "updatedAt": "2026-06-18T06:12:20.950Z",
+    "updatedAt": "2026-06-30T07:28:39.587Z",
     "__v": 0
   },
   {
@@ -728,11 +728,11 @@
     "locationId": "Nursing Block Parking",
     "name": "Nursing Block Parking",
     "description": "Nursing Block Parking",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🅿️",
     "createdAt": "2026-06-18T11:12:21.898Z",
-    "updatedAt": "2026-06-18T11:12:21.898Z",
+    "updatedAt": "2026-06-30T07:28:40.574Z",
     "__v": 0
   },
   {
@@ -776,11 +776,27 @@
     "locationId": "Pizza Peddler",
     "name": "Pizza Peddler",
     "description": "Pizza Peddler",
-    "category": "Facilities",
+    "category": "Cafeteria",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🍽️",
     "createdAt": "2026-06-18T10:29:54.723Z",
-    "updatedAt": "2026-06-18T10:29:54.723Z",
+    "updatedAt": "2026-06-30T07:28:40.019Z",
+    "__v": 0
+  },
+  {
+    "coordinates": {
+      "x": 30.923748,
+      "y": 77.098634
+    },
+    "_id": "6a3f57d2ae1bffdc4407005c",
+    "locationId": "Medical ",
+    "name": "Room",
+    "description": "Medical room on 1 floor room no.201",
+    "category": "Academic",
+    "explorerCategory": "Facilities",
+    "icon": "🏫",
+    "createdAt": "2026-06-27T04:55:46.200Z",
+    "updatedAt": "2026-06-27T04:55:46.200Z",
     "__v": 0
   },
   {
@@ -808,11 +824,11 @@
     "locationId": "School Ground",
     "name": "School Ground",
     "description": "School Ground",
-    "category": "Facilities",
+    "category": "Academic",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🏫",
     "createdAt": "2026-06-18T11:33:13.232Z",
-    "updatedAt": "2026-06-18T11:33:13.232Z",
+    "updatedAt": "2026-06-30T07:28:40.924Z",
     "__v": 0
   },
   {
@@ -840,11 +856,11 @@
     "locationId": "Student Parking",
     "name": "Student Parking",
     "description": "Only Students want to park vehicles",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "🅿️",
     "createdAt": "2026-06-17T07:14:34.265Z",
-    "updatedAt": "2026-06-17T07:14:34.265Z",
+    "updatedAt": "2026-06-30T07:28:39.393Z",
     "__v": 0
   },
   {
@@ -856,11 +872,11 @@
     "locationId": "Teachers Parking",
     "name": "Teachers Parking",
     "description": "Teachers Parking",
-    "category": "Facilities",
+    "category": "Parking",
     "explorerCategory": "Facilities",
-    "icon": "📍",
+    "icon": "🅿️",
     "createdAt": "2026-06-18T11:40:51.857Z",
-    "updatedAt": "2026-06-18T11:40:51.857Z",
+    "updatedAt": "2026-06-30T07:28:41.218Z",
     "__v": 0
   },
   {
@@ -906,9 +922,9 @@
     "description": "Water Cooler 2",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T10:34:56.893Z",
-    "updatedAt": "2026-06-18T10:34:56.893Z",
+    "updatedAt": "2026-06-30T07:28:40.287Z",
     "__v": 0
   },
   {
@@ -954,9 +970,9 @@
     "description": "",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
+    "icon": "📍",
     "createdAt": "2026-06-18T07:24:25.013Z",
-    "updatedAt": "2026-06-18T07:24:25.013Z",
+    "updatedAt": "2026-06-30T07:28:39.655Z",
     "__v": 0
   },
   {
@@ -970,41 +986,9 @@
     "description": "X-Ray Room",
     "category": "Facilities",
     "explorerCategory": "Facilities",
-    "icon": "01",
-    "createdAt": "2026-06-18T10:46:40.570Z",
-    "updatedAt": "2026-06-18T10:46:40.570Z",
-    "__v": 0
-  },
-  {
-    "coordinates": {
-      "x": 30.677873,
-      "y": 76.723172
-    },
-    "_id": "6a35151712a0f25b2528ec9b",
-    "locationId": "mall",
-    "name": "mall",
-    "description": "mall",
-    "category": "Facilities",
-    "explorerCategory": "Facilities",
     "icon": "📍",
-    "createdAt": "2026-06-19T10:08:23.196Z",
-    "updatedAt": "2026-06-19T10:08:23.196Z",
-    "__v": 0
-  },
-  {
-    "coordinates": {
-      "x": 30.700452,
-      "y": 76.72035
-    },
-    "_id": "6a33899a3448b7fded52079e",
-    "locationId": "865hn ",
-    "name": "sec 70 mohali ",
-    "description": "my pg",
-    "category": "Facilities",
-    "explorerCategory": "Facilities",
-    "icon": "01",
-    "createdAt": "2026-06-18T06:00:58.604Z",
-    "updatedAt": "2026-06-18T06:00:58.604Z",
+    "createdAt": "2026-06-18T10:46:40.570Z",
+    "updatedAt": "2026-06-30T07:28:40.525Z",
     "__v": 0
   }
 ]

@@ -68,6 +68,7 @@ mongoose.connect(process.env.MONGO_URI, {
 })
   .then(async () => {
     console.log('MongoDB Atlas connected')
+    
     try {
       const locations = await mongoose.model('Location').find().sort({ name: 1 })
       fs.writeFileSync(path.join(ROOT_DIR, 'locations_debug.json'), JSON.stringify(locations, null, 2), 'utf-8')

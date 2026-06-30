@@ -8,12 +8,45 @@ const formatDist = (m) => {
   return `${(m / 1000).toFixed(1)}km away`;
 };
 
+const calculateCompassHeading = (alpha, beta, gamma) => {
+  const degToRad = Math.PI / 180;
+  const alphaRad = alpha * degToRad;
+  const betaRad = beta * degToRad;
+  const gammaRad = gamma * degToRad;
+
+  const cA = Math.cos(alphaRad);
+  const sA = Math.sin(alphaRad);
+  const cB = Math.cos(betaRad);
+  const sB = Math.sin(betaRad);
+  const cG = Math.cos(gammaRad);
+  const sG = Math.sin(gammaRad);
+
+  let heading = 0;
+  // If the device is held upright/vertical (beta > 45 or beta < -45)
+  if (Math.abs(beta) > 45) {
+    const rA = -sA * cG - cA * sB * sG;
+    const rB = cA * cG - sA * sB * sG;
+    heading = Math.atan2(rA, rB) * (180 / Math.PI);
+  } else {
+    // If the device is held flat/horizontal
+    const rA = -cA * sG - sA * sB * cG;
+    const rB = -sA * sG + cA * sB * cG;
+    heading = Math.atan2(rA, rB) * (180 / Math.PI);
+  }
+
+  if (heading < 0) {
+    heading += 360;
+  }
+  return heading;
+};
+
 const ARNavigator = ({ destination, locationData, onExit }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
   const animationRef = useRef(null);
   const watchIdRef = useRef(null);
+  const isFirstHeading = useRef(true);
 
   const [phase, setPhase] = useState('launch'); // 'launch' | 'ar'
   const [viewMode, setViewMode] = useState('camera'); // 'camera' | 'map'
@@ -28,12 +61,34 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
 
   const [routeData, setRouteData] = useState(null);
   const [nextStep, setNextStep] = useState(null);
+  const [hasRouteError, setHasRouteError] = useState(false);
   const lastFetchLoc = useRef(null);
   
   const [showDescription, setShowDescription] = useState(false);
 
   // Lazy-load Leaflet only when needed
   const [LeafletMap, setLeafletMap] = useState(null);
+
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  // Track window resizing and orientation changes dynamically
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
 
   const rawX = locationData?.coordinates?.x ?? 0;
   const rawY = locationData?.coordinates?.y ?? 0;
@@ -70,10 +125,47 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
     if (phase !== 'ar') return;
 
     const handleOrientation = (e) => {
-      const h = e.webkitCompassHeading ?? Math.abs((e.alpha ?? 0) - 360);
-      setUserHeading(h);
+      let heading = null;
+      const screenAngle = window.screen?.orientation?.angle ?? window.orientation ?? 0;
+      const normalizedScreenAngle = screenAngle < 0 ? screenAngle + 360 : screenAngle;
+
+      if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) {
+        // iOS Safari webkitCompassHeading is absolute, but needs correction for screen orientation angle
+        heading = (e.webkitCompassHeading + normalizedScreenAngle) % 360;
+      } else if (e.alpha !== null && e.alpha !== undefined) {
+        // Android / general browsers
+        if (e.beta !== null && e.beta !== undefined && e.gamma !== null && e.gamma !== undefined) {
+          // Compute correct 3D compass heading from Euler angles
+          heading = calculateCompassHeading(e.alpha, e.beta, e.gamma);
+        } else {
+          // Fallback if beta/gamma are missing
+          heading = 360 - e.alpha;
+        }
+        // Adjust for screen orientation angle
+        heading = (heading + normalizedScreenAngle) % 360;
+      }
+
+      if (heading !== null) {
+        if (isFirstHeading.current) {
+          setUserHeading(heading);
+          isFirstHeading.current = false;
+        } else {
+          setUserHeading(prev => {
+            let diff = heading - prev;
+            if (diff < -180) diff += 360;
+            if (diff > 180) diff -= 360;
+            return (prev + diff * 0.15 + 360) % 360; // Exponential moving average (smooths out jitter)
+          });
+        }
+      }
     };
-    window.addEventListener('deviceorientation', handleOrientation, true);
+
+    isFirstHeading.current = true;
+
+    // Use absolute orientation events if supported (preferred on Android for absolute heading)
+    const hasAbsoluteEvent = 'ondeviceorientationabsolute' in window;
+    const eventName = hasAbsoluteEvent ? 'deviceorientationabsolute' : 'deviceorientation';
+    window.addEventListener(eventName, handleOrientation, true);
 
     if ('geolocation' in navigator) {
       watchIdRef.current = navigator.geolocation.watchPosition(
@@ -90,7 +182,8 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
     }
 
     return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener(eventName, handleOrientation, true);
+      isFirstHeading.current = true;
       if (watchIdRef.current) {
         navigator.geolocation?.clearWatch(watchIdRef.current);
         watchIdRef.current = null;
@@ -107,7 +200,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       shouldFetch = true;
     } else {
       const distSinceLastFetch = calculateDistance(userLocation.lat, userLocation.lng, lastFetchLoc.current.lat, lastFetchLoc.current.lng);
-      if (distSinceLastFetch > 15) { // refetch every 15 meters
+      if (distSinceLastFetch > 5) { // refetch every 5 meters for responsive updates
         shouldFetch = true;
       }
     }
@@ -123,6 +216,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           const route = data.routes[0];
           const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
           setRouteData(coords);
+          setHasRouteError(false);
           
           if (route.legs && route.legs.length > 0) {
             const steps = route.legs[0].steps;
@@ -132,9 +226,14 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
               setNextStep(steps[0]);
             }
           }
+        } else {
+          setHasRouteError(true);
+          setNextStep(null);
         }
       } catch (e) {
         console.error('OSRM fetch error', e);
+        setHasRouteError(true);
+        setNextStep(null);
       }
     };
     
@@ -186,7 +285,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
         ctx.lineTo(0, -y);
         ctx.lineTo(-30, -y + 10);
         ctx.closePath();
-        ctx.fillStyle = Math.abs(diff) < 30 ? '#60A5FA' : '#34D399';
+        ctx.fillStyle = hasRouteError ? '#EF4444' : (Math.abs(diff) < 30 ? '#60A5FA' : '#34D399');
         ctx.fill();
       }
       ctx.restore();
@@ -195,7 +294,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
 
     if (animationRef.current) cancelAnimationFrame(animationRef.current);
     animationRef.current = requestAnimationFrame(animate);
-  }, [targetBearing, userHeading, viewMode]);
+  }, [targetBearing, userHeading, viewMode, hasRouteError]);
 
   // Start/stop arrow animation
   useEffect(() => {
@@ -237,8 +336,9 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           return null;
         };
 
-        const MapComp = ({ userLoc, dLat, dLng, rData }) => {
+        const MapComp = ({ userLoc, dLat, dLng, rData, heading, routeError }) => {
           const [mapType, setMapType] = useState('street');
+          const [isCompassMode, setIsCompassMode] = useState(true);
           const tileUrl = mapType === 'street' 
             ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
@@ -255,25 +355,44 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
               <p className="text-slate-400 text-sm max-w-xs">This location was added without GPS coordinates. Ask your admin to re-add it using the "Get My Location" button.</p>
             </div>
           );
+
+          const currentRotation = isCompassMode ? (heading || 0) : 0;
+
           return (
-            <div className="relative w-full h-full">
-              <MapContainer center={[userLoc.lat, userLoc.lng]} zoom={18} className="w-full h-full" zoomControl={false}>
-                <TileLayer url={tileUrl} />
-                <Recenter lat={userLoc.lat} lng={userLoc.lng} />
-                <Marker position={[userLoc.lat, userLoc.lng]} icon={userIcon} />
-                <Marker position={[dLat, dLng]} icon={destIcon} />
-                {rData ? (
-                  <Polyline positions={rData} color={mapType === 'satellite' ? "#60A5FA" : "#3B82F6"} weight={6} opacity={0.8} />
-                ) : (
-                  <Polyline positions={[[userLoc.lat, userLoc.lng], [dLat, dLng]]} color="#3B82F6" weight={5} opacity={0.8} dashArray="12, 8" />
-                )}
-              </MapContainer>
-              <button 
-                onClick={(e) => { e.stopPropagation(); setMapType(prev => prev === 'street' ? 'satellite' : 'street'); }}
-                className="absolute top-4 right-4 z-[999] bg-white text-black px-4 py-2 rounded-xl shadow-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all"
+            <div className="relative w-full h-full overflow-hidden bg-slate-950">
+              <div 
+                className="absolute w-[160%] h-[160%] top-[-30%] left-[-30%] transition-transform duration-300 ease-out"
+                style={{ transform: `rotate(${-currentRotation}deg)` }}
               >
-                {mapType === 'street' ? '🌳 Green Map' : '🗺️ Street Map'}
-              </button>
+                <MapContainer center={[userLoc.lat, userLoc.lng]} zoom={18} className="w-full h-full" zoomControl={false}>
+                  <TileLayer url={tileUrl} />
+                  <Recenter lat={userLoc.lat} lng={userLoc.lng} />
+                  <Marker position={[userLoc.lat, userLoc.lng]} icon={userIcon} />
+                  <Marker position={[dLat, dLng]} icon={destIcon} />
+                  {rData && !routeError ? (
+                    <Polyline positions={rData} color={mapType === 'satellite' ? "#60A5FA" : "#3B82F6"} weight={6} opacity={0.8} />
+                  ) : (
+                    <Polyline positions={[[userLoc.lat, userLoc.lng], [dLat, dLng]]} color="#EF4444" weight={5} opacity={0.8} dashArray="12, 8" />
+                  )}
+                </MapContainer>
+              </div>
+              
+              <div className="absolute top-4 right-4 z-[999] flex flex-col gap-2">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setMapType(prev => prev === 'street' ? 'satellite' : 'street'); }}
+                  className="bg-white text-black px-4 py-2 rounded-xl shadow-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all text-center"
+                >
+                  {mapType === 'street' ? '🌳 Green Map' : '🗺️ Street Map'}
+                </button>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setIsCompassMode(prev => !prev); }}
+                  className={`px-4 py-2 rounded-xl shadow-xl font-bold text-sm hover:scale-105 active:scale-95 transition-all text-center ${
+                    isCompassMode ? 'bg-blue-600 text-white' : 'bg-white text-black'
+                  }`}
+                >
+                  🧭 {isCompassMode ? 'Heading Up' : 'North Up'}
+                </button>
+              </div>
             </div>
           );
         };
@@ -294,6 +413,19 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       if (!navigator.mediaDevices?.getUserMedia) {
         throw new Error('Camera requires HTTPS connection');
       }
+
+      // Request device orientation permission for iOS 13+
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          if (permission !== 'granted') {
+            throw new Error('Orientation/Motion sensor access was denied.');
+          }
+        } catch (perr) {
+          throw new Error('Sensor permission failed: ' + perr.message);
+        }
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }, audio: false,
       });
@@ -318,6 +450,10 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   // Instruction text
   const getInstruction = () => {
     if (!userLocation || distance === null) return { text: 'Locating you...', color: 'text-slate-300', arrow: '⊙' };
+    
+    if (hasRouteError) {
+      return { text: 'No path ahead: follow straight line', color: 'text-red-500', arrow: '⚠' };
+    }
     
     let instructionText = 'Go Straight';
     if (nextStep && nextStep.maneuver) {
@@ -424,8 +560,8 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           {viewMode === 'camera' && (
             <canvas
               ref={canvasRef}
-              width={window.innerWidth}
-              height={window.innerHeight}
+              width={dimensions.width}
+              height={dimensions.height}
               className="absolute inset-0 w-full h-full pointer-events-none z-10"
             />
           )}
@@ -434,7 +570,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
           {viewMode === 'map' && (
             <div className="absolute inset-0 z-0">
               {LeafletMap ? (
-                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} />
+                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} heading={userHeading} routeError={hasRouteError} />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400">Loading map...</div>
               )}
@@ -448,7 +584,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
               onClick={() => setViewMode('map')}
             >
               {LeafletMap ? (
-                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} />
+                <LeafletMap userLoc={userLocation} dLat={destLat} dLng={destLng} rData={routeData} heading={userHeading} routeError={hasRouteError} />
               ) : (
                 <div className="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500 text-[10px] md:text-xs font-bold">MAP</div>
               )}

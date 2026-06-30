@@ -83,18 +83,8 @@ const Navigator = () => {
           };
         });
 
-        // Merge backend locations with local campusLocations
-        const mergedLocations = [...campusLocations];
-        backendLocs.forEach(bLoc => {
-          const idx = mergedLocations.findIndex(cLoc => cLoc.id === bLoc.id);
-          if (idx >= 0) {
-            mergedLocations[idx] = { ...mergedLocations[idx], ...bLoc };
-          } else {
-            mergedLocations.push(bLoc);
-          }
-        });
+        setAllLocations(backendLocs);
 
-        setAllLocations(mergedLocations);
       } catch (error) {
         console.error('Unable to load backend locations', error);
         setAllLocations(campusLocations); // Fallback to local hardcoded locations
@@ -170,6 +160,15 @@ const Navigator = () => {
 
   const filteredLocations = useMemo(() => allLocations.filter(
     (loc) => {
+      // Exclude entry gate locations from the destinations list
+      if (
+        loc.id === 'entry-gate' || 
+        loc.name === 'Main Entry Gate' || 
+        loc.id === 'Main Entry & Exit Gate' || 
+        loc.name === 'Main Entry & Exit Gate'
+      ) {
+        return false;
+      }
       const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         loc.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === 'All' || loc.category === selectedCategory;

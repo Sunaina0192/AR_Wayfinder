@@ -206,10 +206,14 @@ const LocationModal = ({ onClose, onSave, saving, initialData }) => {
           <select className={inputClass} value={form.category} onChange={e => handleChange('category', e.target.value)}>
             <option value="Academic" className="bg-dark">Academic</option>
             <option value="Administrative" className="bg-dark">Administrative</option>
-            <option value="Facilities" className="bg-dark">Facilities</option>
-            <option value="Sports" className="bg-dark">Sports</option>
+            <option value="Library" className="bg-dark">Library</option>
             <option value="Hostels" className="bg-dark">Hostels</option>
+            <option value="Sports" className="bg-dark">Sports</option>
+            <option value="Facilities" className="bg-dark">Facilities</option>
+            <option value="Cafeteria" className="bg-dark">Cafeteria</option>
+            <option value="Parking" className="bg-dark">Parking</option>
           </select>
+
           
           <div className="space-y-3 pt-2 border-t border-white/5">
             <div className="flex justify-between items-center">
