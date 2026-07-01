@@ -206,7 +206,7 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
             let diff = heading - prev;
             if (diff < -180) diff += 360;
             if (diff > 180) diff -= 360;
-            return (prev + diff * 0.15 + 360) % 360; // Exponential moving average (smooths out jitter)
+            return (prev + diff * 0.05 + 360) % 360; // Exponential moving average (smooths out jitter)
           });
         }
       }
@@ -664,8 +664,8 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       arrow = '↓'; color = 'text-red-400'; instructionText = 'Turn around'; 
     }
 
-    if (distance < 15) {
-      instructionText = 'You are arriving at your destination';
+    if (distance <= 20) {
+      instructionText = 'You have arrived at your destination';
     }
 
     return { text: instructionText, color, arrow };
@@ -676,7 +676,9 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
   const instr = getInstruction();
 
   // Audio instruction
-  const lastSpokenText = useRef('');
+  const hasSpokenStart = useRef(false);
+  const hasSpokenArrival = useRef(false);
+  
   useEffect(() => {
     if (phase !== 'ar' || !window.speechSynthesis || !soundEnabled) {
       if (!soundEnabled && window.speechSynthesis) {
@@ -684,20 +686,32 @@ const ARNavigator = ({ destination, locationData, onExit }) => {
       }
       return;
     }
-    if (instr.text && instr.text !== lastSpokenText.current && instr.text !== 'Locating you...') {
-      lastSpokenText.current = instr.text;
-      
-      const distSpeech = distance !== null ? (distance < 1000 ? `${distance} meters away` : `${(distance / 1000).toFixed(1)} kilometers away`) : '';
-      const utterance = new SpeechSynthesisUtterance(`${instr.text}. ${distSpeech}`);
-      
+    
+    if (distance === null || instr.text === 'Locating you...') return;
+
+    let shouldSpeak = false;
+    let textToSpeak = '';
+
+    if (!hasSpokenStart.current) {
+      hasSpokenStart.current = true;
+      shouldSpeak = true;
+      const distSpeech = distance < 1000 ? `${distance} meters away` : `${(distance / 1000).toFixed(1)} kilometers away`;
+      textToSpeak = `Navigation started to ${displayName}. ${distSpeech}`;
+    } else if (distance <= 20 && !hasSpokenArrival.current) {
+      hasSpokenArrival.current = true;
+      shouldSpeak = true;
+      textToSpeak = `You have arrived at your destination`;
+    }
+
+    if (shouldSpeak) {
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
       const voices = window.speechSynthesis.getVoices();
       const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Google'))) || voices.find(v => v.lang.startsWith('en'));
       if (englishVoice) utterance.voice = englishVoice;
-      
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     }
-  }, [instr.text, phase, distance, soundEnabled]);
+  }, [phase, distance, soundEnabled, displayName, instr.text]);
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col overflow-hidden select-none">

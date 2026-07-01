@@ -15,8 +15,18 @@ const Campus3DView = ({ onBuildingSelect }) => {
   const mouseRef = useRef(new THREE.Vector2());
   const [hoveredBuilding, setHoveredBuilding] = useState(null);
   const [autoRotate, setAutoRotate] = useState(true);
+  const autoRotateRef = useRef(autoRotate);
+  const onBuildingSelectRef = useRef(onBuildingSelect);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    autoRotateRef.current = autoRotate;
+  }, [autoRotate]);
+
+  useEffect(() => {
+    onBuildingSelectRef.current = onBuildingSelect;
+  }, [onBuildingSelect]);
 
   const campusBuildings = [
     { id: 'entry-gate', name: 'Entry Gate', pos: [0, 1, -5], color: 0x00d4ff, height: 1.5 },
@@ -167,8 +177,8 @@ const Campus3DView = ({ onBuildingSelect }) => {
 
       if (intersects.length > 0) {
         const hit = intersects[0].object;
-        if (hit.userData.id && onBuildingSelect) {
-          onBuildingSelect(hit.userData);
+        if (hit.userData.id && onBuildingSelectRef.current) {
+          onBuildingSelectRef.current(hit.userData);
         }
       }
     };
@@ -192,7 +202,7 @@ const Campus3DView = ({ onBuildingSelect }) => {
     const animate = () => {
       animationId = requestAnimationFrame(animate);
 
-      controls.autoRotate = autoRotate;
+      controls.autoRotate = autoRotateRef.current;
       controls.autoRotateSpeed = 1.5;
       controls.update();
 
@@ -215,7 +225,7 @@ const Campus3DView = ({ onBuildingSelect }) => {
       window.removeEventListener('resize', onWindowResize);
       containerRef.current?.removeChild(renderer.domElement);
     };
-  }, [onBuildingSelect, autoRotate]);
+  }, []);
 
   const handleResetView = () => {
     if (cameraRef.current && controlsRef.current) {
